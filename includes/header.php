@@ -1,0 +1,130 @@
+<?php
+// Determine the correct base path
+$request_uri = $_SERVER['REQUEST_URI'];
+$script_name = $_SERVER['SCRIPT_NAME'];
+$base_path = str_replace('\\', '/', dirname($script_name));
+
+// Calculate how many levels deep we are
+$current_dir = dirname($_SERVER['PHP_SELF']);
+$levels_deep = substr_count($current_dir, '/');
+$relative_path = str_repeat('../', $levels_deep - 1);
+
+// For root level pages, use direct paths
+if ($levels_deep <= 1) {
+    $relative_path = './';
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo isset($page_title) ? $page_title : 'Bridge Ministries International'; ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="<?php echo $relative_path; ?>assets/css/header.css" rel="stylesheet">
+    <link href="<?php echo $relative_path; ?>assets/css/footer.css" rel="stylesheet">
+    <?php if (isset($additional_css)): ?>
+        <?php echo $additional_css; ?>
+    <?php endif; ?>
+</head>
+</head>
+<body>
+    <!-- Professional Header Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-modern">
+        <div class="container-fluid">
+            <div class="row w-100 align-items-center">
+                <!-- Brand Section -->
+                <div class="col-lg-4 col-md-6">
+                    <a class="navbar-brand" href="<?php echo $relative_path; ?>index.php">
+                        <img src="<?php echo $relative_path; ?>assets/css/image/bmi logo.png" alt="BMI Logo" style="height: 40px; width: auto; margin-right: 10px; border-radius: 6px;">
+                        <span>BMI ATTENDANCE</span>
+                    </a>
+                </div>
+
+                <!-- Mobile Toggle -->
+                <div class="col-6 d-lg-none text-end">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <i class="bi bi-list"></i>
+                    </button>
+                </div>
+
+                <!-- Navigation Section -->
+                <div class="col-lg-8 col-md-6">
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : ''; ?>" 
+                                   href="<?php echo $relative_path; ?>index.php" title="Dashboard">
+                                    <i class="bi bi-speedometer2"></i>
+                                    <span>Dashboard</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], 'members') !== false ? 'active' : ''; ?>" 
+                                   href="<?php echo $relative_path; ?>pages/members/list.php" title="Members Management">
+                                    <i class="bi bi-people-fill"></i>
+                                    <span>Members</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], 'visitors') !== false && strpos($_SERVER['REQUEST_URI'], 'new_converts') === false ? 'active' : ''; ?>" 
+                                   href="<?php echo $relative_path; ?>pages/visitors/list.php" title="Visitors Management">
+                                    <i class="bi bi-person-badge"></i>
+                                    <span>Visitors</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], 'new_converts') !== false ? 'active' : ''; ?>" 
+                                   href="<?php echo $relative_path; ?>pages/visitors/new_converts.php" title="New Converts">
+                                    <i class="bi bi-person-plus-fill"></i>
+                                    <span>Converts</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], 'reports') !== false ? 'active' : ''; ?>" 
+                                   href="<?php echo $relative_path; ?>pages/reports/index.php" title="Reports">
+                                    <i class="bi bi-graph-up"></i>
+                                    <span>Reports</span>
+                                </a>
+                            </li>
+                            <li class="nav-item ms-2">
+                                <a class="nav-link logout-btn" 
+                                   href="<?php echo $relative_path; ?>logout.php" title="Logout">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    <span>Logout</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+        </div>
+    </nav>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper" style="margin-top: 80px;">
+        <div class="container-fluid px-4">
+            <?php if (isset($page_header) && $page_header): ?>
+                <div class="modern-card p-4 mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="text-gradient mb-2">
+                                <?php echo isset($page_icon) ? '<i class="' . $page_icon . '"></i> ' : ''; ?>
+                                <?php echo isset($page_heading) ? $page_heading : 'Page Title'; ?>
+                            </h1>
+                            <p class="text-muted mb-0">
+                                <?php echo isset($page_description) ? $page_description : 'Page description'; ?>
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <?php if (isset($page_actions)): ?>
+                                <?php echo $page_actions; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>

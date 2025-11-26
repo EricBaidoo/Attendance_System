@@ -1,0 +1,404 @@
+/* assets/css/dashboard.css */
+
+/* Ultra-Compact Dashboard Styling */
+body {
+    padding-top: 0 !important;
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    background-attachment: fixed;
+    background-image: 
+        radial-gradient(circle at 20% 20%, rgba(44, 82, 130, 0.03) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(56, 161, 105, 0.03) 0%, transparent 40%),
+        linear-gradient(45deg, transparent 48%, rgba(44, 82, 130, 0.01) 49%, rgba(44, 82, 130, 0.01) 51%, transparent 52%);
+    background-size: 200px 200px, 300px 300px, 50px 50px;
+    min-height: 100vh;
+}
+
+.dashboard-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(44, 82, 130, 0.02) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(44, 82, 130, 0.02) 0%, transparent 50%);
+    min-height: calc(100vh - 120px);
+}
+
+.modern-card {
+    margin-bottom: 0.5rem !important;
+    padding: 1rem !important;
+}
+
+.container-fluid {
+    padding: 0.5rem 1rem 0.5rem 1rem !important;
+    margin-top: -10px !important;
+}
+
+.mb-3, .mb-4, .mb-5 {
+    margin-bottom: 0.5rem !important;
+}
+
+.p-3, .p-4, .p-5 {
+    padding: 0.75rem !important;
+}
+
+.row {
+    margin-bottom: 0.25rem !important;
+}
+
+@media (min-width: 1200px) {
+    .container-fluid {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 0.25rem !important;
+        margin-top: -5px !important;
+    }
+}
+
+.dashboard-header {
+    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(26, 54, 93, 0.25);
+}
+
+.dashboard-header h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.welcome-time {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.stats-grid {
+    margin-bottom: 3rem;
+}
+
+.dashboard-card {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.card-members { background: linear-gradient(135deg, #667eea, #764ba2); }
+.card-services { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.card-attendance { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.card-reports { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+.card-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.card-description {
+    font-size: 0.9rem;
+    color: #95a5a6;
+}
+
+.recent-activity {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.activity-header {
+    border-bottom: 2px solid #f8f9fa;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.activity-header h3 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 0;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+    background-color: #f8f9fa;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1rem;
+    color: white;
+}
+
+.activity-new { background: linear-gradient(135deg, #667eea, #764ba2); }
+.activity-update { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.activity-attendance { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+
+.activity-content h6 {
+    margin-bottom: 0.25rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.activity-time {
+    font-size: 0.8rem;
+    color: #95a5a6;
+}
+
+.quick-actions {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.quick-actions h3 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.action-btn {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 15px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    text-align: center;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.btn-add-member {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn-mark-attendance {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+}
+
+.btn-view-reports {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+}
+
+.btn-manage-services {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    color: white;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.chart-header {
+    border-bottom: 2px solid #f8f9fa;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.chart-header h3 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 0;
+}
+
+/* Additional Color Variants */
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+.bg-purple {
+    background-color: #6f42c1 !important;
+}
+
+/* Public Statistics Icon Styling */
+.public-stat-icon {
+    width: fit-content;
+}
+
+/* Classic Color Scheme for Index Page */
+.text-gradient {
+    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+}
+
+.btn-primary-modern {
+    background: linear-gradient(135deg, #2c5282 0%, #3182ce 100%);
+    border: none;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(44, 82, 130, 0.25);
+}
+
+.btn-primary-modern:hover {
+    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(44, 82, 130, 0.35);
+    color: white;
+}
+
+.modern-card {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.modern-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+/* Classic Background Colors */
+.bg-primary {
+    background-color: #2c5282 !important;
+}
+
+.bg-success {
+    background-color: #38a169 !important;
+}
+
+.bg-warning {
+    background-color: #d69e2e !important;
+}
+
+.bg-danger {
+    background-color: #e53e3e !important;
+}
+
+.bg-info {
+    background-color: #3182ce !important;
+}
+
+/* Classic Text Colors */
+.text-primary {
+    color: #2c5282 !important;
+}
+
+.text-success {
+    color: #38a169 !important;
+}
+
+.text-warning {
+    color: #d69e2e !important;
+}
+
+.text-danger {
+    color: #e53e3e !important;
+}
+
+.text-info {
+    color: #3182ce !important;
+}
+
+/* Modern Streamlined Header */
+.modern-header {
+    padding: 1.5rem 0;
+}
+
+.modern-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.user-greeting {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.welcome-text {
+    color: #4a5568;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.welcome-text strong {
+    color: #2c5282;
+    font-weight: 600;
+}
+
+.current-date {
+    color: #718096;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    background: rgba(44, 82, 130, 0.08);
+    border-radius: 20px;
+    border: 1px solid rgba(44, 82, 130, 0.1);
+}
