@@ -138,6 +138,49 @@ include '../../includes/header.php';
 <link href="../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">
 <link href="../../assets/css/members.css?v=<?php echo time(); ?>" rel="stylesheet">
 
+<!-- Bootstrap Icons Fix -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+<style>
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css');
+
+.bi {
+    font-family: "bootstrap-icons" !important;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.bi::before {
+    font-family: "bootstrap-icons" !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+}
+
+/* Member page specific icons */
+.bi-people-fill::before { content: "\f47a"; }
+.bi-person-plus::before { content: "\f472"; }
+.bi-download::before { content: "\f426"; }
+.bi-printer::before { content: "\f486"; }
+.bi-search::before { content: "\f52a"; }
+.bi-funnel::before { content: "\f445"; }
+.bi-person::before { content: "\f465"; }
+.bi-person-dress::before { content: "\f473"; }
+.bi-envelope::before { content: "\f42f"; }
+.bi-telephone::before { content: "\f57c"; }
+.bi-eye::before { content: "\f434"; }
+.bi-pencil::before { content: "\f4ca"; }
+.bi-three-dots-vertical::before { content: "\f5aa"; }
+.bi-check-circle::before { content: "\f41a"; }
+.bi-x-circle::before { content: "\f5e8"; }
+.bi-trash::before { content: "\f5a2"; }
+.bi-file-excel::before { content: "\f438"; }
+.bi-file-pdf::before { content: "\f43c"; }
+</style>
+
 <!-- Professional Members Dashboard -->
 <div class="container-fluid py-4">
     <!-- Dashboard Header -->
@@ -261,7 +304,7 @@ include '../../includes/header.php';
                     <label class="form-label fw-semibold">Search Members</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="text" name="search" class="form-control" placeholder="Name, email, or phone" value="<?php echo htmlspecialchars($search); ?>">
+                        <input type="text" name="search" class="form-control" placeholder="Name, email, or phone" value="<?php echo htmlspecialchars($search ?? ''); ?>">
                     </div>
                 </div>
                 <div class="col-md-2">
@@ -353,10 +396,10 @@ include '../../includes/header.php';
                                                 <i class="bi bi-person-fill"></i>
                                             </div>
                                             <div>
-                                                <h6 class="mb-0 fw-semibold"><?php echo htmlspecialchars($member['name']); ?></h6>
+                                                <h6 class="mb-0 fw-semibold"><?php echo htmlspecialchars($member['name'] ?? ''); ?></h6>
                                                 <small class="text-muted">
-                                                    <i class="bi bi-<?php echo $member['gender'] === 'male' ? 'person' : 'person-dress'; ?> me-1"></i>
-                                                    <?php echo ucfirst($member['gender']); ?>
+                                                    <i class="bi bi-<?php echo ($member['gender'] ?? '') === 'male' ? 'person' : 'person-dress'; ?> me-1"></i>
+                                                    <?php echo ucfirst($member['gender'] ?? ''); ?>
                                                 </small>
                                             </div>
                                         </div>
@@ -365,11 +408,11 @@ include '../../includes/header.php';
                                         <div>
                                             <small class="d-block">
                                                 <i class="bi bi-envelope me-1 text-primary"></i>
-                                                <?php echo htmlspecialchars($member['email']); ?>
+                                                <?php echo htmlspecialchars($member['email'] ?? ''); ?>
                                             </small>
                                             <small class="text-muted">
                                                 <i class="bi bi-telephone me-1"></i>
-                                                <?php echo htmlspecialchars($member['phone']); ?>
+                                                <?php echo htmlspecialchars($member['phone'] ?? ''); ?>
                                             </small>
                                         </div>
                                     </td>

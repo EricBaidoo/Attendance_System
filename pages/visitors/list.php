@@ -96,6 +96,46 @@ include '../../includes/header.php';
 <link href="../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">
 <link href="../../assets/css/visitors.css?v=<?php echo time(); ?>" rel="stylesheet">
 
+<!-- Bootstrap Icons Fix -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+<style>
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css');
+
+.bi {
+    font-family: "bootstrap-icons" !important;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.bi::before {
+    font-family: "bootstrap-icons" !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+}
+
+/* Visitor page specific icons */
+.bi-person-badge::before { content: "\f46c"; }
+.bi-person-plus::before { content: "\f472"; }
+.bi-person-check::before { content: "\f470"; }
+.bi-search::before { content: "\f52a"; }
+.bi-funnel::before { content: "\f445"; }
+.bi-eye::before { content: "\f434"; }
+.bi-pencil::before { content: "\f4ca"; }
+.bi-three-dots-vertical::before { content: "\f5aa"; }
+.bi-envelope::before { content: "\f42f"; }
+.bi-telephone::before { content: "\f57c"; }
+.bi-calendar::before { content: "\f40e"; }
+.bi-phone::before { content: "\f4d5"; }
+.bi-heart::before { content: "\f497"; }
+.bi-trash::before { content: "\f5a2"; }
+.bi-arrow-left::before { content: "\f3fb"; }
+</style>
+
 <!-- Professional Visitors Dashboard -->
 <div class="container-fluid py-4">
     <!-- Dashboard Header -->
@@ -213,7 +253,7 @@ include '../../includes/header.php';
                     <label class="form-label fw-semibold">Search Visitors</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="text" name="search" class="form-control" placeholder="Name, email, or phone" value="<?php echo htmlspecialchars($search); ?>">
+                        <input type="text" name="search" class="form-control" placeholder="Name, email, or phone" value="<?php echo htmlspecialchars($search ?? ''); ?>">
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -297,7 +337,7 @@ include '../../includes/header.php';
                                                 <i class="bi bi-person-badge"></i>
                                             </div>
                                             <div>
-                                                <h6 class="mb-0 fw-semibold"><?php echo htmlspecialchars($visitor['name']); ?></h6>
+                                                <h6 class="mb-0 fw-semibold"><?php echo htmlspecialchars($visitor['name'] ?? ''); ?></h6>
                                                 <small class="text-muted">
                                                     ID: #<?php echo $visitor['id']; ?>
                                                 </small>

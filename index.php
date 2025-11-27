@@ -107,7 +107,7 @@ include 'includes/header.php';
                 </div>
                 <?php if (in_array($user_role, ['admin', 'staff'])): ?>
                 <div class="mt-3">
-                    <a href="pages/members/" class="btn btn-light btn-sm w-100">
+                    <a href="pages/members/list.php" class="btn btn-light btn-sm w-100">
                         <i class="bi bi-arrow-right"></i> Manage Members
                     </a>
                 </div>
@@ -133,7 +133,7 @@ include 'includes/header.php';
                     </div>
                 </div>
                 <div class="mt-3">
-                    <a href="pages/visitors/" class="btn btn-light btn-sm w-100">
+                    <a href="pages/visitors/list.php" class="btn btn-light btn-sm w-100">
                         <i class="bi bi-arrow-right"></i> View Visitors
                     </a>
                 </div>
@@ -183,7 +183,7 @@ include 'includes/header.php';
                     </div>
                 </div>
                 <div class="mt-3">
-                    <a href="pages/members/?view=departments" class="btn btn-light btn-sm w-100">
+                    <a href="pages/members/list.php?view=departments" class="btn btn-light btn-sm w-100">
                         <i class="bi bi-arrow-right"></i> Manage Departments
                     </a>
                 </div>
@@ -280,9 +280,8 @@ include 'includes/header.php';
                     </div>
                 </a>
             </div>
-            <?php elseif ($user_role == 'staff'): ?>
             <div class="col-lg-4 col-md-12">
-                <a href="pages/reports/" class="action-tile text-decoration-none">
+                <a href="pages/reports/report.php" class="action-tile text-decoration-none">
                     <div class="p-4 rounded-3 bg-info bg-opacity-15 border border-info border-opacity-50 h-100 d-flex align-items-center hover-lift">
                         <div class="action-icon me-3 bg-info bg-opacity-20">
                             <i class="bi bi-bar-chart-line text-info fs-3"></i>
@@ -502,7 +501,7 @@ include 'includes/header.php';
                     <h4 class="text-primary mb-0">
                         <i class="bi bi-clock-history"></i> Recent Members
                     </h4>
-                    <a href="pages/members/" class="btn btn-outline-primary btn-sm">View All</a>
+                    <a href="pages/members/list.php" class="btn btn-outline-primary btn-sm">View All</a>
                 </div>
             <?php
             try {

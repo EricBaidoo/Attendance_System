@@ -39,12 +39,12 @@ if ($levels_up == 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($page_title) ? $page_title : 'Bridge Ministries International'; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="<?php echo $relative_path; ?>assets/css/header.css" rel="stylesheet">
     
     <!-- Bootstrap Icons Fallback and Fixes -->
     <style>
-    @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css');
+    @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css');
     
     .bi {
         font-family: "bootstrap-icons" !important;
@@ -120,7 +120,7 @@ if ($levels_up == 0) {
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], 'reports') !== false ? 'active' : ''; ?>" 
-                           href="<?php echo $relative_path; ?>pages/reports/index.php">
+                           href="<?php echo $relative_path; ?>pages/reports/report.php">
                             <i class="bi bi-graph-up"></i> Reports
                         </a>
                     </li>
