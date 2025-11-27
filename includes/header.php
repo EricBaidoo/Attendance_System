@@ -1,17 +1,20 @@
 <?php
-// Determine the correct base path
-$request_uri = $_SERVER['REQUEST_URI'];
-$script_name = $_SERVER['SCRIPT_NAME'];
-$base_path = str_replace('\\', '/', dirname($script_name));
+// Determine the correct relative path based on current file location
+$current_file = $_SERVER['PHP_SELF'];
+$current_dir = dirname($current_file);
 
-// Calculate how many levels deep we are
-$current_dir = dirname($_SERVER['PHP_SELF']);
-$levels_deep = substr_count($current_dir, '/');
-$relative_path = str_repeat('../', $levels_deep - 1);
+// Count directory levels from the root of the project
+// Root level (index.php): 0 levels
+// pages/members/list.php: 2 levels
+$levels_deep = substr_count(ltrim($current_dir, '/'), '/');
 
-// For root level pages, use direct paths
-if ($levels_deep <= 1) {
+// Generate relative path back to root
+if ($levels_deep == 0) {
+    // Root level files (index.php)
     $relative_path = './';
+} else {
+    // Subdirectory files (pages/members/list.php)
+    $relative_path = str_repeat('../', $levels_deep);
 }
 ?>
 <!DOCTYPE html>
@@ -102,11 +105,9 @@ if ($levels_deep <= 1) {
             </div>
         </div>
     </nav>
-        </div>
-    </nav>
 
     <!-- Content Wrapper -->
-    <div class="content-wrapper" style="margin-top: 80px;">
+    <div class="content-wrapper" style="margin-top: 80px;">>
         <div class="container-fluid px-4">
             <?php if (isset($page_header) && $page_header): ?>
                 <div class="modern-card p-4 mb-4">
