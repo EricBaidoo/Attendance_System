@@ -30,6 +30,7 @@ try {
     $members_count = $pdo->query("SELECT COUNT(*) FROM members")->fetchColumn();
     $visitors_count = $pdo->query("SELECT COUNT(*) FROM visitors WHERE (status IS NULL OR status != 'converted_to_convert')")->fetchColumn();
     $departments_count = $pdo->query("SELECT COUNT(*) FROM departments")->fetchColumn();
+    $services_count = $pdo->query("SELECT COUNT(*) FROM services")->fetchColumn();
     
     // Get new converts statistics
     $new_converts_stmt = $pdo->query("
@@ -47,6 +48,7 @@ try {
     $members_count = 0;
     $visitors_count = 0;
     $departments_count = 0;
+    $services_count = 0;
     $new_converts_count = 0;
     $active_converts_count = 0;
     $recent_converts_count = 0;
