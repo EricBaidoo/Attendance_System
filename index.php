@@ -284,16 +284,25 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 m
                 ")->fetchAll();
                 
                 if ($recent_members): ?>
-                    <div class="recent-members-list">
-                        <?php foreach ($recent_members as $member): ?>
-                            <div class="member-row">
-                                <span class="member-name"><?php echo htmlspecialchars($member['name']); ?></span>
-                                <span class="separator">|</span>
-                                <span class="member-location"><?php echo htmlspecialchars($member['location'] ?: 'No location'); ?></span>
-                                <span class="separator">|</span>
-                                <span class="member-date"><?php echo date('M j, Y', strtotime($member['date_joined'])); ?></span>
-                            </div>
-                        <?php endforeach; ?>
+                    <div class="table-responsive">
+                        <table class="table table-sm recent-activity-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Location</th>
+                                    <th>Date Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($recent_members as $member): ?>
+                                <tr>
+                                    <td class="fw-semibold"><?php echo htmlspecialchars($member['name']); ?></td>
+                                    <td class="text-muted"><?php echo htmlspecialchars($member['location'] ?: 'No location'); ?></td>
+                                    <td class="text-muted"><?php echo date('M j, Y', strtotime($member['date_joined'])); ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
                 <?php else: ?>
                     <p class="text-muted">No recent members found.</p>
@@ -325,16 +334,25 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 m
                 ")->fetchAll();
                 
                 if ($recent_visitors): ?>
-                    <div class="recent-visitors-list">
-                        <?php foreach ($recent_visitors as $visitor): ?>
-                            <div class="visitor-row">
-                                <span class="visitor-name"><?php echo htmlspecialchars($visitor['name']); ?></span>
-                                <span class="separator">|</span>
-                                <span class="visitor-location"><?php echo htmlspecialchars($visitor['location'] ?: 'No address'); ?></span>
-                                <span class="separator">|</span>
-                                <span class="visitor-date"><?php echo date('M j, Y', strtotime($visitor['date_joined'])); ?></span>
-                            </div>
-                        <?php endforeach; ?>
+                    <div class="table-responsive">
+                        <table class="table table-sm recent-activity-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Location</th>
+                                    <th>Visit Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($recent_visitors as $visitor): ?>
+                                <tr>
+                                    <td class="fw-semibold"><?php echo htmlspecialchars($visitor['name']); ?></td>
+                                    <td class="text-muted"><?php echo htmlspecialchars($visitor['location'] ?: 'No address'); ?></td>
+                                    <td class="text-muted"><?php echo date('M j, Y', strtotime($visitor['date_joined'])); ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
                 <?php else: ?>
                     <p class="text-muted">No recent visitors found.</p>
