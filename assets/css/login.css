@@ -158,10 +158,21 @@ body {
     position: relative;
 }
 
+/* Input and Button Container Alignment */
+.login-form {
+    width: 100%;
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
 .input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
 }
 
 .input-wrapper .input-icon {
@@ -178,7 +189,7 @@ body {
 }
 
 .input-wrapper .form-control {
-    width: 100%;
+    width: 100% !important;
     height: 3.5rem;
     padding: 1.25rem 1.25rem 1.25rem 3.25rem;
     font-size: 1rem;
@@ -189,7 +200,9 @@ body {
     border-radius: 0.75rem;
     transition: all 0.3s ease;
     outline: none;
-    box-sizing: border-box;
+    box-sizing: border-box !important;
+    margin: 0;
+    flex: none;
 }
 
 .input-wrapper .form-control:focus {
@@ -237,15 +250,15 @@ body {
     z-index: 2;
 }
 
-/* Button Styling */
+/* Button Styling - Match Input Width */
 .btn-login {
-    width: 100%;
+    width: 100% !important;
     padding: 1.25rem;
     font-size: 1rem;
     font-weight: 600;
     color: white;
     background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
-    border: none;
+    border: 0.125rem solid transparent;
     border-radius: 0.75rem;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -253,9 +266,12 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.75rem;
-    margin-top: 1.5rem;
+    margin: 1.5rem 0 0 0;
     text-transform: uppercase;
     letter-spacing: 0.03125rem;
+    box-sizing: border-box !important;
+    height: 3.5rem;
+    flex: none;
 }
 
 .btn-login:hover {
