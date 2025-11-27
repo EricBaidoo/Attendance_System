@@ -25,7 +25,7 @@ body {
     background: linear-gradient(135deg, rgba(44, 62, 80, 0.98), rgba(52, 73, 94, 0.98)) !important;
     backdrop-filter: blur(0.9375rem);
     border-bottom: 0.0625rem solid rgba(102, 126, 234, 0.3);
-    padding: 1.2rem 0;
+    padding: 0.8rem 0;
     box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.12);
     position: fixed !important;
     top: 0 !important;
@@ -141,7 +141,7 @@ body {
 .content-wrapper {
     min-height: calc(100vh - 8.75rem);
     padding: 2rem 0;
-    margin-top: 6rem;
+    margin-top: 4rem;
 }
 
 /* Modern Cards */
@@ -258,7 +258,7 @@ body {
 
 @media (max-width: 768px) {
     .navbar-modern {
-        padding: 0.8rem 0;
+        padding: 0.6rem 0;
     }
     
     .container-fluid {
@@ -288,7 +288,7 @@ body {
     
     .content-wrapper {
         padding: 1rem 0;
-        margin-top: 6rem;
+        margin-top: 4rem;
     }
     
     .modern-card {
@@ -321,7 +321,7 @@ body {
     }
     
     .content-wrapper {
-        margin-top: 5.5rem;
+        margin-top: 3.5rem;
         padding: 0.5rem 0;
     }
     
@@ -338,7 +338,7 @@ body {
 
 @media (min-width: 992px) {
     .content-wrapper {
-        margin-top: 6.25rem;
+        margin-top: 4.5rem;
     }
     
     .container-fluid {
