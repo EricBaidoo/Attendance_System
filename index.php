@@ -286,21 +286,23 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 m
                 if ($recent_members): ?>
                     <div class="list-group list-group-flush">
                         <?php foreach ($recent_members as $member): ?>
-                            <div class="list-group-item border-0 px-0">
-                                <div class="d-flex flex-column">
-                                    <h6 class="mb-2"><?php echo htmlspecialchars($member['name']); ?></h6>
-                                    <div class="small text-muted d-flex flex-wrap">
-                                        <span class="me-2">
-                                            <i class="bi bi-geo-alt"></i> <?php echo htmlspecialchars($member['location'] ?: 'No location'); ?>
-                                        </span>
-                                        <span class="me-2">|</span>
-                                        <span class="me-2">
-                                            <i class="bi bi-building"></i> <?php echo htmlspecialchars($member['department'] ?: 'No department'); ?>
-                                        </span>
-                                        <span class="me-2">|</span>
-                                        <span>
-                                            <i class="bi bi-calendar"></i> <?php echo date('M j, Y', strtotime($member['date_joined'])); ?>
-                                        </span>
+                            <div class="list-group-item border-0 px-0 py-2">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-semibold"><?php echo htmlspecialchars($member['name']); ?></h6>
+                                        <div class="small text-muted">
+                                            <div class="d-flex align-items-center mb-1">
+                                                <i class="bi bi-geo-alt me-1"></i>
+                                                <span><?php echo htmlspecialchars($member['location'] ?: 'No location'); ?></span>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-building me-1"></i>
+                                                <span><?php echo htmlspecialchars($member['department'] ?: 'No department'); ?></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-end ms-2">
+                                        <small class="text-muted"><?php echo date('M j', strtotime($member['date_joined'])); ?></small>
                                     </div>
                                 </div>
                             </div>
@@ -338,21 +340,23 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 m
                 if ($recent_visitors): ?>
                     <div class="list-group list-group-flush">
                         <?php foreach ($recent_visitors as $visitor): ?>
-                            <div class="list-group-item border-0 px-0">
-                                <div class="d-flex flex-column">
-                                    <h6 class="mb-2"><?php echo htmlspecialchars($visitor['name']); ?></h6>
-                                    <div class="small text-muted d-flex flex-wrap">
-                                        <span class="me-2">
-                                            <i class="bi bi-geo-alt"></i> <?php echo htmlspecialchars($visitor['location'] ?: 'No address'); ?>
-                                        </span>
-                                        <span class="me-2">|</span>
-                                        <span class="me-2">
-                                            <i class="bi bi-person-badge"></i> <?php echo htmlspecialchars($visitor['service_name'] ?: 'Visitor'); ?>
-                                        </span>
-                                        <span class="me-2">|</span>
-                                        <span>
-                                            <i class="bi bi-calendar"></i> <?php echo date('M j, Y', strtotime($visitor['date_joined'])); ?>
-                                        </span>
+                            <div class="list-group-item border-0 px-0 py-2">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-semibold"><?php echo htmlspecialchars($visitor['name']); ?></h6>
+                                        <div class="small text-muted">
+                                            <div class="d-flex align-items-center mb-1">
+                                                <i class="bi bi-geo-alt me-1"></i>
+                                                <span><?php echo htmlspecialchars($visitor['location'] ?: 'No address'); ?></span>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-person-badge me-1"></i>
+                                                <span><?php echo htmlspecialchars($visitor['service_name'] ?: 'Visitor'); ?></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-end ms-2">
+                                        <small class="text-muted"><?php echo date('M j', strtotime($visitor['date_joined'])); ?></small>
                                     </div>
                                 </div>
                             </div>
