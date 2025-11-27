@@ -42,6 +42,7 @@ if ($levels_up == 0) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="<?php echo $relative_path; ?>assets/css/header.css" rel="stylesheet">
     <link href="<?php echo $relative_path; ?>assets/css/footer.css" rel="stylesheet">
+    <link href="<?php echo $relative_path; ?>assets/css/mobile-responsive.css" rel="stylesheet">
     <?php if (isset($additional_css)): ?>
         <?php echo $additional_css; ?>
     <?php endif; ?>

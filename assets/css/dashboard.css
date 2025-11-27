@@ -47,15 +47,119 @@ body {
 
 @media (min-width: 1200px) {
     .container-fluid {
-        padding-left: 1.5rem !important;
-        padding-right: 1.5rem !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 3rem;
+    }
+    
+    .card-number {
+        font-size: 2.8rem;
     }
 }
 
 @media (max-width: 768px) {
     .container-fluid {
-        padding: 0.25rem !important;
-        margin-top: -0.3125rem !important;
+        padding: 0.5rem !important;
+        margin-top: -0.25rem !important;
+    }
+    
+    .modern-card {
+        margin-bottom: 0.75rem !important;
+        padding: 1rem !important;
+    }
+    
+    .dashboard-header {
+        padding: 1.25rem 0;
+        margin-bottom: 1.25rem;
+        text-align: center;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .dashboard-header p {
+        font-size: 1rem;
+    }
+    
+    .welcome-time {
+        font-size: 0.9rem;
+    }
+    
+    .stats-grid {
+        margin-bottom: 1.5rem;
+    }
+    
+    .dashboard-card {
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .card-number {
+        font-size: 1.8rem;
+    }
+    
+    .card-title {
+        font-size: 1rem;
+    }
+    
+    .card-description {
+        font-size: 0.85rem;
+    }
+    
+    .card-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.2rem;
+    }
+    
+    .recent-activity,
+    .quick-actions,
+    .chart-container {
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .activity-item {
+        padding: 0.75rem;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+    
+    .activity-icon {
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .action-btn {
+        padding: 0.875rem;
+        font-size: 0.9rem;
+    }
+    
+    .modern-header h2 {
+        font-size: 1.6rem;
+    }
+    
+    .user-greeting {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .welcome-text {
+        font-size: 0.9rem;
+    }
+    
+    .current-date {
+        font-size: 0.8rem;
+        align-self: flex-start;
     }
 }
 
@@ -401,4 +505,125 @@ body {
     background: rgba(44, 82, 130, 0.08);
     border-radius: 1.25rem;
     border: 0.0625rem solid rgba(44, 82, 130, 0.1);
+}
+
+/* Additional Mobile Responsive Design */
+@media (max-width: 576px) {
+    .container-fluid {
+        padding: 0.25rem !important;
+    }
+    
+    .modern-card {
+        margin-bottom: 0.5rem !important;
+        padding: 0.75rem !important;
+    }
+    
+    .dashboard-header {
+        padding: 1rem 0;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-header p {
+        font-size: 0.9rem;
+    }
+    
+    .dashboard-card {
+        padding: 1rem;
+        text-align: center;
+    }
+    
+    .card-number {
+        font-size: 1.6rem;
+    }
+    
+    .card-title {
+        font-size: 0.9rem;
+    }
+    
+    .card-icon {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1rem;
+        margin: 0 auto 0.75rem;
+    }
+    
+    .recent-activity,
+    .quick-actions,
+    .chart-container {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .activity-header h3,
+    .chart-header h3,
+    .quick-actions h3 {
+        font-size: 1.2rem;
+    }
+    
+    .activity-item {
+        padding: 0.5rem;
+        text-align: center;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .activity-content h6 {
+        font-size: 0.85rem;
+    }
+    
+    .activity-time {
+        font-size: 0.75rem;
+    }
+    
+    .action-btn {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .modern-header {
+        padding: 1rem 0;
+        text-align: center;
+    }
+    
+    .modern-header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .user-greeting {
+        justify-content: center;
+        text-align: center;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .welcome-text {
+        font-size: 0.85rem;
+    }
+    
+    .current-date {
+        font-size: 0.75rem;
+    }
+    
+    /* Grid adjustments */
+    .row.g-2 {
+        --bs-gutter-x: 0.5rem;
+        --bs-gutter-y: 0.5rem;
+    }
+    
+    .row.g-4 {
+        --bs-gutter-x: 0.75rem;
+        --bs-gutter-y: 0.75rem;
+    }
+    
+    .col-lg-3,
+    .col-lg-4,
+    .col-lg-6 {
+        margin-bottom: 0.75rem;
+    }
 }

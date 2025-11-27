@@ -85,27 +85,27 @@ include 'includes/header.php';
 
 <!-- Statistics Cards - Visible to all logged-in users -->
 <?php 
-// Determine grid layout based on user role
-$card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6' : 'col-lg-4 col-md-6';
+// Determine grid layout based on user role and screen size
+$card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12' : 'col-lg-4 col-md-6 col-sm-6 col-12';
 ?>
-<div class="row g-2 mb-2">
+<div class="row g-2 g-md-3 mb-2">
     <!-- Members Card - All users can see this -->
     <div class="<?php echo $card_col_class; ?>">
-        <div class="modern-card p-2 h-100">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
+        <div class="modern-card p-3 h-100">
+            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                <div class="flex-grow-1">
                     <h6 class="text-muted mb-2">Total Members</h6>
                     <h2 class="text-gradient mb-0"><?php echo number_format($members_count); ?></h2>
                     <small class="text-success">
                         <i class="bi bi-arrow-up"></i> Active members
                     </small>
                 </div>
-                <div class="bg-primary bg-opacity-10 rounded-circle p-2">
+                <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-none d-md-block">
                     <i class="bi bi-people-fill text-primary fs-5"></i>
                 </div>
             </div>
             <?php if (in_array($user_role, ['admin', 'staff'])): ?>
-            <div class="mt-2">
+            <div class="mt-3 d-grid">
                 <a href="pages/members/" class="btn btn-primary-modern btn-sm">
                     <i class="bi bi-arrow-right"></i> Manage Members
                 </a>
@@ -118,19 +118,19 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6' : 'col-lg-4 col-
     <?php if (in_array($user_role, ['admin', 'staff'])): ?>
     <div class="<?php echo $card_col_class; ?>">
         <div class="modern-card p-3 h-100">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
+            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                <div class="flex-grow-1">
                     <h6 class="text-muted mb-2">Active Visitors</h6>
                     <h2 class="text-gradient mb-0"><?php echo number_format($visitors_count); ?></h2>
                     <small class="text-info">
                         <i class="bi bi-calendar"></i> Not converted
                     </small>
                 </div>
-                <div class="bg-success bg-opacity-10 rounded-circle p-2">
+                <div class="bg-success bg-opacity-10 rounded-circle p-3 d-none d-md-block">
                     <i class="bi bi-person-badge text-success fs-5"></i>
                 </div>
             </div>
-            <div class="mt-2">
+            <div class="mt-3 d-grid">
                 <a href="pages/visitors/" class="btn btn-primary-modern btn-sm">
                     <i class="bi bi-arrow-right"></i> View Visitors
                 </a>
@@ -141,13 +141,25 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6' : 'col-lg-4 col-
     <!-- New Converts Card - Staff and Admin only -->
     <div class="<?php echo $card_col_class; ?>">
         <div class="modern-card p-3 h-100">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
+            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                <div class="flex-grow-1">
                     <h6 class="text-muted mb-2">New Converts</h6>
                     <h2 class="text-gradient mb-0"><?php echo number_format($active_converts_count); ?></h2>
                     <small class="text-warning">
                         <i class="bi bi-person-plus"></i> Active converts
                     </small>
+                </div>
+                <div class="bg-warning bg-opacity-10 rounded-circle p-3 d-none d-md-block">
+                    <i class="bi bi-person-plus-fill text-warning fs-5"></i>
+                </div>
+            </div>
+            <div class="mt-3 d-grid">
+                <a href="pages/visitors/new_converts.php" class="btn btn-primary-modern btn-sm">
+                    <i class="bi bi-arrow-right"></i> View Converts
+                </a>
+            </div>
+        </div>
+    </div>
                 </div>
                 <div class="bg-warning bg-opacity-10 rounded-circle p-2">
                     <i class="bi bi-person-plus-fill text-warning fs-5"></i>
