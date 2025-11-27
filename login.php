@@ -68,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    class="form-control" 
                                    id="username" 
                                    name="username" 
+                                   placeholder="Enter username"
                                    required 
                                    autocomplete="username">
                             <label for="username">Username</label>
@@ -81,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    class="form-control" 
                                    id="password" 
                                    name="password" 
+                                   placeholder="Enter password"
                                    required 
                                    autocomplete="current-password">
                             <label for="password">Password</label>
