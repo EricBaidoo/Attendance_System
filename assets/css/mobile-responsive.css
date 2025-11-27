@@ -1,53 +1,99 @@
-/* Mobile Responsive Utilities - mobile-responsive.css */
+/* Mobile Responsive Utilities - Enhanced for Fixed Header */
 
-/* Global Mobile Enhancements */
+/* ===== GLOBAL MOBILE RESPONSIVE FIXES ===== */
+
+/* Base mobile styles for header compensation */
+@media (max-width: 1200px) {
+    body {
+        padding-top: 5.5rem;
+    }
+    
+    .content-wrapper,
+    .main-content {
+        padding-top: 1.5rem;
+    }
+}
+
+/* ===== TABLET RESPONSIVE (992px and below) ===== */
 @media (max-width: 991.98px) {
+    body {
+        padding-top: 5.5rem;
+        font-size: 1.05rem;
+    }
+    
+    .content-wrapper,
+    .main-content {
+        padding-top: 1.5rem;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    
     /* Improve table responsiveness */
     .table-responsive {
         border-radius: 0.5rem;
         border: 0.0625rem solid #dee2e6;
+        margin-bottom: 1.5rem;
     }
     
     /* Better spacing for cards */
     .card {
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
+        border-radius: 0.75rem;
     }
     
     /* Improve button groups */
     .btn-group {
         flex-wrap: wrap;
-        gap: 0.25rem;
+        gap: 0.5rem;
+    }
+    
+    .btn {
+        font-size: 1rem;
+        padding: 0.75rem 1.25rem;
     }
 }
 
+/* ===== MOBILE RESPONSIVE (768px and below) ===== */
 @media (max-width: 768px) {
+    body {
+        padding-top: 5rem;
+        font-size: 1rem;
+    }
+    
+    .content-wrapper,
+    .main-content {
+        padding-top: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
     /* Dashboard-specific mobile fixes */
     .dashboard-container .card {
-        margin-bottom: 1rem;
+        margin-bottom: 1.25rem;
         border-radius: 0.75rem;
     }
     
     /* Prevent cards from being too wide */
     .dashboard-container .card-body {
-        padding: 1.5rem 1rem;
+        padding: 1.25rem 1rem;
     }
     
     /* Better statistics card layout */
     .dashboard-container .col-md-3,
     .dashboard-container .col-sm-6 {
-        margin-bottom: 1rem;
+        margin-bottom: 1.25rem;
         padding: 0 0.5rem;
     }
     
     /* Compact card numbers */
     .dashboard-container .card h3 {
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.75rem;
+        margin-bottom: 0.75rem;
     }
     
     /* Better icon spacing */
     .dashboard-container .card .display-4 {
-        font-size: 2rem;
+        font-size: 2.25rem;
         margin-bottom: 0.5rem;
     }
     
