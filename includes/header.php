@@ -40,96 +40,76 @@ if ($levels_up == 0) {
     <title><?php echo isset($page_title) ? $page_title : 'Bridge Ministries International'; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="<?php echo $relative_path; ?>assets/css/custom.css" rel="stylesheet">
     <link href="<?php echo $relative_path; ?>assets/css/header.css" rel="stylesheet">
-    <link href="<?php echo $relative_path; ?>assets/css/mobile-responsive.css" rel="stylesheet">
 
 </head>
 <body>
-    <!-- Modern Professional Header Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-modern fixed-top">
+    <!-- Simple Bootstrap Navbar -->
+    <nav class="navbar navbar-expand-xl navbar-dark fixed-top">
         <div class="container-fluid">
-            <!-- Brand Section -->
-            <a class="navbar-brand brand-modern" href="<?php echo $relative_path; ?>index.php">
+            <!-- Brand -->
+            <a class="navbar-brand" href="<?php echo $relative_path; ?>index.php">
                 <img src="<?php echo $relative_path; ?>assets/css/image/bmi logo.png" alt="BMI Logo" class="navbar-logo">
-                <div class="brand-text">
-                    <span class="brand-primary">BMI</span>
-                    <span class="brand-secondary">ATTENDANCE</span>
-                </div>
+                BMI ATTENDANCE
             </a>
 
             <!-- Mobile Toggle -->
-            <button class="navbar-toggler navbar-toggler-modern" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <div class="toggler-icon">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
             </button>
 
-            <!-- Navigation Section -->
+            <!-- Navigation -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto nav-modern">
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link nav-link-modern <?php echo (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : ''; ?>" 
-                           href="<?php echo $relative_path; ?>index.php" title="Dashboard">
-                            <i class="bi bi-speedometer2"></i>
-                            <span class="nav-text">Dashboard</span>
+                        <a class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : ''; ?>" 
+                           href="<?php echo $relative_path; ?>index.php">
+                            <i class="bi bi-speedometer2"></i> Dashboard
                         </a>
                     </li>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link nav-link-modern <?php echo strpos($_SERVER['REQUEST_URI'], 'members') !== false ? 'active' : ''; ?>" 
-                                   href="<?php echo $relative_path; ?>pages/members/list.php" title="Members Management">
-                                    <i class="bi bi-people-fill"></i>
-                                    <span class="nav-text">Members</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link nav-link-modern <?php echo strpos($_SERVER['REQUEST_URI'], 'visitors') !== false && strpos($_SERVER['REQUEST_URI'], 'new_converts') === false ? 'active' : ''; ?>" 
-                                   href="<?php echo $relative_path; ?>pages/visitors/list.php" title="Visitors Management">
-                                    <i class="bi bi-person-badge"></i>
-                                    <span class="nav-text">Visitors</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link nav-link-modern <?php echo strpos($_SERVER['REQUEST_URI'], 'new_converts') !== false ? 'active' : ''; ?>" 
-                                   href="<?php echo $relative_path; ?>pages/visitors/new_converts.php" title="New Converts">
-                                    <i class="bi bi-person-plus-fill"></i>
-                                    <span class="nav-text">Converts</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link nav-link-modern <?php echo strpos($_SERVER['REQUEST_URI'], 'services') !== false ? 'active' : ''; ?>" 
-                                   href="<?php echo $relative_path; ?>pages/services/list.php" title="Services">
-                                    <i class="bi bi-calendar-event"></i>
-                                    <span class="nav-text">Services</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link nav-link-modern <?php echo strpos($_SERVER['REQUEST_URI'], 'sessions') !== false || strpos($_SERVER['REQUEST_URI'], 'attendance') !== false ? 'active' : ''; ?>" 
-                                   href="<?php echo $relative_path; ?>pages/services/sessions.php" title="Attendance">
-                                    <i class="bi bi-clipboard-check"></i>
-                                    <span class="nav-text">Attendance</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link nav-link-modern <?php echo strpos($_SERVER['REQUEST_URI'], 'reports') !== false ? 'active' : ''; ?>" 
-                                   href="<?php echo $relative_path; ?>pages/reports/index.php" title="Reports">
-                                    <i class="bi bi-graph-up"></i>
-                                    <span class="nav-text">Reports</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link nav-link-modern logout-btn" 
-                                   href="<?php echo $relative_path; ?>logout.php" title="Logout">
-                                    <i class="bi bi-box-arrow-right"></i>
-                                    <span class="nav-text">Logout</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], 'members') !== false ? 'active' : ''; ?>" 
+                           href="<?php echo $relative_path; ?>pages/members/list.php">
+                            <i class="bi bi-people-fill"></i> Members
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], 'visitors') !== false && strpos($_SERVER['REQUEST_URI'], 'new_converts') === false ? 'active' : ''; ?>" 
+                           href="<?php echo $relative_path; ?>pages/visitors/list.php">
+                            <i class="bi bi-person-badge"></i> Visitors
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], 'new_converts') !== false ? 'active' : ''; ?>" 
+                           href="<?php echo $relative_path; ?>pages/visitors/new_converts.php">
+                            <i class="bi bi-person-plus-fill"></i> Converts
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], 'services') !== false ? 'active' : ''; ?>" 
+                           href="<?php echo $relative_path; ?>pages/services/list.php">
+                            <i class="bi bi-calendar-event"></i> Services
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], 'sessions') !== false || strpos($_SERVER['REQUEST_URI'], 'attendance') !== false ? 'active' : ''; ?>" 
+                           href="<?php echo $relative_path; ?>pages/services/sessions.php">
+                            <i class="bi bi-clipboard-check"></i> Attendance
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], 'reports') !== false ? 'active' : ''; ?>" 
+                           href="<?php echo $relative_path; ?>pages/reports/index.php">
+                            <i class="bi bi-graph-up"></i> Reports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?php echo $relative_path; ?>logout.php">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 

@@ -30,70 +30,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Staff Login - Bridge Ministries International</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/css/login.css" rel="stylesheet">
 
 </head>
 <body>
-    <div class="container-fluid vh-100 d-flex align-items-center">
-        <div class="row w-100 justify-content-center">
-            <div class="col-lg-8 col-xl-6">
-                <!-- Brand Section -->
-                <div class="text-center mb-5 brand-section p-4">
-                    <img src="assets/css/image/bmi logo.png" alt="BMI Logo" class="img-fluid mb-3 brand-logo">
-                    <h1 class="h2 text-white fw-bold">Bridge Ministries International</h1>
-                    <p class="text-white-50">Attendance Management System</p>
+    <div class="container-fluid min-vh-100">
+        <div class="row min-vh-100 g-0">
+            <!-- Left Panel - Branding -->
+            <div class="col-lg-6 d-flex align-items-center justify-content-center bg-primary-section">
+                <div class="text-center text-white p-5">
+                    <img src="assets/css/image/bmi logo.png" alt="BMI Logo" class="brand-logo mb-4">
+                    <h1 class="display-5 fw-bold mb-3">Bridge Ministries International</h1>
+                    <p class="lead mb-0">Attendance Management System</p>
                 </div>
-                
-                <!-- Login Form -->
-                <div class="login-card">
-                    <div class="card border-0 shadow">
-                        <div class="card-body p-5">
-                            <div class="text-center mb-4">
-                                <h2 class="h3 fw-bold text-dark">Welcome Back</h2>
-                            </div>
-
-                            <?php if ($error): ?>
-                                <div class="alert alert-danger" role="alert">
-                                    <i class="bi bi-exclamation-triangle me-2"></i>
-                                    <?php echo htmlspecialchars($error); ?>
-                                </div>
-                            <?php endif; ?>
-
-                            <form method="post" novalidate>
-                                <div class="mb-3">
-                                    <label for="username" class="form-label">Username</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                        <input type="text" 
-                                               class="form-control" 
-                                               id="username" 
-                                               name="username" 
-                                               placeholder="Enter username"
-                                               required 
-                                               autocomplete="username">
-                                    </div>
-                                </div>
-
-                                <div class="mb-4">
-                                    <label for="password" class="form-label">Password</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                        <input type="password" 
-                                               class="form-control" 
-                                               id="password" 
-                                               name="password" 
-                                               placeholder="Enter password"
-                                               required 
-                                               autocomplete="current-password">
-                                    </div>
-                                </div>
-                                
-                                <button type="submit" class="btn btn-primary w-100 py-2">
-                                    <i class="bi bi-box-arrow-in-right me-2"></i>
-                                    Sign In to Dashboard
-                                </button>
-                            </form>
-                        </div>
+            </div>
+            
+            <!-- Right Panel - Login Form -->
+            <div class="col-lg-6 d-flex align-items-center justify-content-center bg-light-section">
+                <div class="w-100 max-width-form p-5">
+                    <div class="text-center mb-5">
+                        <h2 class="h3 fw-bold text-primary mb-0">Welcome Back</h2>
                     </div>
+
+                    <?php if ($error): ?>
+                        <div class="alert alert-danger border-0 rounded-3 mb-4" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <?php echo htmlspecialchars($error); ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <form method="post" class="login-form">
+                        <div class="form-floating mb-3">
+                            <input type="text" 
+                                   class="form-control form-control-lg rounded-3" 
+                                   id="username" 
+                                   name="username" 
+                                   placeholder="Username"
+                                   required 
+                                   autocomplete="username">
+                            <label for="username">
+                                <i class="bi bi-person me-2"></i>Username
+                            </label>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <input type="password" 
+                                   class="form-control form-control-lg rounded-3" 
+                                   id="password" 
+                                   name="password" 
+                                   placeholder="Password"
+                                   required 
+                                   autocomplete="current-password">
+                            <label for="password">
+                                <i class="bi bi-lock me-2"></i>Password
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3">
+                            Sign In
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
