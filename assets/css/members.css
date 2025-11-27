@@ -10,8 +10,8 @@
 }
 
 .form-control, .form-select {
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
+    border: 0.125rem solid #e9ecef;
+    border-radius: 0.5rem;
     padding: 0.75rem 1rem;
     transition: all 0.3s ease;
 }
@@ -33,29 +33,29 @@
 }
 
 .section-divider {
-    height: 3px;
+    height: 0.1875rem;
     background: linear-gradient(90deg, #0d6efd, #198754, #ffc107);
     border: none;
-    border-radius: 3px;
+    border-radius: 0.1875rem;
     margin: 2rem 0;
 }
 
 .form-card {
-    border-radius: 15px;
+    border-radius: 0.9375rem;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.1);
 }
 
 .btn-custom {
-    border-radius: 8px;
+    border-radius: 0.5rem;
     padding: 0.75rem 1.5rem;
     font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .btn-custom:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.2);
 }
 
 /* Custom enhancements for Bootstrap components */
@@ -67,12 +67,12 @@
 
 .card:hover {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
+    transform: translateY(-0.125rem);
 }
 
 .card-header {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 0.0625rem solid rgba(0, 0, 0, 0.1);
     font-weight: 600;
 }
 
@@ -84,7 +84,7 @@
 
 .card-header.bg-gradient h6 {
     font-size: 0.9rem;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.03125em;
 }
 
 /* Age statistics cards animations */
@@ -94,7 +94,7 @@
 
 /* Enhanced border for age demographics */
 .col-6 .border-end {
-    border-right: 2px solid #f1f3f4 !important;
+    border-right: 0.125rem solid #f1f3f4 !important;
 }
 
 /* Custom color utilities */
@@ -109,11 +109,11 @@
 
 .table th {
     border-top: none;
-    border-bottom: 2px solid #dee2e6;
+    border-bottom: 0.125rem solid #dee2e6;
     font-weight: 600;
     font-size: 0.875rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.03125em;
     color: #495057;
     padding: 1rem 0.75rem;
 }
@@ -121,12 +121,12 @@
 .table td {
     padding: 0.75rem;
     vertical-align: middle;
-    border-top: 1px solid #f1f3f4;
+    border-top: 0.0625rem solid #f1f3f4;
 }
 
 /* Button group spacing */
 .btn-group > .btn {
-    margin: 0 2px;
+    margin: 0 0.125rem;
 }
 
 .btn-group .btn-outline-primary:hover {
@@ -180,7 +180,7 @@
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(1.875rem);
     }
     to {
         opacity: 1;
@@ -229,7 +229,7 @@
     
     .col-6 .border-end {
         border-right: none !important;
-        border-bottom: 2px solid #f1f3f4 !important;
+        border-bottom: 0.125rem solid #f1f3f4 !important;
         padding-bottom: 0.5rem;
         margin-bottom: 0.5rem;
     }
@@ -247,7 +247,7 @@
     
     .card {
         box-shadow: none;
-        border: 1px solid #ddd;
+        border: 0.0625rem solid #ddd;
         margin-bottom: 1rem;
     }
     
@@ -271,7 +271,7 @@
 }
 
 .form-select {
-    border: 2px solid #e2e8f0;
+    border: 0.125rem solid #e2e8f0;
     border-radius: var(--radius-sm);
     padding: 0.75rem 1rem;
     background: var(--white);
@@ -280,7 +280,7 @@
 
 .form-select:focus {
     border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 0.1875rem rgba(102, 126, 234, 0.1);
 }
 
 /* Professional Button System */
@@ -291,7 +291,7 @@
     font-weight: 600;
     font-size: 0.9rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.03125em;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
@@ -319,7 +319,7 @@
 }
 
 .btn-primary-modern:hover {
-    transform: translateY(-2px);
+    transform: translateY(-0.125rem);
     box-shadow: var(--shadow-lg);
     color: var(--white);
 }
@@ -331,7 +331,7 @@
 }
 
 .btn-success-modern:hover {
-    transform: translateY(-2px);
+    transform: translateY(-0.125rem);
     box-shadow: var(--shadow-lg);
     color: var(--white);
 }
@@ -361,12 +361,12 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 0.25rem;
     background: var(--primary-gradient);
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-0.25rem);
     box-shadow: var(--shadow-lg);
 }
 
@@ -390,8 +390,8 @@
     position: absolute;
     top: var(--spacing-md);
     right: var(--spacing-md);
-    width: 48px;
-    height: 48px;
+    width: 3rem;
+    height: 3rem;
     border-radius: 50%;
     background: var(--primary-gradient);
     display: flex;
@@ -439,15 +439,15 @@
     padding: var(--spacing-md);
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.03125em;
     font-size: 0.8rem;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 0.125rem solid var(--border-color);
 }
 
 .table-modern tbody td {
     padding: var(--spacing-md);
     vertical-align: middle;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 0.0625rem solid var(--border-color);
     color: var(--text-primary);
 }
 
@@ -461,8 +461,8 @@
 
 /* Professional Member Avatar */
 .member-avatar {
-    width: 48px;
-    height: 48px;
+    width: 3rem;
+    height: 3rem;
     border-radius: 50%;
     background: var(--primary-gradient);
     display: flex;
@@ -485,7 +485,7 @@
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.03125em;
 }
 
 .status-active {
@@ -505,8 +505,8 @@
 }
 
 .btn-action {
-    width: 32px;
-    height: 32px;
+    width: 2rem;
+    height: 2rem;
     border: none;
     border-radius: 50%;
     display: flex;
@@ -629,8 +629,8 @@
 }
 
 .search-input {
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
+    border: 0.125rem solid #e9ecef;
+    border-radius: 0.625rem;
     padding: 0.75rem 1rem;
     transition: all 0.3s ease;
 }

@@ -23,10 +23,10 @@ body {
 /* Professional Header */
 .navbar-modern {
     background: linear-gradient(135deg, rgba(44, 62, 80, 0.98), rgba(52, 73, 94, 0.98)) !important;
-    backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+    backdrop-filter: blur(0.9375rem);
+    border-bottom: 0.0625rem solid rgba(102, 126, 234, 0.3);
     padding: 1.2rem 0;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.12);
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -44,7 +44,7 @@ body {
     gap: 0.75rem;
     text-decoration: none;
     transition: all 0.3s ease;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.03125em;
 }
 
 .navbar-brand:hover {
@@ -55,7 +55,7 @@ body {
 .navbar-brand i {
     font-size: 2rem;
     color: #667eea;
-    filter: drop-shadow(0 2px 4px rgba(102, 126, 234, 0.3));
+    filter: drop-shadow(0 0.125rem 0.25rem rgba(102, 126, 234, 0.3));
 }
 
 .navbar-nav {
@@ -71,7 +71,7 @@ body {
     font-weight: 600;
     font-size: 0.95rem;
     padding: 0.8rem 1.4rem !important;
-    border-radius: 12px;
+    border-radius: 0.75rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
@@ -99,25 +99,25 @@ body {
 .nav-link:hover {
     background: rgba(255, 255, 255, 0.15);
     color: white !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-0.0625rem);
+    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.15);
 }
 
 .nav-link.active {
     background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
     color: white !important;
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    transform: translateY(-1px);
+    box-shadow: 0 0.375rem 1.25rem rgba(102, 126, 234, 0.4);
+    transform: translateY(-0.0625rem);
 }
 
 .nav-link i {
     font-size: 1.1rem;
-    min-width: 18px;
+    min-width: 1.125rem;
 }
 
 .navbar-toggler {
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 8px;
+    border: 0.125rem solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.5rem;
     padding: 0.5rem 0.75rem;
     transition: all 0.3s ease;
 }
@@ -128,7 +128,7 @@ body {
 }
 
 .navbar-toggler:focus {
-    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 0 0 0.125rem rgba(102, 126, 234, 0.3);
     border-color: rgba(102, 126, 234, 0.5);
 }
 
@@ -139,28 +139,28 @@ body {
 
 /* Content wrapper */
 .content-wrapper {
-    min-height: calc(100vh - 140px);
+    min-height: calc(100vh - 8.75rem);
     padding: 2rem 0;
 }
 
 /* Modern Cards */
 .modern-card {
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(0.625rem);
+    border-radius: 0.9375rem;
+    box-shadow: 0 0.625rem 1.875rem rgba(0,0,0,0.1);
+    border: 0.0625rem solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
 }
 
 .modern-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    transform: translateY(-0.3125rem);
+    box-shadow: 0 1.25rem 2.5rem rgba(0,0,0,0.15);
 }
 
 /* Utility classes */
 .btn-modern {
-    border-radius: 10px;
+    border-radius: 0.625rem;
     padding: 0.75rem 1.5rem;
     font-weight: 600;
     border: none;
@@ -170,12 +170,12 @@ body {
 .btn-primary-modern {
     background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
     color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 0.25rem 0.9375rem rgba(102, 126, 234, 0.3);
 }
 
 .btn-primary-modern:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.5rem 1.5625rem rgba(102, 126, 234, 0.4);
     color: white;
 }
 
@@ -189,7 +189,7 @@ body {
 /* Special Logout Button */
 .logout-btn {
     background: rgba(231, 76, 60, 0.15) !important;
-    border: 1px solid rgba(231, 76, 60, 0.3);
+    border: 0.0625rem solid rgba(231, 76, 60, 0.3);
 }
 
 .logout-btn:hover {
@@ -227,7 +227,7 @@ body {
     .nav-link {
         padding: 0.6rem 1rem !important;
         margin: 0.2rem 0;
-        border-radius: 8px;
+        border-radius: 0.5rem;
     }
     
     .navbar-nav {
@@ -237,12 +237,12 @@ body {
     
     .content-wrapper {
         padding: 1rem 0;
-        margin-top: 85px;
+        margin-top: 5.3125rem;
     }
 }
 
 @media (min-width: 992px) {
     .content-wrapper {
-        margin-top: 100px;
+        margin-top: 6.25rem;
     }
 }

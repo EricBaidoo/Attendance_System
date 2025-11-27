@@ -6,8 +6,8 @@
 }
 
 .form-control, .form-select {
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
+    border: 0.125rem solid #e9ecef;
+    border-radius: 0.5rem;
     padding: 0.75rem 1rem;
     transition: all 0.3s ease;
 }
@@ -29,29 +29,29 @@
 }
 
 .section-divider {
-    height: 3px;
+    height: 0.1875rem;
     background: linear-gradient(90deg, #6f42c1, #20c997, #fd7e14);
     border: none;
-    border-radius: 3px;
+    border-radius: 0.1875rem;
     margin: 2rem 0;
 }
 
 .form-card {
-    border-radius: 15px;
+    border-radius: 0.9375rem;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.1);
 }
 
 .btn-custom {
-    border-radius: 8px;
+    border-radius: 0.5rem;
     padding: 0.75rem 1.5rem;
     font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .btn-custom:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.2);
 }
 
 /* Checkin page styles */
@@ -66,16 +66,16 @@ body.checkin-page {
 .checkin-card {
     background: rgba(255, 255, 255, 0.98);
     border: none;
-    border-radius: 20px;
-    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
-    backdrop-filter: blur(10px);
+    border-radius: 1.25rem;
+    box-shadow: 0 1.5625rem 4.375rem rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(0.625rem);
 }
 
 .checkin-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 40px 30px;
-    border-radius: 20px 20px 0 0;
+    padding: 2.5rem 1.875rem;
+    border-radius: 1.25rem 1.25rem 0 0;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -98,11 +98,11 @@ body.checkin-page {
 }
 
 .checkin-page .form-control, .checkin-page .form-select {
-    border-radius: 12px;
-    border: 2px solid #e9ecef;
-    padding: 15px 18px;
+    border-radius: 0.75rem;
+    border: 0.125rem solid #e9ecef;
+    padding: 0.9375rem 1.125rem;
     transition: all 0.3s ease;
-    font-size: 16px;
+    font-size: 1rem;
     background: rgba(255, 255, 255, 0.9);
 }
 
@@ -110,35 +110,35 @@ body.checkin-page {
     border-color: #667eea;
     box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
     background: white;
-    transform: translateY(-1px);
+    transform: translateY(-0.0625rem);
 }
 
 .btn-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
-    border-radius: 12px;
-    padding: 15px 35px;
+    border-radius: 0.75rem;
+    padding: 0.9375rem 2.1875rem;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 1.125rem;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
 }
 
 .btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    transform: translateY(-0.1875rem);
+    box-shadow: 0 0.9375rem 2.1875rem rgba(102, 126, 234, 0.4);
 }
 
 .btn-primary:active {
-    transform: translateY(-1px);
+    transform: translateY(-0.0625rem);
 }
 
 .alert {
     border: none;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 25px;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5625rem;
 }
 
 .alert-success {
@@ -158,8 +158,8 @@ body.checkin-page {
 
 .service-card {
     background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
+    border: 0.125rem solid #e2e8f0;
+    border-radius: 0.75rem;
     transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
@@ -168,8 +168,8 @@ body.checkin-page {
 
 .service-card:hover {
     border-color: #667eea;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
-    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1.5625rem rgba(102, 126, 234, 0.15);
+    transform: translateY(-0.125rem);
 }
 
 .service-card.selected {
@@ -186,23 +186,23 @@ body.checkin-page {
 .checkin-page .form-label {
     color: #2d3748;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
 }
 
 .card-body {
-    padding: 40px !important;
+    padding: 2.5rem !important;
 }
 
 .welcome-icon {
     font-size: 3rem;
     color: #667eea;
-    margin-bottom: 20px;
+    margin-bottom: 1.25rem;
 }
 
 /* Search box styles */
 .search-box {
-    border: 2px solid #e9ecef;
-    border-radius: 50px;
+    border: 0.125rem solid #e9ecef;
+    border-radius: 3.125rem;
     padding: 0.75rem 1.5rem;
     transition: all 0.3s ease;
 }
@@ -213,16 +213,16 @@ body.checkin-page {
 }
 
 .visitor-card {
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
+    border: 0.125rem solid #e9ecef;
+    border-radius: 0.625rem;
     transition: all 0.3s ease;
     cursor: pointer;
 }
 
 .visitor-card:hover {
     border-color: #6f42c1;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.1);
 }
 
 .visitor-card.selected {
@@ -235,7 +235,7 @@ body.checkin-page {
     background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     color: white;
     padding: 2rem;
-    border-radius: 15px 15px 0 0;
+    border-radius: 0.9375rem 0.9375rem 0 0;
 }
 
 .progress-steps {
@@ -262,7 +262,7 @@ body.checkin-page {
     top: 50%;
     right: -50%;
     width: 100%;
-    height: 2px;
+    height: 0.125rem;
     background: #e9ecef;
     z-index: -1;
 }
@@ -274,37 +274,37 @@ body.checkin-page {
 /* Additional visitor page styles */
 .stats-card {
     border: none;
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    border-radius: 0.9375rem;
+    box-shadow: 0 0.3125rem 1.25rem rgba(0,0,0,0.08);
     transition: transform 0.3s ease;
 }
 
 .stats-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-0.3125rem);
 }
 
 .convert-badge {
     font-size: 0.85em;
     padding: 0.5rem 0.8rem;
-    border-radius: 8px;
+    border-radius: 0.5rem;
 }
 
 .convert-item {
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
+    border: 0.125rem solid #e9ecef;
+    border-radius: 0.625rem;
     transition: all 0.3s ease;
 }
 
 .convert-item:hover {
     border-color: #28a745;
-    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.1);
-    transform: translateY(-2px);
+    box-shadow: 0 0.3125rem 0.9375rem rgba(40, 167, 69, 0.1);
+    transform: translateY(-0.125rem);
 }
 
 .converts-card {
-    border-radius: 15px;
+    border-radius: 0.9375rem;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.1);
 }
 
 .converts-header {

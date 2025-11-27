@@ -9,7 +9,7 @@ body {
         radial-gradient(circle at 20% 20%, rgba(44, 82, 130, 0.03) 0%, transparent 40%),
         radial-gradient(circle at 80% 80%, rgba(56, 161, 105, 0.03) 0%, transparent 40%),
         linear-gradient(45deg, transparent 48%, rgba(44, 82, 130, 0.01) 49%, rgba(44, 82, 130, 0.01) 51%, transparent 52%);
-    background-size: 200px 200px, 300px 300px, 50px 50px;
+    background-size: 12.5rem 12.5rem, 18.75rem 18.75rem, 3.125rem 3.125rem;
     min-height: 100vh;
 }
 
@@ -20,7 +20,7 @@ body {
     background-image: 
         radial-gradient(circle at 25% 25%, rgba(44, 82, 130, 0.02) 0%, transparent 50%),
         radial-gradient(circle at 75% 75%, rgba(44, 82, 130, 0.02) 0%, transparent 50%);
-    min-height: calc(100vh - 120px);
+    min-height: calc(100vh - 7.5rem);
 }
 
 .modern-card {
@@ -30,7 +30,7 @@ body {
 
 .container-fluid {
     padding: 0.5rem 1rem 0.5rem 1rem !important;
-    margin-top: -10px !important;
+    margin-top: -0.625rem !important;
 }
 
 .mb-3, .mb-4, .mb-5 {
@@ -55,7 +55,7 @@ body {
 @media (max-width: 768px) {
     .container-fluid {
         padding: 0.25rem !important;
-        margin-top: -5px !important;
+        margin-top: -0.3125rem !important;
     }
 }
 
@@ -64,8 +64,8 @@ body {
     color: white;
     padding: 2rem 0;
     margin-bottom: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(26, 54, 93, 0.25);
+    border-radius: 0.75rem;
+    box-shadow: 0 0.5rem 1.5625rem rgba(26, 54, 93, 0.25);
 }
 
 .dashboard-header h1 {
@@ -91,23 +91,23 @@ body {
 
 .dashboard-card {
     background: white;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     padding: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
+    border: 0.0625rem solid #e2e8f0;
     transition: all 0.3s ease;
     height: 100%;
 }
 
 .dashboard-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-0.3125rem);
+    box-shadow: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.15);
 }
 
 .card-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 15px;
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: 0.9375rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -142,13 +142,13 @@ body {
 
 .recent-activity {
     background: white;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.1);
 }
 
 .activity-header {
-    border-bottom: 2px solid #f8f9fa;
+    border-bottom: 0.125rem solid #f8f9fa;
     padding-bottom: 1rem;
     margin-bottom: 1.5rem;
 }
@@ -163,7 +163,7 @@ body {
     display: flex;
     align-items: center;
     padding: 1rem;
-    border-radius: 10px;
+    border-radius: 0.625rem;
     margin-bottom: 1rem;
     transition: all 0.3s ease;
 }
@@ -173,9 +173,9 @@ body {
 }
 
 .activity-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.625rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -201,9 +201,9 @@ body {
 
 .quick-actions {
     background: white;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.1);
 }
 
 .quick-actions h3 {
@@ -217,7 +217,7 @@ body {
     width: 100%;
     padding: 1rem;
     margin-bottom: 1rem;
-    border-radius: 15px;
+    border-radius: 0.9375rem;
     text-decoration: none;
     font-weight: 600;
     transition: all 0.3s ease;
@@ -226,7 +226,7 @@ body {
 }
 
 .action-btn:hover {
-    transform: translateY(-2px);
+    transform: translateY(-0.125rem);
     text-decoration: none;
 }
 
@@ -252,14 +252,14 @@ body {
 
 .chart-container {
     background: white;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
 }
 
 .chart-header {
-    border-bottom: 2px solid #f8f9fa;
+    border-bottom: 0.125rem solid #f8f9fa;
     padding-bottom: 1rem;
     margin-bottom: 1.5rem;
 }
@@ -299,27 +299,27 @@ body {
     color: white;
     font-weight: 500;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(44, 82, 130, 0.25);
+    box-shadow: 0 0.25rem 0.75rem rgba(44, 82, 130, 0.25);
 }
 
 .btn-primary-modern:hover {
     background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(44, 82, 130, 0.35);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.375rem 1rem rgba(44, 82, 130, 0.35);
     color: white;
 }
 
 .modern-card {
     background: white;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 0.5rem;
+    border: 0.0625rem solid #e2e8f0;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
 }
 
 .modern-card:hover {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.12);
+    transform: translateY(-0.125rem);
 }
 
 /* Classic Background Colors */
@@ -399,6 +399,6 @@ body {
     font-weight: 500;
     padding: 0.25rem 0.75rem;
     background: rgba(44, 82, 130, 0.08);
-    border-radius: 20px;
-    border: 1px solid rgba(44, 82, 130, 0.1);
+    border-radius: 1.25rem;
+    border: 0.0625rem solid rgba(44, 82, 130, 0.1);
 }
