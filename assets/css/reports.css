@@ -9,9 +9,9 @@
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     color: white;
     padding: 2rem;
-    border-radius: 15px;
+    border-radius: 0.9375rem;
     margin-bottom: 2rem;
-    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0.625rem 1.5625rem rgba(59, 130, 246, 0.3);
 }
 
 .reports-header h1 {
@@ -27,7 +27,7 @@
 }
 
 .export-actions .btn {
-    border-radius: 8px;
+    border-radius: 0.5rem;
     padding: 0.5rem 1.2rem;
     font-weight: 600;
     transition: all 0.3s ease;
@@ -51,7 +51,7 @@
 
 .export-actions .btn-primary:hover {
     background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
+    transform: translateY(-0.125rem);
 }
 
 /* Filters Card */
@@ -61,8 +61,8 @@
 
 .filters-card .card {
     border: none;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    border-radius: 0.9375rem;
+    box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.08);
 }
 
 .filters-card .card-body {
@@ -76,8 +76,8 @@
 }
 
 .filters-card .form-control, .filters-card .form-select {
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
+    border: 0.125rem solid #e2e8f0;
+    border-radius: 0.5rem;
     padding: 0.75rem;
     transition: all 0.3s ease;
 }
@@ -90,14 +90,14 @@
 .filters-card .btn-primary {
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     border: none;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .filters-card .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.3125rem 0.9375rem rgba(59, 130, 246, 0.3);
 }
 
 /* Metrics Row */
@@ -107,9 +107,9 @@
 
 .metric-card {
     background: white;
-    border-radius: 15px;
+    border-radius: 0.9375rem;
     padding: 1.5rem;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     height: 100%;
     position: relative;
@@ -122,13 +122,13 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 0.25rem;
     background: linear-gradient(90deg, #3b82f6, #1d4ed8);
 }
 
 .metric-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-0.3125rem);
+    box-shadow: 0 0.625rem 1.5625rem rgba(0, 0, 0, 0.15);
 }
 
 .metric-total::before {
@@ -191,15 +191,15 @@
 /* Chart Cards */
 .chart-card .card, .table-card .card {
     border: none;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    border-radius: 0.9375rem;
+    box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.08);
     height: 100%;
 }
 
 .chart-card .card-header, .table-card .card-header {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     border-bottom: none;
-    border-radius: 15px 15px 0 0 !important;
+    border-radius: 0.9375rem 0.9375rem 0 0 !important;
     padding: 1.5rem;
 }
 
@@ -214,7 +214,7 @@
 }
 
 .chart-card canvas {
-    max-height: 300px;
+    max-height: 18.75rem;
 }
 
 /* Table Styling */
@@ -224,14 +224,14 @@
 
 .table-card .table th {
     border-top: none;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 0.125rem solid #e2e8f0;
     font-weight: 600;
     color: #475569;
     background: #f8fafc;
 }
 
 .table-card .table td {
-    border-top: 1px solid #f1f5f9;
+    border-top: 0.0625rem solid #f1f5f9;
     padding: 1rem 0.75rem;
     vertical-align: middle;
 }
@@ -245,17 +245,17 @@
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     color: white;
     padding: 0.25rem 0.75rem;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     font-weight: 600;
     font-size: 0.875rem;
 }
 
 .performance-bar {
-    min-width: 100px;
+    min-width: 6.25rem;
 }
 
 .performance-bar .progress {
-    border-radius: 10px;
+    border-radius: 0.625rem;
     background: #e2e8f0;
     margin-bottom: 0.25rem;
 }
@@ -268,14 +268,14 @@
 /* Top Members Card */
 .top-members-card .card {
     border: none;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    border-radius: 0.9375rem;
+    box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.08);
 }
 
 .member-card {
     background: white;
-    border: 2px solid #f1f5f9;
-    border-radius: 12px;
+    border: 0.125rem solid #f1f5f9;
+    border-radius: 0.75rem;
     padding: 1.25rem;
     transition: all 0.3s ease;
     display: flex;
@@ -285,8 +285,8 @@
 
 .member-card:hover {
     border-color: #3b82f6;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+    transform: translateY(-0.1875rem);
+    box-shadow: 0 0.5rem 1.25rem rgba(59, 130, 246, 0.15);
 }
 
 .member-rank {
@@ -311,8 +311,8 @@
 .member-rank .rank-number {
     background: #e2e8f0;
     color: #64748b;
-    width: 32px;
-    height: 32px;
+    width: 2rem;
+    height: 2rem;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -337,7 +337,7 @@
     background: linear-gradient(135deg, #10b981 0%, #047857 100%);
     color: white;
     padding: 0.25rem 0.75rem;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     font-size: 0.75rem;
     font-weight: 600;
     display: inline-flex;
@@ -370,7 +370,7 @@
     }
     
     .chart-card canvas {
-        max-height: 250px;
+        max-height: 15.625rem;
     }
 }
 
@@ -386,7 +386,7 @@
     
     .card {
         box-shadow: none !important;
-        border: 1px solid #ddd !important;
+        border: 0.0625rem solid #ddd !important;
     }
     
     .metric-card {
@@ -398,7 +398,7 @@
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(1.25rem);
     }
     to {
         opacity: 1;

@@ -11,8 +11,8 @@
     color: white;
     padding: 2rem 0;
     margin-bottom: 2rem;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(255, 126, 95, 0.3);
+    border-radius: 1.25rem;
+    box-shadow: 0 0.625rem 1.875rem rgba(255, 126, 95, 0.3);
 }
 
 .attendance-header h1 {
@@ -34,26 +34,26 @@
 
 .service-selection {
     background: white;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     padding: 2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.1);
 }
 
 .service-card {
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
-    border-radius: 15px;
+    border-radius: 0.9375rem;
     padding: 1.5rem;
     margin-bottom: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    border: 3px solid transparent;
+    border: 0.1875rem solid transparent;
 }
 
 .service-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    transform: translateY(-0.3125rem);
+    box-shadow: 0 0.625rem 1.5625rem rgba(102, 126, 234, 0.3);
 }
 
 .service-card.active {
@@ -73,14 +73,14 @@
 
 .attendance-marking {
     background: white;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.1);
 }
 
 .attendance-controls {
     background: #f8f9fa;
-    border-radius: 15px;
+    border-radius: 0.9375rem;
     padding: 1.5rem;
     margin-bottom: 2rem;
 }
@@ -96,8 +96,8 @@
 }
 
 .search-attendance {
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
+    border: 0.125rem solid #e9ecef;
+    border-radius: 0.625rem;
     padding: 0.75rem 1rem;
     transition: all 0.3s ease;
 }
@@ -116,7 +116,7 @@
 .filter-btn {
     background: #e9ecef;
     border: none;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     padding: 0.5rem 1rem;
     font-size: 0.8rem;
     font-weight: 600;
@@ -131,16 +131,16 @@
 
 .members-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(18.75rem, 1fr));
     gap: 1rem;
 }
 
 .member-attendance-card {
     background: white;
-    border-radius: 15px;
+    border-radius: 0.9375rem;
     padding: 1.5rem;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    border: 2px solid #e9ecef;
+    box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.05);
+    border: 0.125rem solid #e9ecef;
     transition: all 0.3s ease;
 }
 
@@ -162,8 +162,8 @@
 }
 
 .member-avatar-lg {
-    width: 50px;
-    height: 50px;
+    width: 3.125rem;
+    height: 3.125rem;
     border-radius: 50%;
     background: linear-gradient(135deg, #667eea, #764ba2);
     display: flex;
@@ -194,7 +194,7 @@
 .attendance-btn {
     width: 100%;
     border: none;
-    border-radius: 10px;
+    border-radius: 0.625rem;
     padding: 0.75rem;
     font-weight: 600;
     transition: all 0.3s ease;
@@ -208,32 +208,32 @@
 
 .btn-present.marked {
     background: linear-gradient(135deg, #1e8449, #239b56);
-    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+    box-shadow: 0 0.25rem 0.9375rem rgba(39, 174, 96, 0.3);
 }
 
 .attendance-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.5rem 1.5625rem rgba(0, 0, 0, 0.15);
 }
 
 .attendance-summary {
     background: white;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     padding: 2rem;
     margin-top: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.1);
 }
 
 .summary-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(9.375rem, 1fr));
     gap: 1rem;
 }
 
 .summary-card {
     text-align: center;
     padding: 1rem;
-    border-radius: 15px;
+    border-radius: 0.9375rem;
 }
 
 .summary-present {
@@ -261,5 +261,5 @@
     font-size: 0.9rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.0625em;
 }

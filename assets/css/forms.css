@@ -8,10 +8,10 @@
 
 .form-card {
     background: white;
-    border-radius: 20px;
+    border-radius: 1.25rem;
     padding: 2rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
+    box-shadow: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.1);
+    max-width: 50rem;
     margin: 0 auto;
 }
 
@@ -19,7 +19,7 @@
     text-align: center;
     margin-bottom: 2rem;
     padding-bottom: 1rem;
-    border-bottom: 2px solid #f8f9fa;
+    border-bottom: 0.125rem solid #f8f9fa;
 }
 
 .form-header h2 {
@@ -43,12 +43,12 @@
     font-size: 1.1rem;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 0.0625rem solid #e9ecef;
 }
 
 .form-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(15.625rem, 1fr));
     gap: 1rem;
     margin-bottom: 1rem;
 }
@@ -70,8 +70,8 @@
 
 .form-control {
     width: 100%;
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
+    border: 0.125rem solid #e9ecef;
+    border-radius: 0.625rem;
     padding: 0.75rem 1rem;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -97,13 +97,13 @@
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
-    background-size: 16px 12px;
+    background-size: 1rem 0.75rem;
     appearance: none;
 }
 
 .form-textarea {
     resize: vertical;
-    min-height: 100px;
+    min-height: 6.25rem;
 }
 
 .input-group {
@@ -112,15 +112,15 @@
 }
 
 .input-group .form-control {
-    border-radius: 10px 0 0 10px;
+    border-radius: 0.625rem 0 0 0.625rem;
     border-right: 0;
 }
 
 .input-group-text {
     background: #f8f9fa;
-    border: 2px solid #e9ecef;
+    border: 0.125rem solid #e9ecef;
     border-left: 0;
-    border-radius: 0 10px 10px 0;
+    border-radius: 0 0.625rem 0.625rem 0;
     padding: 0.75rem 1rem;
     color: #6c757d;
 }
@@ -149,16 +149,16 @@
     align-items: center;
     margin-top: 2rem;
     padding-top: 1rem;
-    border-top: 1px solid #e9ecef;
+    border-top: 0.0625rem solid #e9ecef;
 }
 
 .btn-form {
     border: none;
-    border-radius: 10px;
+    border-radius: 0.625rem;
     padding: 0.75rem 2rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.03125em;
     transition: all 0.3s ease;
     cursor: pointer;
     text-decoration: none;
@@ -173,8 +173,8 @@
 }
 
 .btn-primary-form:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.5rem 1.5625rem rgba(102, 126, 234, 0.3);
     color: white;
 }
 
@@ -185,7 +185,7 @@
 
 .btn-secondary-form:hover {
     background: #5a6268;
-    transform: translateY(-2px);
+    transform: translateY(-0.125rem);
     color: white;
 }
 
@@ -195,8 +195,8 @@
 }
 
 .btn-danger-form:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.3);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.5rem 1.5625rem rgba(231, 76, 60, 0.3);
     color: white;
 }
 
@@ -215,15 +215,15 @@
 
 .form-progress {
     background: #f8f9fa;
-    border-radius: 10px;
+    border-radius: 0.625rem;
     padding: 1rem;
     margin-bottom: 2rem;
 }
 
 .progress-bar {
     background: linear-gradient(135deg, #667eea, #764ba2);
-    height: 8px;
-    border-radius: 4px;
+    height: 0.5rem;
+    border-radius: 0.25rem;
     transition: width 0.3s ease;
 }
 
@@ -246,8 +246,8 @@
 }
 
 .step-number {
-    width: 24px;
-    height: 24px;
+    width: 1.5rem;
+    height: 1.5rem;
     border-radius: 50%;
     background: #e9ecef;
     display: flex;
@@ -264,8 +264,8 @@
 }
 
 .file-upload {
-    border: 2px dashed #e9ecef;
-    border-radius: 10px;
+    border: 0.125rem dashed #e9ecef;
+    border-radius: 0.625rem;
     padding: 2rem;
     text-align: center;
     transition: all 0.3s ease;
