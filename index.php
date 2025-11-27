@@ -275,7 +275,7 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 m
             <?php
             try {
                 $recent_members = $pdo->query("
-                    SELECT m.name, m.date_joined, d.name as department 
+                    SELECT m.name, m.location, m.date_joined, d.name as department 
                     FROM members m 
                     LEFT JOIN departments d ON m.department_id = d.id
                     WHERE m.status = 'active'
@@ -287,14 +287,21 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 m
                     <div class="list-group list-group-flush">
                         <?php foreach ($recent_members as $member): ?>
                             <div class="list-group-item border-0 px-0">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1"><?php echo htmlspecialchars($member['name']); ?></h6>
-                                        <small class="text-muted"><?php echo htmlspecialchars($member['department'] ?: 'No department'); ?></small>
+                                <div class="d-flex flex-column">
+                                    <h6 class="mb-2"><?php echo htmlspecialchars($member['name']); ?></h6>
+                                    <div class="small text-muted d-flex flex-wrap">
+                                        <span class="me-2">
+                                            <i class="bi bi-geo-alt"></i> <?php echo htmlspecialchars($member['location'] ?: 'No location'); ?>
+                                        </span>
+                                        <span class="me-2">|</span>
+                                        <span class="me-2">
+                                            <i class="bi bi-building"></i> <?php echo htmlspecialchars($member['department'] ?: 'No department'); ?>
+                                        </span>
+                                        <span class="me-2">|</span>
+                                        <span>
+                                            <i class="bi bi-calendar"></i> <?php echo date('M j, Y', strtotime($member['date_joined'])); ?>
+                                        </span>
                                     </div>
-                                    <small class="text-muted">
-                                        <?php echo date('M j', strtotime($member['date_joined'])); ?>
-                                    </small>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -320,10 +327,11 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 m
             <?php
             try {
                 $recent_visitors = $pdo->query("
-                    SELECT name, created_at, phone 
-                    FROM visitors 
-                    WHERE (status IS NULL OR status != 'converted_to_convert')
-                    ORDER BY created_at DESC 
+                    SELECT v.name, v.address as location, v.created_at as date_joined, s.name as service_name 
+                    FROM visitors v 
+                    LEFT JOIN services s ON v.service_id = s.id
+                    WHERE (v.status IS NULL OR v.status != 'converted_to_convert')
+                    ORDER BY v.created_at DESC 
                     LIMIT 5
                 ")->fetchAll();
                 
@@ -331,14 +339,21 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 m
                     <div class="list-group list-group-flush">
                         <?php foreach ($recent_visitors as $visitor): ?>
                             <div class="list-group-item border-0 px-0">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1"><?php echo htmlspecialchars($visitor['name']); ?></h6>
-                                        <small class="text-muted"><?php echo htmlspecialchars($visitor['phone'] ?: 'No phone'); ?></small>
+                                <div class="d-flex flex-column">
+                                    <h6 class="mb-2"><?php echo htmlspecialchars($visitor['name']); ?></h6>
+                                    <div class="small text-muted d-flex flex-wrap">
+                                        <span class="me-2">
+                                            <i class="bi bi-geo-alt"></i> <?php echo htmlspecialchars($visitor['location'] ?: 'No address'); ?>
+                                        </span>
+                                        <span class="me-2">|</span>
+                                        <span class="me-2">
+                                            <i class="bi bi-person-badge"></i> <?php echo htmlspecialchars($visitor['service_name'] ?: 'Visitor'); ?>
+                                        </span>
+                                        <span class="me-2">|</span>
+                                        <span>
+                                            <i class="bi bi-calendar"></i> <?php echo date('M j, Y', strtotime($visitor['date_joined'])); ?>
+                                        </span>
                                     </div>
-                                    <small class="text-muted">
-                                        <?php echo date('M j', strtotime($visitor['created_at'])); ?>
-                                    </small>
                                 </div>
                             </div>
                         <?php endforeach; ?>
