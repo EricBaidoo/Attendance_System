@@ -121,7 +121,7 @@ $page_title = "Services Management - Bridge Ministries International";
 include '../../includes/header.php';
 ?>
 
-<link rel="stylesheet" href="../../assets/css/services-classic.css">
+<!-- Using Bootstrap classes only -->
 
 <div class="page-header">
     <div class="container">

@@ -141,12 +141,12 @@ $page_actions = '<a href="view.php?id=' . $visitor['id'] . '" class="btn btn-sec
 include '../../includes/header.php';
 ?>
 
-<link rel="stylesheet" href="../../assets/css/visitors.css">
+<!-- Using Bootstrap classes only -->
 
 <style>
 .form-control, .form-select {
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
+    border: 0.125rem solid #e9ecef;
+    border-radius: 0.5rem;
     padding: 0.75rem 1rem;
     transition: all 0.3s ease;
 }

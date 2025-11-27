@@ -132,7 +132,7 @@ $page_title = "Mark Attendance - Bridge Ministries International";
 include '../../includes/header.php';
 ?>
 <!-- Additional CSS for attendance page -->
-<link href="../../assets/css/attendance.css" rel="stylesheet">
+<!-- Using Bootstrap classes only -->
 
 <div class="attendance-container">
     <div class="container">

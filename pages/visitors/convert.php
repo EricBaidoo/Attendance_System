@@ -254,14 +254,14 @@ $page_description = "Convert visitor to new convert status or promote to full me
 include '../../includes/header.php';
 ?>
 
-<link rel="stylesheet" href="../../assets/css/visitors.css">
+<!-- Using Bootstrap classes only -->
 
 <style>
     .conversion-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        border-radius: 15px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border-radius: 0.9375rem;
+        box-shadow: 0 0.9375rem 2.1875rem rgba(0, 0, 0, 0.1);
     }
     .form-control:focus, .form-select:focus {
         border-color: #667eea;
@@ -275,8 +275,8 @@ include '../../includes/header.php';
         transition: all 0.3s ease;
     }
     .btn-convert:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(72, 187, 120, 0.3);
+        transform: translateY(-0.125rem);
+        box-shadow: 0 0.625rem 1.875rem rgba(72, 187, 120, 0.3);
         color: white;
     }
     .btn-member {
@@ -287,8 +287,8 @@ include '../../includes/header.php';
         transition: all 0.3s ease;
     }
     .btn-member:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(237, 137, 54, 0.3);
+        transform: translateY(-0.125rem);
+        box-shadow: 0 0.625rem 1.875rem rgba(237, 137, 54, 0.3);
         color: white;
     }
 </style>

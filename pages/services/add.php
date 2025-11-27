@@ -42,7 +42,7 @@ $page_title = "Add New Service - Bridge Ministries International";
 include '../../includes/header.php';
 ?>
 
-<link rel="stylesheet" href="../../assets/css/services-add.css">
+<!-- Using Bootstrap classes only -->
 
 
 <div class="add-service-container">

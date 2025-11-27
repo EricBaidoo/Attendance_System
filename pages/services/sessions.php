@@ -181,7 +181,7 @@ $page_title = "Today's Sessions - Bridge Ministries International";
 include '../../includes/header.php';
 ?>
 
-<link rel="stylesheet" href="../../assets/css/sessions-classic.css">
+<!-- Using Bootstrap classes only -->
 
 <div class="sessions-container">
     <div class="page-header">

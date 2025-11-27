@@ -91,7 +91,7 @@ $page_description = "Track new converts and their journey to full membership";
 include '../../includes/header.php';
 ?>
 
-<link rel="stylesheet" href="../../assets/css/visitors.css">
+<!-- Using Bootstrap classes only -->
 
 <!-- Success Message -->
 <?php if ($success_message): ?>

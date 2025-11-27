@@ -59,7 +59,7 @@ if ($levels_up == 0) {
                 border-radius: 0.5rem;
                 margin-top: 0.5rem;
                 padding: 1rem !important;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+                box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.3) !important;
             }
             .navbar-nav .nav-link {
                 color: #fff !important;
@@ -84,7 +84,7 @@ if ($levels_up == 0) {
                 <!-- Brand Section -->
                 <div class="col-lg-4 col-md-6 col-4">
                     <a class="navbar-brand" href="<?php echo $relative_path; ?>index.php">
-                        <img src="<?php echo $relative_path; ?>assets/css/image/bmi logo.png" alt="BMI Logo" style="height: 40px; width: auto; margin-right: 10px; border-radius: 6px;">
+                        <img src="<?php echo $relative_path; ?>assets/css/image/bmi logo.png" alt="BMI Logo" style="height: 2.5rem; width: auto; margin-right: 0.625rem; border-radius: 0.375rem;">
                         <span>BMI ATTENDANCE</span>
                     </a>
                 </div>

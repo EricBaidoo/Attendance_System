@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin_visitor'])) {
     <title>Visitor Check-In - Church Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="../../assets/css/visitors.css" rel="stylesheet">
+    <!-- Using Bootstrap classes only -->
 </head>
 <body class="checkin-page">
         body {
@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin_visitor'])) {
         .checkin-card {
             background: rgba(255, 255, 255, 0.98);
             border: none;
-            border-radius: 20px;
+            border-radius: 1.25rem;
             box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
             backdrop-filter: blur(10px);
         }

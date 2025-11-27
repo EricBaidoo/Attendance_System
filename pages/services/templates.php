@@ -86,8 +86,8 @@ $page_title = "Service Templates - Bridge Ministries International";
 include '../../includes/header.php';
 ?>
 <!-- Additional CSS for services page -->
-<link href="../../assets/css/services.css" rel="stylesheet">
-<link href="../../assets/css/forms.css" rel="stylesheet">
+<!-- Using Bootstrap classes only -->
+<!-- Using Bootstrap classes only -->
 
 <div class="services-container">
     <div class="container">

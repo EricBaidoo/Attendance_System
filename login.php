@@ -36,12 +36,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             min-height: 100vh;
         }
         .login-card {
-            max-width: 400px;
+            max-width: 25rem;
             margin: auto;
         }
         .brand-section {
             background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(0.625rem);
             border-radius: 1rem;
         }
     </style>
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-lg-8 col-xl-6">
                 <!-- Brand Section -->
                 <div class="text-center mb-5 brand-section p-4">
-                    <img src="assets/css/image/bmi logo.png" alt="BMI Logo" class="img-fluid mb-3" style="max-height: 80px;">
+                    <img src="assets/css/image/bmi logo.png" alt="BMI Logo" class="img-fluid mb-3" style="max-height: 5rem;">
                     <h1 class="h2 text-white fw-bold">Bridge Ministries International</h1>
                     <p class="text-white-50">Attendance Management System</p>
                 </div>

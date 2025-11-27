@@ -79,7 +79,7 @@ $page_actions = '<a href="list.php" class="btn btn-outline-secondary"><i class="
 include '../../includes/header.php';
 ?>
 
-<link rel="stylesheet" href="../../assets/css/members.css">
+<!-- Using Bootstrap classes only -->
 
 <?php if (isset($error)): ?>
 <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert">
