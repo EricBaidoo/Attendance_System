@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="brand-info">
                     <h1 class="brand-title">Bridge Ministries International</h1>
-                    <p class="brand-subtitle">Church Management System</p>
+                    <p class="brand-subtitle">Attendance Management System</p>
                 </div>
             </div>
             
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="login-card">
                 <div class="login-form-header">
                     <h2 class="form-title">Welcome Back</h2>
-                    <p class="form-subtitle">Please sign in to your account</p>
+                 
                 </div>
 
                 <?php if ($error): ?>
@@ -68,7 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    class="form-control" 
                                    id="username" 
                                    name="username" 
-                                   placeholder="Enter username" 
                                    required 
                                    autocomplete="username">
                             <label for="username">Username</label>
@@ -82,7 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    class="form-control" 
                                    id="password" 
                                    name="password" 
-                                   placeholder="Enter password" 
                                    required 
                                    autocomplete="current-password">
                             <label for="password">Password</label>
