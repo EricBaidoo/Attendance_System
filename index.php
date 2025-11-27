@@ -87,9 +87,9 @@ include 'includes/header.php';
 <!-- Statistics Cards - Visible to all logged-in users -->
 <?php 
 // Determine grid layout based on user role and screen size
-$card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-12 mb-3' : 'col-lg-4 col-md-6 col-12 mb-3';
+$card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 mb-3' : 'col-lg-4 col-md-6 col-sm-6 col-12 mb-3';
 ?>
-<div class="row g-3">
+<div class="row g-2 g-md-3">
     <!-- Members Card - All users can see this -->
     <div class="<?php echo $card_col_class; ?>">
         <div class="card border-0 shadow-sm h-100">
@@ -102,7 +102,7 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-12 mb-3' : 'c
                             <i class="bi bi-arrow-up"></i> Active members
                         </small>
                     </div>
-                    <div class="bg-primary bg-opacity-10 rounded p-3">
+                    <div class="bg-primary bg-opacity-10 rounded p-3 d-none d-sm-block">
                         <i class="bi bi-people-fill text-primary fs-4"></i>
                     </div>
                 </div>
@@ -130,7 +130,7 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-12 mb-3' : 'c
                             <i class="bi bi-calendar"></i> Not converted
                         </small>
                     </div>
-                    <div class="bg-success bg-opacity-10 rounded p-3">
+                    <div class="bg-success bg-opacity-10 rounded p-3 d-none d-sm-block">
                         <i class="bi bi-person-badge text-success fs-4"></i>
                     </div>
                 </div>
@@ -155,7 +155,7 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-12 mb-3' : 'c
                             <i class="bi bi-person-plus"></i> Active converts
                         </small>
                     </div>
-                    <div class="bg-warning bg-opacity-10 rounded p-3">
+                    <div class="bg-warning bg-opacity-10 rounded p-3 d-none d-sm-block">
                         <i class="bi bi-person-plus-fill text-warning fs-4"></i>
                     </div>
                 </div>
@@ -183,7 +183,7 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-12 mb-3' : 'c
                             <i class="bi bi-diagram-3"></i> Active
                         </small>
                     </div>
-                    <div class="bg-info bg-opacity-10 rounded p-3">
+                    <div class="bg-info bg-opacity-10 rounded p-3 d-none d-sm-block">
                         <i class="bi bi-diagram-3 text-info fs-4"></i>
                     </div>
                 </div>
