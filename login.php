@@ -34,22 +34,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </head>
 <body>
-    <div class="container-fluid min-vh-100">
-        <div class="row min-vh-100 g-0">
+    <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center py-5">
+        <div class="row g-0 shadow-lg rounded-4 overflow-hidden" style="max-width: 900px; width: 100%;">
             <!-- Left Panel - Branding -->
             <div class="col-lg-6 d-flex align-items-center justify-content-center bg-primary-section">
-                <div class="text-center text-white p-5">
-                    <img src="assets/css/image/bmi logo.png" alt="BMI Logo" class="brand-logo mb-4">
-                    <h1 class="display-5 fw-bold mb-3">Bridge Ministries International</h1>
+                <div class="text-center text-white p-5 m-4">
+                    <img src="assets/css/image/bmi logo.png" alt="BMI Logo" class="brand-logo mb-5">
+                    <h1 class="display-5 fw-bold mb-4">Bridge Ministries International</h1>
                     <p class="lead mb-0">Attendance Management System</p>
                 </div>
             </div>
             
             <!-- Right Panel - Login Form -->
             <div class="col-lg-6 d-flex align-items-center justify-content-center bg-light-section">
-                <div class="w-100 max-width-form p-5">
+                <div class="w-100 max-width-form p-5 m-4">
                     <div class="text-center mb-5">
-                        <h2 class="h3 fw-bold text-primary mb-0">Welcome Back</h2>
+                        <h2 class="h3 fw-bold text-primary mb-3">Welcome Back</h2>
                     </div>
 
                     <?php if ($error): ?>
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endif; ?>
 
                     <form method="post" class="login-form">
-                        <div class="form-floating mb-3">
+                        <div class="form-floating mb-4">
                             <input type="text" 
                                    class="form-control form-control-lg rounded-3" 
                                    id="username" 
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </label>
                         </div>
 
-                        <div class="form-floating mb-4">
+                        <div class="form-floating mb-5">
                             <input type="password" 
                                    class="form-control form-control-lg rounded-3" 
                                    id="password" 
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </label>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 mb-3">
                             Sign In
                         </button>
                     </form>
