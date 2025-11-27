@@ -259,23 +259,47 @@ body {
     }
 }
 
-@media (max-width: 768px) {
-    body {
-        padding-top: 4.5rem;
+/* Force mobile navbar styling - highest priority */
+@media (max-width: 991px) {
+    .navbar-collapse {
+        background: #2c3e50 !important;
+        border: 2px solid #34495e !important;
+        border-radius: 8px !important;
+        margin-top: 1rem !important;
+        padding: 1.5rem !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4) !important;
     }
     
-    .navbar-modern {
-        padding: 0.6rem 0;
+    .navbar-nav .nav-link {
+        background: transparent !important;
+        color: #ffffff !important;
+        padding: 1rem 1.5rem !important;
+        margin: 0.25rem 0 !important;
+        border-radius: 6px !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 1rem !important;
     }
     
-    .container-fluid {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active {
+        background: rgba(255,255,255,0.2) !important;
+        color: #ffffff !important;
     }
     
-    .navbar-brand {
-        font-size: 1.2rem;
+    .navbar-nav .nav-link i {
+        color: #ffffff !important;
+        font-size: 1.2rem !important;
+        width: 1.5rem !important;
     }
+    
+    .navbar-nav .nav-link span {
+        color: #ffffff !important;
+        display: block !important;
+    }
+}
     
     /* Enhanced mobile navigation */
     .navbar-collapse {
