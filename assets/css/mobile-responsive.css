@@ -21,16 +21,6 @@
 }
 
 @media (max-width: 768px) {
-    /* Header and content spacing fixes */
-    body {
-        padding-top: 0 !important;
-    }
-    
-    .content-wrapper {
-        margin-top: 4rem !important;
-        padding-top: 1rem !important;
-    }
-    
     /* Dashboard-specific mobile fixes */
     .dashboard-container .card {
         margin-bottom: 1rem;
@@ -133,16 +123,6 @@
 }
 
 @media (max-width: 576px) {
-    /* Header and content spacing fixes for small mobile */
-    body {
-        padding-top: 0 !important;
-    }
-    
-    .content-wrapper {
-        margin-top: 3.5rem !important;
-        padding-top: 0.75rem !important;
-    }
-    
     /* Dashboard mobile card improvements */
     .dashboard-container .card {
         margin-bottom: 0.75rem;
