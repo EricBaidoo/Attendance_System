@@ -67,7 +67,7 @@ $footer_stats = [
 include 'includes/header.php';
 ?>
 
-<link rel="stylesheet" href="assets/css/dashboard.css">
+<!-- Dashboard content starts here -->
 
 <!-- Dashboard Header -->
 <div class="card border-0 shadow-sm mb-4">
@@ -89,9 +89,9 @@ include 'includes/header.php';
 <!-- Statistics Cards - Visible to all logged-in users -->
 <?php 
 // Determine grid layout based on user role and screen size
-$card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 mb-3' : 'col-lg-4 col-md-6 col-sm-6 col-12 mb-3';
+$card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 mb-4' : 'col-lg-4 col-md-6 col-sm-6 col-12 mb-4';
 ?>
-<div class="row g-2 g-md-3">
+<div class="row g-3 g-lg-4 mb-4">
     <!-- Members Card - All users can see this -->
     <div class="<?php echo $card_col_class; ?>">
         <div class="card border-0 shadow-sm h-100">
@@ -209,43 +209,31 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 m
         </h3>
         <div class="row g-3">
             <?php if (in_array($user_role, ['admin', 'staff'])): ?>
-            <div class="col-md-4">
+            <div class="col-lg-3 col-md-4 col-sm-6">
                 <a href="pages/members/add.php" class="btn btn-outline-primary w-100 py-3">
                     <i class="bi bi-person-plus-fill d-block fs-3 mb-2"></i>
                     Add New Member
                 </a>
             </div>
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a href="pages/visitors/add.php" class="btn btn-outline-success w-100 py-2">
-            <div class="col-md-4">
+            <div class="col-lg-3 col-md-4 col-sm-6">
                 <a href="pages/visitors/add.php" class="btn btn-outline-success w-100 py-3">
                     <i class="bi bi-person-badge-fill d-block fs-3 mb-2"></i>
                     Register Visitor
                 </a>
             </div>
-            <div class="col-md-4">
+            <div class="col-lg-3 col-md-4 col-sm-6">
                 <a href="pages/services/list.php" class="btn btn-outline-secondary w-100 py-3">
                     <i class="bi bi-gear-fill d-block fs-3 mb-2"></i>
                     Services
                 </a>
             </div>
-            <div class="col-md-4">
-                <a href="pages/services/sessions.php" class="btn btn-outline-dark w-100 py-3">
-                    <i class="bi bi-calendar-day-fill d-block fs-3 mb-2"></i>
-                    Sessions
-                </a>
-            </div>
-            <?php endif; ?>
-            
-            <!-- Attendance management - Staff and Admin only -->
-            <div class="col-md-4">
+            <div class="col-lg-3 col-md-4 col-sm-6">
                 <a href="pages/attendance/mark.php" class="btn btn-outline-warning w-100 py-3">
                     <i class="bi bi-clipboard-check-fill d-block fs-3 mb-2"></i>
                     Manage Attendance
                 </a>
             </div>
+            <?php endif; ?>
             
             <?php if ($user_role == 'admin'): ?>
             <div class="col-md-4">

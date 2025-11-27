@@ -40,17 +40,45 @@ if ($levels_up == 0) {
     <title><?php echo isset($page_title) ? $page_title : 'Bridge Ministries International'; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="<?php echo $relative_path; ?>assets/css/header.css" rel="stylesheet">
-    <link href="<?php echo $relative_path; ?>assets/css/footer.css" rel="stylesheet">
-    <link href="<?php echo $relative_path; ?>assets/css/mobile-responsive.css" rel="stylesheet">
-    <?php if (isset($additional_css)): ?>
-        <?php echo $additional_css; ?>
-    <?php endif; ?>
+    <!-- Custom Bootstrap overrides only -->
+    <style>
+        body { 
+            padding-top: 0 !important;
+            margin: 0;
+        }
+        .navbar {
+            margin-bottom: 0;
+        }
+        .content-wrapper {
+            padding-top: 1rem;
+        }
+        .navbar-brand { font-weight: 600; }
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                background: #2c3e50 !important;
+                border-radius: 0.5rem;
+                margin-top: 0.5rem;
+                padding: 1rem !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+            }
+            .navbar-nav .nav-link {
+                color: #fff !important;
+                padding: 0.75rem 1rem !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.75rem !important;
+                margin-bottom: 0.25rem !important;
+            }
+            .navbar-nav .nav-link:hover {
+                background: rgba(255,255,255,0.2) !important;
+            }
+        }
+    </style>
 </head>
 </head>
 <body>
     <!-- Professional Header Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-modern">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <div class="row w-100 align-items-center">
                 <!-- Brand Section -->
@@ -129,7 +157,7 @@ if ($levels_up == 0) {
     <div class="content-wrapper">
         <div class="container-fluid px-4">
             <?php if (isset($page_header) && $page_header): ?>
-                <div class="modern-card p-4 mb-4">
+                <div class="card border-0 shadow-sm p-4 mb-4">
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <h1 class="text-gradient mb-2">

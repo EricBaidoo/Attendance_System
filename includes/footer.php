@@ -9,7 +9,7 @@
         // Modern page loading animation
         document.addEventListener('DOMContentLoaded', function() {
             // Fade in cards with stagger effect
-            const cards = document.querySelectorAll('.modern-card');
+            const cards = document.querySelectorAll('.card');
             cards.forEach((card, index) => {
                 setTimeout(() => {
                     card.style.opacity = '0';

@@ -29,71 +29,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Staff Login - Bridge Ministries International</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="assets/css/login.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .login-card {
+            max-width: 400px;
+            margin: auto;
+        }
+        .brand-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+        }
+    </style>
 </head>
 <body>
-    <div class="login-wrapper">
-        <div class="login-container">
-            <!-- Header Section -->
-            <div class="login-header">
-                <div class="brand-logo">
-                    <img src="assets/css/image/bmi logo.png" alt="BMI Logo">
+    <div class="container-fluid vh-100 d-flex align-items-center">
+        <div class="row w-100 justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                <!-- Brand Section -->
+                <div class="text-center mb-5 brand-section p-4">
+                    <img src="assets/css/image/bmi logo.png" alt="BMI Logo" class="img-fluid mb-3" style="max-height: 80px;">
+                    <h1 class="h2 text-white fw-bold">Bridge Ministries International</h1>
+                    <p class="text-white-50">Attendance Management System</p>
                 </div>
-                <div class="brand-info">
-                    <h1 class="brand-title">Bridge Ministries International</h1>
-                    <p class="brand-subtitle">Attendance Management System</p>
-                </div>
-            </div>
-            
-            <!-- Login Card -->
-            <div class="login-card">
-                <div class="login-form-header">
-                    <h2 class="form-title">Welcome Back</h2>
-                 
-                </div>
+                
+                <!-- Login Form -->
+                <div class="login-card">
+                    <div class="card border-0 shadow">
+                        <div class="card-body p-5">
+                            <div class="text-center mb-4">
+                                <h2 class="h3 fw-bold text-dark">Welcome Back</h2>
+                            </div>
 
-                <?php if ($error): ?>
-                    <div class="alert alert-danger" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <?php echo htmlspecialchars($error); ?>
-                    </div>
-                <?php endif; ?>
+                            <?php if ($error): ?>
+                                <div class="alert alert-danger" role="alert">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    <?php echo htmlspecialchars($error); ?>
+                                </div>
+                            <?php endif; ?>
 
-                <form method="post" class="login-form" novalidate>
-                    <div class="input-group">
-                        <div class="input-wrapper">
-                            <i class="fas fa-user input-icon"></i>
-                            <input type="text" 
-                                   class="form-control" 
-                                   id="username" 
-                                   name="username" 
-                                   placeholder="Enter username"
-                                   required 
-                                   autocomplete="username">
-                            <label for="username">Username</label>
+                            <form method="post" novalidate>
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Username</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="username" 
+                                               name="username" 
+                                               placeholder="Enter username"
+                                               required 
+                                               autocomplete="username">
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="password" class="form-label">Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                        <input type="password" 
+                                               class="form-control" 
+                                               id="password" 
+                                               name="password" 
+                                               placeholder="Enter password"
+                                               required 
+                                               autocomplete="current-password">
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100 py-2">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                                    Sign In to Dashboard
+                                </button>
+                            </form>
                         </div>
                     </div>
-
-                    <div class="input-group">
-                        <div class="input-wrapper">
-                            <i class="fas fa-lock input-icon"></i>
-                            <input type="password" 
-                                   class="form-control" 
-                                   id="password" 
-                                   name="password" 
-                                   placeholder="Enter password"
-                                   required 
-                                   autocomplete="current-password">
-                            <label for="password">Password</label>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="btn-login">
-                        <i class="fas fa-sign-in-alt me-2"></i>
-                        Sign In to Dashboard
-                    </button>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -105,32 +120,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Auto-focus username field
             document.getElementById('username').focus();
             
-            // Add loading state to login button
-            const loginForm = document.querySelector('.login-form');
-            const loginBtn = document.querySelector('.btn-login');
-            const originalBtnText = loginBtn.innerHTML;
-            
-            loginForm.addEventListener('submit', function() {
-                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing in...';
-                loginBtn.disabled = true;
-            });
-            
-            // Enhanced input interactions
-            const inputs = document.querySelectorAll('.form-control');
-            inputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    this.closest('.input-wrapper').classList.add('focused');
-                });
+            // Add form validation
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
                 
-                input.addEventListener('blur', function() {
-                    if (!this.value) {
-                        this.closest('.input-wrapper').classList.remove('focused');
-                    }
-                });
-                
-                // Check if input has value on load
-                if (input.value) {
-                    input.closest('.input-wrapper').classList.add('focused');
+                if (!username || !password) {
+                    e.preventDefault();
+                    alert('Please fill in both username and password.');
                 }
             });
         });
