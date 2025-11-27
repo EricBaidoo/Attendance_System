@@ -54,7 +54,7 @@ if ($levels_up == 0) {
         <div class="container-fluid">
             <div class="row w-100 align-items-center">
                 <!-- Brand Section -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6 col-4">
                     <a class="navbar-brand" href="<?php echo $relative_path; ?>index.php">
                         <img src="<?php echo $relative_path; ?>assets/css/image/bmi logo.png" alt="BMI Logo" style="height: 40px; width: auto; margin-right: 10px; border-radius: 6px;">
                         <span>BMI ATTENDANCE</span>
@@ -62,12 +62,15 @@ if ($levels_up == 0) {
                 </div>
 
                 <!-- Mobile Toggle -->
-                <div class="col-6 d-lg-none text-end">
+                <div class="col-4 d-lg-none text-center">
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
                             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                         <i class="bi bi-list"></i>
                     </button>
                 </div>
+
+                <!-- Spacer for mobile balance -->
+                <div class="col-4 d-lg-none"></div>
 
                 <!-- Navigation Section -->
                 <div class="col-lg-8 col-md-6">

@@ -121,16 +121,19 @@ body {
     border-radius: 0.5rem;
     padding: 0.5rem 0.75rem;
     transition: all 0.3s ease;
+    background: transparent;
 }
 
 .navbar-toggler:hover {
     border-color: rgba(255, 255, 255, 0.6);
     background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
 }
 
 .navbar-toggler:focus {
     box-shadow: 0 0 0 0.125rem rgba(102, 126, 234, 0.3);
     border-color: rgba(102, 126, 234, 0.5);
+    outline: none;
 }
 
 .navbar-toggler i {
