@@ -19,7 +19,6 @@ body {
 
 .container-fluid {
     padding: 0.5rem 1rem 0.5rem 1rem !important;
-    margin-top: -0.625rem !important;
 }
 
 .mb-3, .mb-4, .mb-5 {
@@ -65,7 +64,6 @@ body {
 @media (max-width: 768px) {
     .container-fluid {
         padding: 0.5rem !important;
-        margin-top: -0.25rem !important;
     }
     
     /* Better mobile card styling */

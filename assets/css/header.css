@@ -141,6 +141,7 @@ body {
 .content-wrapper {
     min-height: calc(100vh - 8.75rem);
     padding: 2rem 0;
+    margin-top: 6rem;
 }
 
 /* Modern Cards */
@@ -287,7 +288,7 @@ body {
     
     .content-wrapper {
         padding: 1rem 0;
-        margin-top: 5.3125rem;
+        margin-top: 6rem;
     }
     
     .modern-card {
@@ -320,7 +321,7 @@ body {
     }
     
     .content-wrapper {
-        margin-top: 4.5rem;
+        margin-top: 5.5rem;
         padding: 0.5rem 0;
     }
     

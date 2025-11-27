@@ -123,7 +123,7 @@ if ($levels_up == 0) {
     </nav>
 
     <!-- Content Wrapper -->
-    <div class="content-wrapper" style="margin-top: 80px;">>
+    <div class="content-wrapper">
         <div class="container-fluid px-4">
             <?php if (isset($page_header) && $page_header): ?>
                 <div class="modern-card p-4 mb-4">
