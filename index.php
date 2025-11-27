@@ -67,17 +67,18 @@ include 'includes/header.php';
 
 <link rel="stylesheet" href="assets/css/dashboard.css">
 
-<!-- Unified Dashboard Card -->
-<div class="modern-card p-2 mb-2">
-    <!-- Administrative Section - Streamlined Modern Design -->
-    <div class="modern-header d-flex align-items-center justify-content-between">
-        <div class="header-info">
-            <h2 class="text-gradient mb-1">
-                <i class="bi bi-house-door-fill"></i> Administrative Dashboard
-            </h2>
-            <div class="user-greeting d-flex align-items-center gap-3">
-                <span class="welcome-text">Welcome back, <strong><?php echo htmlspecialchars($user_name); ?></strong></span>
-                <span class="current-date"><?php echo date('l, F j, Y'); ?></span>
+<!-- Dashboard Header -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="text-primary mb-2">
+                    <i class="bi bi-house-door-fill"></i> Administrative Dashboard
+                </h1>
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <span class="text-muted">Welcome back, <strong class="text-dark"><?php echo htmlspecialchars($user_name); ?></strong></span>
+                    <span class="badge bg-light text-dark"><?php echo date('l, F j, Y'); ?></span>
+                </div>
             </div>
         </div>
     </div>
@@ -86,187 +87,191 @@ include 'includes/header.php';
 <!-- Statistics Cards - Visible to all logged-in users -->
 <?php 
 // Determine grid layout based on user role and screen size
-$card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12' : 'col-lg-4 col-md-6 col-sm-6 col-12';
+$card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-12 mb-3' : 'col-lg-4 col-md-6 col-12 mb-3';
 ?>
-<div class="row g-2 g-md-3 mb-2">
+<div class="row g-3">
     <!-- Members Card - All users can see this -->
     <div class="<?php echo $card_col_class; ?>">
-        <div class="modern-card p-3 h-100">
-            <div class="d-flex align-items-center justify-content-between flex-wrap">
-                <div class="flex-grow-1">
-                    <h6 class="text-muted mb-2">Total Members</h6>
-                    <h2 class="text-gradient mb-0"><?php echo number_format($members_count); ?></h2>
-                    <small class="text-success">
-                        <i class="bi bi-arrow-up"></i> Active members
-                    </small>
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted mb-2">Total Members</h6>
+                        <h2 class="text-primary mb-2"><?php echo number_format($members_count); ?></h2>
+                        <small class="text-success">
+                            <i class="bi bi-arrow-up"></i> Active members
+                        </small>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 rounded p-3">
+                        <i class="bi bi-people-fill text-primary fs-4"></i>
+                    </div>
                 </div>
-                <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-none d-md-block">
-                    <i class="bi bi-people-fill text-primary fs-5"></i>
+                <?php if (in_array($user_role, ['admin', 'staff'])): ?>
+                <div class="mt-3">
+                    <a href="pages/members/" class="btn btn-primary btn-sm w-100">
+                        <i class="bi bi-arrow-right"></i> Manage Members
+                    </a>
                 </div>
+                <?php endif; ?>
             </div>
-            <?php if (in_array($user_role, ['admin', 'staff'])): ?>
-            <div class="mt-3 d-grid">
-                <a href="pages/members/" class="btn btn-primary-modern btn-sm">
-                    <i class="bi bi-arrow-right"></i> Manage Members
-                </a>
-            </div>
-            <?php endif; ?>
         </div>
     </div>
 
     <!-- Visitors Card - Staff and Admin only -->
     <?php if (in_array($user_role, ['admin', 'staff'])): ?>
     <div class="<?php echo $card_col_class; ?>">
-        <div class="modern-card p-3 h-100">
-            <div class="d-flex align-items-center justify-content-between flex-wrap">
-                <div class="flex-grow-1">
-                    <h6 class="text-muted mb-2">Active Visitors</h6>
-                    <h2 class="text-gradient mb-0"><?php echo number_format($visitors_count); ?></h2>
-                    <small class="text-info">
-                        <i class="bi bi-calendar"></i> Not converted
-                    </small>
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted mb-2">Active Visitors</h6>
+                        <h2 class="text-success mb-2"><?php echo number_format($visitors_count); ?></h2>
+                        <small class="text-info">
+                            <i class="bi bi-calendar"></i> Not converted
+                        </small>
+                    </div>
+                    <div class="bg-success bg-opacity-10 rounded p-3">
+                        <i class="bi bi-person-badge text-success fs-4"></i>
+                    </div>
                 </div>
-                <div class="bg-success bg-opacity-10 rounded-circle p-3 d-none d-md-block">
-                    <i class="bi bi-person-badge text-success fs-5"></i>
+                <div class="mt-3">
+                    <a href="pages/visitors/" class="btn btn-success btn-sm w-100">
+                        <i class="bi bi-arrow-right"></i> View Visitors
+                    </a>
                 </div>
-            </div>
-            <div class="mt-3 d-grid">
-                <a href="pages/visitors/" class="btn btn-primary-modern btn-sm">
-                    <i class="bi bi-arrow-right"></i> View Visitors
-                </a>
             </div>
         </div>
     </div>
     
     <!-- New Converts Card - Staff and Admin only -->
     <div class="<?php echo $card_col_class; ?>">
-        <div class="modern-card p-3 h-100">
-            <div class="d-flex align-items-center justify-content-between flex-wrap">
-                <div class="flex-grow-1">
-                    <h6 class="text-muted mb-2">New Converts</h6>
-                    <h2 class="text-gradient mb-0"><?php echo number_format($active_converts_count); ?></h2>
-                    <small class="text-warning">
-                        <i class="bi bi-person-plus"></i> Active converts
-                    </small>
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted mb-2">New Converts</h6>
+                        <h2 class="text-warning mb-2"><?php echo number_format($active_converts_count); ?></h2>
+                        <small class="text-warning">
+                            <i class="bi bi-person-plus"></i> Active converts
+                        </small>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 rounded p-3">
+                        <i class="bi bi-person-plus-fill text-warning fs-4"></i>
+                    </div>
                 </div>
-                <div class="bg-warning bg-opacity-10 rounded-circle p-3 d-none d-md-block">
-                    <i class="bi bi-person-plus-fill text-warning fs-5"></i>
+                <div class="mt-3">
+                    <a href="pages/visitors/new_converts.php" class="btn btn-warning btn-sm w-100">
+                        <i class="bi bi-arrow-right"></i> View Converts
+                    </a>
                 </div>
-            </div>
-            <div class="mt-3 d-grid">
-                <a href="pages/visitors/new_converts.php" class="btn btn-primary-modern btn-sm">
-                    <i class="bi bi-arrow-right"></i> View Converts
-                </a>
             </div>
         </div>
     </div>
-                </div>
-                <div class="bg-warning bg-opacity-10 rounded-circle p-2">
-                    <i class="bi bi-person-plus-fill text-warning fs-5"></i>
-                </div>
-            </div>
-            <div class="mt-2">
-                <a href="pages/visitors/new_converts.php" class="btn btn-primary-modern btn-sm">
-                    <i class="bi bi-arrow-right"></i> Manage Converts
-                </a>
-            </div>
-        </div>
     </div>
     <?php endif; ?>
 
     <!-- Departments Card - Admin only -->
     <?php if ($user_role == 'admin'): ?>
     <div class="<?php echo $card_col_class; ?>">
-        <div class="modern-card p-3 h-100">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h6 class="text-muted mb-2">Departments</h6>
-                    <h2 class="text-gradient mb-0"><?php echo number_format($departments_count); ?></h2>
-                    <small class="text-purple">
-                        <i class="bi bi-diagram-3"></i> Active
-                    </small>
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted mb-2">Departments</h6>
+                        <h2 class="text-info mb-2"><?php echo number_format($departments_count); ?></h2>
+                        <small class="text-info">
+                            <i class="bi bi-diagram-3"></i> Active
+                        </small>
+                    </div>
+                    <div class="bg-info bg-opacity-10 rounded p-3">
+                        <i class="bi bi-diagram-3 text-info fs-4"></i>
+                    </div>
                 </div>
-                <div class="bg-purple bg-opacity-10 rounded-circle p-2">
-                    <i class="bi bi-diagram-3 text-purple fs-5"></i>
+                <div class="mt-3">
+                    <a href="pages/members/?view=departments" class="btn btn-info btn-sm w-100">
+                        <i class="bi bi-arrow-right"></i> Manage Departments
+                    </a>
                 </div>
-            </div>
-            <div class="mt-2">
-                <a href="pages/members/?view=departments" class="btn btn-primary-modern btn-sm">
-                    <i class="bi bi-arrow-right"></i> Manage Departments
-                </a>
             </div>
         </div>
     </div>
+    <?php endif; ?>
 </div>
 
 <!-- Role-Based Quick Actions -->
-<div class="modern-card p-3 mb-3">
-    <h3 class="text-gradient mb-3">
-        <i class="bi bi-lightning-fill"></i> Quick Actions
-        <small class="text-muted fs-6">(Available for <?php echo ucfirst($user_role); ?>)</small>
-    </h3>
-    <div class="row g-3">
-        <?php if (in_array($user_role, ['admin', 'staff'])): ?>
-        <div class="col-md-4">
-            <a href="pages/members/add.php" class="btn btn-outline-primary w-100 py-2">
-                <i class="bi bi-person-plus-fill d-block fs-3 mb-1"></i>
-                Add New Member
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <h3 class="text-primary mb-3">
+            <i class="bi bi-lightning-fill"></i> Quick Actions
+            <small class="text-muted fs-6">(Available for <?php echo ucfirst($user_role); ?>)</small>
+        </h3>
+        <div class="row g-3">
+            <?php if (in_array($user_role, ['admin', 'staff'])): ?>
+            <div class="col-md-4">
+                <a href="pages/members/add.php" class="btn btn-outline-primary w-100 py-3">
+                    <i class="bi bi-person-plus-fill d-block fs-3 mb-2"></i>
+                    Add New Member
+                </a>
+            </div>
             </a>
         </div>
         <div class="col-md-4">
             <a href="pages/visitors/add.php" class="btn btn-outline-success w-100 py-2">
-                <i class="bi bi-person-badge-fill d-block fs-3 mb-1"></i>
-                Register Visitor
-            </a>
+            <div class="col-md-4">
+                <a href="pages/visitors/add.php" class="btn btn-outline-success w-100 py-3">
+                    <i class="bi bi-person-badge-fill d-block fs-3 mb-2"></i>
+                    Register Visitor
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="pages/services/list.php" class="btn btn-outline-secondary w-100 py-3">
+                    <i class="bi bi-gear-fill d-block fs-3 mb-2"></i>
+                    Services
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="pages/services/sessions.php" class="btn btn-outline-dark w-100 py-3">
+                    <i class="bi bi-calendar-day-fill d-block fs-3 mb-2"></i>
+                    Sessions
+                </a>
+            </div>
+            <?php endif; ?>
+            
+            <!-- Attendance management - Staff and Admin only -->
+            <div class="col-md-4">
+                <a href="pages/attendance/mark.php" class="btn btn-outline-warning w-100 py-3">
+                    <i class="bi bi-clipboard-check-fill d-block fs-3 mb-2"></i>
+                    Manage Attendance
+                </a>
+            </div>
+            
+            <?php if ($user_role == 'admin'): ?>
+            <div class="col-md-4">
+                <a href="pages/reports/" class="btn btn-outline-info w-100 py-3">
+                    <i class="bi bi-bar-chart-fill d-block fs-3 mb-2"></i>
+                    View Reports
+                </a>
+            </div>
+            <?php elseif ($user_role == 'staff'): ?>
+            <div class="col-md-4">
+                <a href="pages/reports/" class="btn btn-outline-info w-100 py-3">
+                    <i class="bi bi-bar-chart-line d-block fs-3 mb-2"></i>
+                    Basic Reports
+                </a>
+            </div>
+            <?php endif; ?>
         </div>
-        <div class="col-md-4">
-            <a href="pages/services/list.php" class="btn btn-outline-secondary w-100 py-2">
-                <i class="bi bi-gear-fill d-block fs-3 mb-1"></i>
-                Services
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a href="pages/services/sessions.php" class="btn btn-outline-dark w-100 py-2">
-                <i class="bi bi-calendar-day-fill d-block fs-3 mb-1"></i>
-                Sessions
-            </a>
-        </div>
-        <?php endif; ?>
-        
-        <!-- Attendance management - Staff and Admin only -->
-        <div class="col-md-4">
-            <a href="pages/attendance/mark.php" class="btn btn-outline-warning w-100 py-2">
-                <i class="bi bi-clipboard-check-fill d-block fs-3 mb-1"></i>
-                Manage Attendance
-            </a>
-        </div>
-        
-        <?php if ($user_role == 'admin'): ?>
-        <div class="col-md-4">
-            <a href="pages/reports/" class="btn btn-outline-info w-100 py-2">
-                <i class="bi bi-bar-chart-fill d-block fs-3 mb-1"></i>
-                View Reports
-            </a>
-        </div>
-        <?php elseif ($user_role == 'staff'): ?>
-        <div class="col-md-4">
-            <a href="pages/reports/" class="btn btn-outline-info w-100 py-2">
-                <i class="bi bi-bar-chart-line d-block fs-3 mb-1"></i>
-                Basic Reports
-            </a>
-        </div>
-        <?php endif; ?>
     </div>
 </div>
-<?php endif; ?>
 
 <!-- Recent Activity Section -->
-<div class="row g-3">
+<div class="row g-4">
     <div class="col-md-6">
-        <div class="modern-card p-3 h-100">
-            <h4 class="text-gradient mb-3">
-                <i class="bi bi-clock-history"></i> Recent Members
-            </h4>
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h4 class="text-primary mb-3">
+                    <i class="bi bi-clock-history"></i> Recent Members
+                </h4>
             <?php
             try {
                 $recent_members = $pdo->query("
@@ -302,14 +307,16 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12' 
                 // Uncomment for debugging: echo '<p class="text-danger">Debug: ' . $e->getMessage() . '</p>';
             }
             ?>
+            </div>
         </div>
     </div>
 
     <div class="col-md-6">
-        <div class="modern-card p-3 h-100">
-            <h4 class="text-gradient mb-3">
-                <i class="bi bi-person-badge"></i> Recent Visitors
-            </h4>
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h4 class="text-primary mb-3">
+                    <i class="bi bi-person-badge"></i> Recent Visitors
+                </h4>
             <?php
             try {
                 $recent_visitors = $pdo->query("

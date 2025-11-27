@@ -2,31 +2,19 @@
 
 /* Ultra-Compact Dashboard Styling */
 body {
-    padding-top: 0 !important;
-    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-    background-attachment: fixed;
-    background-image: 
-        radial-gradient(circle at 20% 20%, rgba(44, 82, 130, 0.03) 0%, transparent 40%),
-        radial-gradient(circle at 80% 80%, rgba(56, 161, 105, 0.03) 0%, transparent 40%),
-        linear-gradient(45deg, transparent 48%, rgba(44, 82, 130, 0.01) 49%, rgba(44, 82, 130, 0.01) 51%, transparent 52%);
-    background-size: 12.5rem 12.5rem, 18.75rem 18.75rem, 3.125rem 3.125rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f8fafc;
     min-height: 100vh;
 }
 
 .dashboard-container {
     padding: 0 !important;
     margin: 0 !important;
-    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-    background-image: 
-        radial-gradient(circle at 25% 25%, rgba(44, 82, 130, 0.02) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(44, 82, 130, 0.02) 0%, transparent 50%);
+    background: #f8fafc;
     min-height: calc(100vh - 7.5rem);
 }
 
-.modern-card {
-    margin-bottom: 0.5rem !important;
-    padding: 1rem !important;
-}
+/* Removed modern-card class - using standard Bootstrap cards */
 
 .container-fluid {
     padding: 0.5rem 1rem 0.5rem 1rem !important;
@@ -66,10 +54,7 @@ body {
         margin-top: -0.25rem !important;
     }
     
-    .modern-card {
-        margin-bottom: 0.75rem !important;
-        padding: 1rem !important;
-    }
+    /* Removed modern-card mobile styling - using standard Bootstrap cards */
     
     .dashboard-header {
         padding: 1.25rem 0;
@@ -143,9 +128,7 @@ body {
         font-size: 0.9rem;
     }
     
-    .modern-header h2 {
-        font-size: 1.6rem;
-    }
+    /* Removed modern-header h2 styling */
     
     .user-greeting {
         flex-direction: column;
@@ -164,12 +147,12 @@ body {
 }
 
 .dashboard-header {
-    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+    background: #007bff;
     color: white;
     padding: 2rem 0;
     margin-bottom: 2rem;
     border-radius: 0.75rem;
-    box-shadow: 0 0.5rem 1.5625rem rgba(26, 54, 93, 0.25);
+    box-shadow: 0 0.5rem 1.5625rem rgba(0, 123, 255, 0.25);
 }
 
 .dashboard-header h1 {
@@ -220,10 +203,10 @@ body {
     margin-bottom: 1rem;
 }
 
-.card-members { background: linear-gradient(135deg, #667eea, #764ba2); }
-.card-services { background: linear-gradient(135deg, #f093fb, #f5576c); }
-.card-attendance { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-.card-reports { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+.card-members { background: #007bff; }
+.card-services { background: #28a745; }
+.card-attendance { background: #ffc107; }
+.card-reports { background: #17a2b8; }
 
 .card-number {
     font-size: 2.5rem;
@@ -288,9 +271,9 @@ body {
     color: white;
 }
 
-.activity-new { background: linear-gradient(135deg, #667eea, #764ba2); }
-.activity-update { background: linear-gradient(135deg, #f093fb, #f5576c); }
-.activity-attendance { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.activity-new { background: #007bff; }
+.activity-update { background: #28a745; }
+.activity-attendance { background: #ffc107; }
 
 .activity-content h6 {
     margin-bottom: 0.25rem;
@@ -335,22 +318,22 @@ body {
 }
 
 .btn-add-member {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: #007bff;
     color: white;
 }
 
 .btn-mark-attendance {
-    background: linear-gradient(135deg, #f093fb, #f5576c);
+    background: #28a745;
     color: white;
 }
 
 .btn-view-reports {
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    background: #ffc107;
     color: white;
 }
 
 .btn-manage-services {
-    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    background: #17a2b8;
     color: white;
 }
 
@@ -375,56 +358,22 @@ body {
 }
 
 /* Additional Color Variants */
-.text-purple {
-    color: #6f42c1 !important;
-}
-
-.bg-purple {
-    background-color: #6f42c1 !important;
-}
+/* Removed purple color classes - using standard Bootstrap colors */
 
 /* Public Statistics Icon Styling */
 .public-stat-icon {
     width: fit-content;
 }
 
-/* Classic Color Scheme for Index Page */
-.text-gradient {
-    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: 600;
-}
+/* Removed text-gradient class - using standard Bootstrap text colors */
 
-.btn-primary-modern {
-    background: linear-gradient(135deg, #2c5282 0%, #3182ce 100%);
-    border: none;
-    color: white;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    box-shadow: 0 0.25rem 0.75rem rgba(44, 82, 130, 0.25);
-}
+/* Removed btn-primary-modern class - using standard Bootstrap buttons */
 
-.btn-primary-modern:hover {
-    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
-    transform: translateY(-0.125rem);
-    box-shadow: 0 0.375rem 1rem rgba(44, 82, 130, 0.35);
-    color: white;
-}
+/* Removed btn-primary-modern hover state */
 
-.modern-card {
-    background: white;
-    border-radius: 0.5rem;
-    border: 0.0625rem solid #e2e8f0;
-    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-}
+/* Removed modern-card class - using standard Bootstrap cards */
 
-.modern-card:hover {
-    box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.12);
-    transform: translateY(-0.125rem);
-}
+/* Removed modern-card hover state */
 
 /* Classic Background Colors */
 .bg-primary {
@@ -468,16 +417,7 @@ body {
     color: #3182ce !important;
 }
 
-/* Modern Streamlined Header */
-.modern-header {
-    padding: 1.5rem 0;
-}
-
-.modern-header h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
+/* Removed modern-header classes - using standard Bootstrap headers */
 
 .user-greeting {
     display: flex;
@@ -591,9 +531,7 @@ body {
         text-align: center;
     }
     
-    .modern-header h2 {
-        font-size: 1.4rem;
-    }
+    /* Removed modern-header h2 mobile styling */
     
     .user-greeting {
         justify-content: center;
