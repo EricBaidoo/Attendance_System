@@ -1,53 +1,435 @@
-/* assets/css/dashboard.css */
+/* Modern Dashboard CSS - Matching Header Design */
 
-/* Ultra-Compact Dashboard Styling */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f8fafc;
-    min-height: 100vh;
-    font-size: 1.1rem;
-}
-
+/* Dashboard Container */
 .dashboard-container {
-    padding: 0 !important;
-    margin: 0 !important;
-    background: #f8fafc;
-    min-height: calc(100vh - 7.5rem);
+    padding: 0;
+    margin: 0;
+    min-height: calc(100vh - 5rem);
 }
 
-/* Removed modern-card class - using standard Bootstrap cards */
+/* Professional Page Background */
+body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f1f3f4 100%) !important;
+    background-attachment: fixed;
+}
 
-/* Recent Activity Table Styling */
-.recent-activity-table {
+.container-fluid {
+    background: transparent;
+}
+
+/* Dashboard Header Card */
+.card {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15);
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Dashboard Title */
+.text-primary {
+    color: #000032 !important;
+    font-weight: 700;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+/* Statistics Cards with Colored Backgrounds */
+.members-card {
+    background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%) !important;
+    color: white !important;
+}
+
+.visitors-card {
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%) !important;
+    color: white !important;
+}
+
+.converts-card {
+    background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%) !important;
+    color: white !important;
+}
+
+.departments-card {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%) !important;
+    color: white !important;
+}
+
+/* White text for colored cards */
+.members-card,
+.visitors-card,
+.converts-card,
+.departments-card {
+    color: white !important;
+}
+
+.members-card *,
+.visitors-card *,
+.converts-card *,
+.departments-card * {
+    color: white !important;
+}
+
+.members-card h6,
+.visitors-card h6,
+.converts-card h6,
+.departments-card h6 {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Icon styling for colored cards */
+.members-card .rounded,
+.visitors-card .rounded,
+.converts-card .rounded,
+.departments-card .rounded {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.members-card:hover .rounded,
+.visitors-card:hover .rounded,
+.converts-card:hover .rounded,
+.departments-card:hover .rounded {
+    background: rgba(255, 255, 255, 0.3) !important;
+    transform: scale(1.1);
+}
+
+/* Professional Quick Actions Styling */
+.primary-action-btn .btn,
+.secondary-action-btn .btn {
+    border-radius: 1rem !important;
+    box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.primary-action-btn .btn:hover,
+.secondary-action-btn .btn:hover {
+    transform: translateY(-0.25rem);
+    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.15);
+}
+
+.primary-action-btn .btn {
+    background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%) !important;
+    border: none;
+}
+
+.secondary-action-btn .btn {
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%) !important;
+    border: none;
+}
+
+/* Action Tiles */
+.action-tile {
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.action-icon {
+    width: 3rem;
+    height: 3rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Remove old quick action card styling */
+
+/* Override card hover effects for colored cards */
+.members-card:hover,
+.visitors-card:hover,
+.converts-card:hover,
+.departments-card:hover {
+    transform: translateY(-0.25rem);
+    box-shadow: 0 0.75rem 2.5rem rgba(0, 0, 0, 0.2);
+}
+
+/* White button styling for colored cards */
+.btn-light {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    color: #000032 !important;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-light:hover {
+    background: white;
+    color: #000032 !important;
+    transform: translateY(-0.0625rem);
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+}
+
+.card h6 {
+    color: #6c757d;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+    font-size: 0.8rem;
+}
+
+.bg-primary {
+    background: #000032 !important;
+}
+
+.bg-primary.bg-opacity-10 {
+    background: rgba(0, 0, 50, 0.1) !important;
+}
+
+/* Icon Styling */
+.card .bi {
+    color: #000032 !important;
+}
+
+/* Button Styling */
+.btn-primary {
+    background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%);
+    border: none;
+    font-weight: 600;
+    padding: 0.6rem 1.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1a1a5e 0%, #000032 100%);
+    transform: translateY(-0.0625rem);
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 50, 0.2);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    border: none;
+    font-weight: 500;
+    padding: 0.6rem 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+}
+
+/* Badge Styling */
+.badge {
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.badge.bg-light {
+    background: rgba(0, 0, 50, 0.1) !important;
+    color: #000032 !important;
+    border: 1px solid rgba(0, 0, 50, 0.2);
+}
+
+/* Recent Activity Tables */
+.table {
+    background: white;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.05);
     margin-bottom: 0;
+}
+
+.table thead th {
+    background: #000032;
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: 1rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table tbody td {
+    padding: 0.875rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     font-size: 0.9rem;
 }
 
-.recent-activity-table thead th {
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #dee2e6;
-    color: #495057;
-    font-weight: 600;
-    font-size: 0.85rem;
-    padding: 0.6rem 0.75rem;
-    border-top: none;
+.table tbody tr:hover {
+    background: rgba(0, 0, 50, 0.02);
 }
 
-.recent-activity-table tbody td {
-    padding: 0.6rem 0.75rem;
-    vertical-align: middle;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-}
-
-.recent-activity-table tbody tr:last-child td {
+.table tbody tr:last-child td {
     border-bottom: none;
 }
 
-.recent-activity-table tbody tr:hover {
-    background-color: rgba(0,0,0,0.02);
+/* Mobile Responsiveness */
+@media (max-width: 1199px) {
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .card h2 {
+        font-size: 2rem;
+    }
+    
+    .btn-primary,
+    .btn-secondary {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
 }
 
-.recent-activity-table .fw-semibold {
+@media (max-width: 767px) {
+    .dashboard-container {
+        min-height: calc(100vh - 4.5rem);
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    .card h1 {
+        font-size: 1.5rem;
+    }
+    
+    .card h2 {
+        font-size: 1.75rem;
+        text-align: center;
+    }
+    
+    .card h6 {
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .bg-primary.bg-opacity-10 {
+        display: none !important;
+    }
+    
+    .table-responsive {
+        border-radius: 0.75rem;
+    }
+    
+    .table thead th {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .table tbody td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .btn-primary,
+    .btn-secondary {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        width: 100%;
+    }
+}
+
+@media (max-width: 575px) {
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .card h1 {
+        font-size: 1.3rem;
+        text-align: center;
+    }
+    
+    .card h2 {
+        font-size: 1.5rem;
+    }
+    
+    .d-flex.flex-wrap {
+        flex-direction: column !important;
+        text-align: center;
+        gap: 0.5rem !important;
+    }
+    
+    .table thead th {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.7rem;
+    }
+    
+    .table tbody td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Success and Warning Colors */
+.text-success {
+    color: #198754 !important;
+}
+
+.text-warning {
+    color: #fd7e14 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Loading Animation */
+.card.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.card.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2rem;
+    height: 2rem;
+    margin: -1rem 0 0 -1rem;
+    border: 3px solid rgba(0, 0, 50, 0.2);
+    border-top: 3px solid #000032;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Smooth entrance animations */
+.card {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(1rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
     color: #212529;
     font-weight: 600;
 }

@@ -66,6 +66,7 @@ $footer_stats = [
 // Include header
 include 'includes/header.php';
 ?>
+<link href="assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">
 
 <!-- Dashboard content starts here -->
 
@@ -87,30 +88,26 @@ include 'includes/header.php';
 </div>
 
 <!-- Statistics Cards - Visible to all logged-in users -->
-<?php 
-// Determine grid layout based on user role and screen size
-$card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 mb-4' : 'col-lg-4 col-md-6 col-sm-6 col-12 mb-4';
-?>
 <div class="row g-3 g-lg-4 mb-4">
-    <!-- Members Card - All users can see this -->
-    <div class="<?php echo $card_col_class; ?>">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
+    <!-- Members Card -->
+    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+        <div class="card border-0 shadow-sm h-100 members-card">
+            <div class="card-body text-white">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <h6 class="text-muted mb-2">Total Members</h6>
-                        <h2 class="text-primary mb-2"><?php echo number_format($members_count); ?></h2>
-                        <small class="text-success">
+                        <h6 class="text-white-50 mb-2">Total Members</h6>
+                        <h2 class="text-white mb-2"><?php echo number_format($members_count); ?></h2>
+                        <small class="text-white-50">
                             <i class="bi bi-arrow-up"></i> Active members
                         </small>
                     </div>
-                    <div class="bg-primary bg-opacity-10 rounded p-3 d-none d-sm-block">
-                        <i class="bi bi-people-fill text-primary fs-4"></i>
+                    <div class="rounded p-3">
+                        <i class="bi bi-people-fill text-white fs-2"></i>
                     </div>
                 </div>
                 <?php if (in_array($user_role, ['admin', 'staff'])): ?>
                 <div class="mt-3">
-                    <a href="pages/members/" class="btn btn-primary btn-sm w-100">
+                    <a href="pages/members/" class="btn btn-light btn-sm w-100">
                         <i class="bi bi-arrow-right"></i> Manage Members
                     </a>
                 </div>
@@ -119,25 +116,24 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 m
         </div>
     </div>
 
-    <!-- Visitors Card - Staff and Admin only -->
-    <?php if (in_array($user_role, ['admin', 'staff'])): ?>
-    <div class="<?php echo $card_col_class; ?>">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
+    <!-- Visitors Card -->
+    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+        <div class="card border-0 shadow-sm h-100 visitors-card">
+            <div class="card-body text-white">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <h6 class="text-muted mb-2">Active Visitors</h6>
-                        <h2 class="text-success mb-2"><?php echo number_format($visitors_count); ?></h2>
-                        <small class="text-info">
+                        <h6 class="text-white-50 mb-2">Active Visitors</h6>
+                        <h2 class="text-white mb-2"><?php echo number_format($visitors_count); ?></h2>
+                        <small class="text-white-50">
                             <i class="bi bi-calendar"></i> Not converted
                         </small>
                     </div>
-                    <div class="bg-success bg-opacity-10 rounded p-3 d-none d-sm-block">
-                        <i class="bi bi-person-badge text-success fs-4"></i>
+                    <div class="rounded p-3">
+                        <i class="bi bi-person-check-fill text-white fs-2"></i>
                     </div>
                 </div>
                 <div class="mt-3">
-                    <a href="pages/visitors/" class="btn btn-success btn-sm w-100">
+                    <a href="pages/visitors/" class="btn btn-light btn-sm w-100">
                         <i class="bi bi-arrow-right"></i> View Visitors
                     </a>
                 </div>
@@ -145,108 +141,157 @@ $card_col_class = ($user_role == 'admin') ? 'col-lg-3 col-md-6 col-sm-6 col-12 m
         </div>
     </div>
     
-    <!-- New Converts Card - Staff and Admin only -->
-    <div class="<?php echo $card_col_class; ?>">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
+    <!-- New Converts Card -->
+    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+        <div class="card border-0 shadow-sm h-100 converts-card">
+            <div class="card-body text-white">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <h6 class="text-muted mb-2">New Converts</h6>
-                        <h2 class="text-warning mb-2"><?php echo number_format($active_converts_count); ?></h2>
-                        <small class="text-warning">
+                        <h6 class="text-white-50 mb-2">New Converts</h6>
+                        <h2 class="text-white mb-2"><?php echo number_format($active_converts_count); ?></h2>
+                        <small class="text-white-50">
                             <i class="bi bi-person-plus"></i> Active converts
                         </small>
                     </div>
-                    <div class="bg-warning bg-opacity-10 rounded p-3 d-none d-sm-block">
-                        <i class="bi bi-person-plus-fill text-warning fs-4"></i>
+                    <div class="rounded p-3">
+                        <i class="bi bi-heart-fill text-white fs-2"></i>
                     </div>
                 </div>
                 <div class="mt-3">
-                    <a href="pages/visitors/new_converts.php" class="btn btn-warning btn-sm w-100">
+                    <a href="pages/visitors/new_converts.php" class="btn btn-light btn-sm w-100">
                         <i class="bi bi-arrow-right"></i> View Converts
                     </a>
                 </div>
             </div>
         </div>
     </div>
-    </div>
-    <?php endif; ?>
 
-    <!-- Departments Card - Admin only -->
-    <?php if ($user_role == 'admin'): ?>
-    <div class="<?php echo $card_col_class; ?>">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
+    <!-- Departments Card -->
+    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+        <div class="card border-0 shadow-sm h-100 departments-card">
+            <div class="card-body text-white">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <h6 class="text-muted mb-2">Departments</h6>
-                        <h2 class="text-info mb-2"><?php echo number_format($departments_count); ?></h2>
-                        <small class="text-info">
+                        <h6 class="text-white-50 mb-2">Departments</h6>
+                        <h2 class="text-white mb-2"><?php echo number_format($departments_count); ?></h2>
+                        <small class="text-white-50">
                             <i class="bi bi-diagram-3"></i> Active
                         </small>
                     </div>
-                    <div class="bg-info bg-opacity-10 rounded p-3 d-none d-sm-block">
-                        <i class="bi bi-diagram-3 text-info fs-4"></i>
+                    <div class="rounded p-3">
+                        <i class="bi bi-building-fill text-white fs-2"></i>
                     </div>
                 </div>
                 <div class="mt-3">
-                    <a href="pages/members/?view=departments" class="btn btn-info btn-sm w-100">
+                    <a href="pages/members/?view=departments" class="btn btn-light btn-sm w-100">
                         <i class="bi bi-arrow-right"></i> Manage Departments
                     </a>
                 </div>
             </div>
         </div>
     </div>
-    <?php endif; ?>
 </div>
 
-<!-- Role-Based Quick Actions -->
+<!-- Professional Quick Actions -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body p-4">
-        <h3 class="text-primary mb-3">
-            <i class="bi bi-lightning-fill"></i> Quick Actions
-            <small class="text-muted fs-6">(Available for <?php echo ucfirst($user_role); ?>)</small>
-        </h3>
-        <div class="row g-3">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="text-primary mb-1 fw-bold">
+                    <i class="bi bi-lightning-fill me-2"></i> Quick Actions
+                </h3>
+                <p class="text-muted mb-0">Streamline your administrative tasks</p>
+            </div>
+            <span class="badge bg-primary px-3 py-2"><?php echo ucfirst($user_role); ?> Dashboard</span>
+        </div>
+        <!-- Primary Actions Row -->
+        <div class="row mb-4">
             <?php if (in_array($user_role, ['admin', 'staff'])): ?>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a href="pages/members/add.php" class="btn btn-outline-primary w-100 py-3">
-                    <i class="bi bi-person-plus-fill d-block fs-3 mb-2"></i>
-                    Add New Member
+            <div class="col-lg-6 mb-3">
+                <div class="primary-action-btn">
+                    <a href="pages/members/add.php" class="btn btn-primary btn-lg w-100 py-4 position-relative overflow-hidden">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="text-start">
+                                <i class="bi bi-person-plus-fill fs-3 d-block mb-2"></i>
+                                <h5 class="mb-1 fw-bold">Add New Member</h5>
+                                <small class="opacity-75">Register church members quickly</small>
+                            </div>
+                            <i class="bi bi-arrow-right fs-2 opacity-50"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-3">
+                <div class="secondary-action-btn">
+                    <a href="pages/visitors/add.php" class="btn btn-success btn-lg w-100 py-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="text-start">
+                                <i class="bi bi-person-badge-fill fs-3 d-block mb-2"></i>
+                                <h5 class="mb-1 fw-bold">Register Visitor</h5>
+                                <small class="opacity-75">Track first-time attendees</small>
+                            </div>
+                            <i class="bi bi-arrow-right fs-2 opacity-50"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Secondary Actions Grid -->
+        <div class="row g-3">
+            <div class="col-lg-4 col-md-6">
+                <a href="pages/services/list.php" class="action-tile text-decoration-none">
+                    <div class="p-4 rounded-3 bg-light border h-100 d-flex align-items-center hover-lift">
+                        <div class="action-icon me-3">
+                            <i class="bi bi-gear-fill text-secondary fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 text-dark fw-semibold">Services</h6>
+                            <small class="text-muted">Manage church services</small>
+                        </div>
+                    </div>
                 </a>
             </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a href="pages/visitors/add.php" class="btn btn-outline-success w-100 py-3">
-                    <i class="bi bi-person-badge-fill d-block fs-3 mb-2"></i>
-                    Register Visitor
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a href="pages/services/list.php" class="btn btn-outline-secondary w-100 py-3">
-                    <i class="bi bi-gear-fill d-block fs-3 mb-2"></i>
-                    Services
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a href="pages/attendance/mark.php" class="btn btn-outline-warning w-100 py-3">
-                    <i class="bi bi-clipboard-check-fill d-block fs-3 mb-2"></i>
-                    Manage Attendance
+            <div class="col-lg-4 col-md-6">
+                <a href="pages/attendance/mark.php" class="action-tile text-decoration-none">
+                    <div class="p-4 rounded-3 bg-warning bg-opacity-10 border border-warning border-opacity-25 h-100 d-flex align-items-center hover-lift">
+                        <div class="action-icon me-3">
+                            <i class="bi bi-clipboard-check-fill text-warning fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 text-dark fw-semibold">Attendance</h6>
+                            <small class="text-muted">Mark attendance</small>
+                        </div>
+                    </div>
                 </a>
             </div>
             <?php endif; ?>
             
             <?php if ($user_role == 'admin'): ?>
-            <div class="col-md-4">
-                <a href="pages/reports/" class="btn btn-outline-info w-100 py-3">
-                    <i class="bi bi-bar-chart-fill d-block fs-3 mb-2"></i>
-                    View Reports
+            <div class="col-lg-4 col-md-12">
+                <a href="pages/reports/" class="action-tile text-decoration-none">
+                    <div class="p-4 rounded-3 bg-info bg-opacity-10 border border-info border-opacity-25 h-100 d-flex align-items-center hover-lift">
+                        <div class="action-icon me-3">
+                            <i class="bi bi-bar-chart-fill text-info fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 text-dark fw-semibold">Analytics & Reports</h6>
+                            <small class="text-muted">View detailed insights</small>
+                        </div>
+                    </div>
                 </a>
             </div>
             <?php elseif ($user_role == 'staff'): ?>
-            <div class="col-md-4">
-                <a href="pages/reports/" class="btn btn-outline-info w-100 py-3">
-                    <i class="bi bi-bar-chart-line d-block fs-3 mb-2"></i>
-                    Basic Reports
+            <div class="col-lg-4 col-md-12">
+                <a href="pages/reports/" class="action-tile text-decoration-none">
+                    <div class="p-4 rounded-3 bg-info bg-opacity-10 border border-info border-opacity-25 h-100 d-flex align-items-center hover-lift">
+                        <div class="action-icon me-3">
+                            <i class="bi bi-bar-chart-line text-info fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 text-dark fw-semibold">Basic Reports</h6>
+                            <small class="text-muted">View summary reports</small>
+                        </div>
+                    </div>
                 </a>
             </div>
             <?php endif; ?>
