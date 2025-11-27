@@ -244,7 +244,7 @@ include '../../includes/header.php';
                                     <option value="other">Other</option>
                                 </select>
                             </div>
-                            <div class="col-md-12" id="invited_by_details" style="display: none;">
+                            <div class="col-md-12 d-none" id="invited_by_details">
                                 <label class="form-label">Specific Details</label>
                                 <input type="text" class="form-control" name="invited_by_details" id="invited_by_details_input"
                                        placeholder="Enter member name, social media platform, or other details...">

@@ -40,101 +40,7 @@ if ($levels_up == 0) {
     <title><?php echo isset($page_title) ? $page_title : 'Bridge Ministries International'; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Custom Bootstrap overrides only -->
-    <style>
-        body { 
-            padding-top: 0 !important;
-            margin: 0;
-            font-size: 1.1rem; /* Increased base font size */
-            line-height: 1.6;
-        }
-        .navbar {
-            margin-bottom: 0;
-            font-size: 1.05rem; /* Larger navbar text */
-        }
-        .content-wrapper {
-            padding-top: 1rem;
-        }
-        .navbar-brand { 
-            font-weight: 600; 
-            font-size: 1.3rem !important; /* Larger brand text */
-        }
-        /* Increase card text sizes */
-        .card-body {
-            font-size: 1.05rem;
-        }
-        .card-title {
-            font-size: 1.3rem !important;
-        }
-        /* Increase button text */
-        .btn {
-            font-size: 1rem !important;
-            padding: 0.625rem 1.25rem;
-        }
-        /* Increase table text */
-        .table {
-            font-size: 1rem;
-        }
-        .table th {
-            font-size: 1.05rem;
-            font-weight: 600;
-        }
-        /* Increase form text */
-        .form-label {
-            font-size: 1.05rem;
-            font-weight: 500;
-        }
-        .form-control {
-            font-size: 1rem;
-            padding: 0.625rem 0.875rem;
-        }
-        /* Increase heading sizes */
-        h1 { font-size: 2.2rem !important; }
-        h2 { font-size: 1.9rem !important; }
-        h3 { font-size: 1.6rem !important; }
-        h4 { font-size: 1.4rem !important; }
-        h5 { font-size: 1.2rem !important; }
-        h6 { font-size: 1.1rem !important; }
-        /* Increase alert text */
-        .alert {
-            font-size: 1.05rem;
-        }
-        /* Increase badge text */
-        .badge {
-            font-size: 0.9rem;
-        }
-        @media (max-width: 991px) {
-            .navbar-collapse {
-                background: #2c3e50 !important;
-                border-radius: 0.5rem;
-                margin-top: 0.5rem;
-                padding: 1rem !important;
-                box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.3) !important;
-            }
-            .navbar-nav .nav-link {
-                color: #fff !important;
-                padding: 0.75rem 1rem !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 0.75rem !important;
-                margin-bottom: 0.25rem !important;
-                font-size: 1.1rem !important; /* Larger mobile nav text */
-            }
-            .navbar-nav .nav-link:hover {
-                background: rgba(255,255,255,0.2) !important;
-            }
-            /* Mobile font adjustments */
-            body {
-                font-size: 1.05rem;
-            }
-            .card-body {
-                font-size: 1rem;
-            }
-            h1 { font-size: 1.8rem !important; }
-            h2 { font-size: 1.6rem !important; }
-            h3 { font-size: 1.4rem !important; }
-        }
-    </style>
+
 </head>
 </head>
 <body>
@@ -145,7 +51,7 @@ if ($levels_up == 0) {
                 <!-- Brand Section -->
                 <div class="col-lg-4 col-md-6 col-4">
                     <a class="navbar-brand" href="<?php echo $relative_path; ?>index.php">
-                        <img src="<?php echo $relative_path; ?>assets/css/image/bmi logo.png" alt="BMI Logo" style="height: 2.5rem; width: auto; margin-right: 0.625rem; border-radius: 0.375rem;">
+                        <img src="<?php echo $relative_path; ?>assets/css/image/bmi logo.png" alt="BMI Logo" class="navbar-logo">
                         <span>BMI ATTENDANCE</span>
                     </a>
                 </div>

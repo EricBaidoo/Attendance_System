@@ -363,8 +363,8 @@ $page_title = "Detailed Reports - Bridge Ministries International";
                                                 $bar_class = $percentage > 70 ? 'bg-success' : ($percentage > 40 ? 'bg-warning' : 'bg-danger');
                                                 ?>
                                                 <div class="performance-bar">
-                                                    <div class="progress" style="height: 8px;">
-                                                        <div class="progress-bar <?php echo $bar_class; ?>" style="width: <?php echo $percentage; ?>%"></div>
+                                                    <div class="progress progress-bar-custom">
+                                                        <div class="progress-bar <?php echo $bar_class; ?>" data-width="<?php echo $percentage; ?>"></div>
                                                     </div>
                                                     <small><?php echo round($percentage, 1); ?>%</small>
                                                 </div>

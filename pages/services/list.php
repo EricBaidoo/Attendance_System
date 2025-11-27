@@ -261,7 +261,7 @@ include '../../includes/header.php';
                                 </div>
                                 
                                 <!-- Service Info (Edit Mode) -->
-                                <div id="edit-mode-<?php echo $service['id']; ?>" style="display: none;">
+                                <div id="edit-mode-<?php echo $service['id']; ?>" class="d-none">
                                     <form method="post" class="edit-form">
                                         <input type="hidden" name="service_id" value="<?php echo $service['id']; ?>">
                                         <div class="mb-3">
@@ -306,12 +306,12 @@ include '../../includes/header.php';
                                 </div>
                                 
                                 <!-- Meta Information -->
-                                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
-                                    <small style="color: #64748b; font-weight: 500; line-height: 1.5;">
-                                        <i class="bi bi-calendar-plus" style="color: #3b82f6; margin-right: 0.5rem;"></i>
+                                <div class="service-metadata-section">
+                                    <small class="service-metadata">
+                                        <i class="bi bi-calendar-plus text-primary me-2"></i>
                                         Created <?php echo date('M j, Y', strtotime($service['created_at'])); ?>
                                         <?php if ($service['last_session_date']): ?>
-                                            <br><i class="bi bi-clock-history" style="color: #3b82f6; margin-right: 0.5rem;"></i>
+                                            <br><i class="bi bi-clock-history text-primary me-2"></i>
                                             Last used <?php echo date('M j, Y', strtotime($service['last_session_date'])); ?>
                                         <?php endif; ?>
                                     </small>
@@ -321,13 +321,13 @@ include '../../includes/header.php';
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
-                <div style="text-align: center; padding: 4rem; color: #64748b;">
-                    <div style="background: #f8fafc; width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; border: 3px dashed #cbd5e1;">
-                        <i class="bi bi-collection" style="font-size: 3rem; color: #94a3b8;"></i>
+                <div class="empty-state-container">
+                    <div class="empty-state-circle">
+                        <i class="bi bi-collection empty-state-icon-large"></i>
                     </div>
-                    <h4 style="color: #1e293b; margin-bottom: 1.5rem; font-weight: 600; font-size: 1.5rem;">No Service Templates Yet</h4>
-                    <p style="margin-bottom: 2.5rem; max-width: 450px; margin-left: auto; margin-right: auto; font-size: 1.1rem; line-height: 1.6;">Create your first service template to start managing church sessions efficiently and organize your worship services.</p>
-                    <a href="add.php" class="btn btn-lg" style="background: #3b82f6; color: white; border: none; border-radius: 12px; font-weight: 600; padding: 1rem 2rem; box-shadow: 0 4px 12px rgba(59,130,246,0.25); transition: all 0.3s ease;">
+                    <h4 class="empty-state-title">No Service Templates Yet</h4>
+                    <p class="empty-state-text">Create your first service template to start managing church sessions efficiently and organize your worship services.</p>
+                    <a href="add.php" class="btn btn-lg btn-primary empty-state-btn">
                         <i class="bi bi-plus-lg"></i> Create First Template
                     </a>
                 </div>

@@ -252,7 +252,7 @@ include '../../includes/header.php';
         </div>
         
         <!-- Visitor-specific fields -->
-        <div id="visitorFields" style="display: none;">
+        <div id="visitorFields" class="d-none">
             <div class="col-md-6">
                 <label class="form-label fw-semibold">
                     <i class="bi bi-question-circle me-1"></i>Is this your first time visiting?
@@ -346,20 +346,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <?php endif; ?>
 
-<style>
-.form-check-card .form-check-input:checked + .form-check-label {
-    background-color: rgba(13, 110, 253, 0.1);
-    border-color: #0d6efd !important;
-}
 
-.form-check-card .form-check-label {
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.form-check-card .form-check-label:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-}
-</style>
 
 <?php include '../../includes/footer.php'; ?>

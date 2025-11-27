@@ -1,5 +1,72 @@
 /* assets/css/services.css */
 
+/* Service metadata styling */
+.service-metadata {
+    color: #64748b;
+    font-weight: 600;
+    line-height: 1.5;
+    font-size: 1.1rem;
+}
+
+/* Service metadata section styling */
+.service-metadata-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Empty state styling */
+.empty-state-container {
+    text-align: center;
+    padding: 4rem;
+    color: #64748b;
+}
+
+.empty-state-circle {
+    background: #f8fafc;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    border: 3px dashed #cbd5e1;
+}
+
+.empty-state-icon-large {
+    font-size: 3.5rem;
+    color: #94a3b8;
+}
+
+.empty-state-title {
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    font-size: 1.7rem;
+}
+
+.empty-state-text {
+    margin-bottom: 2.5rem;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+.empty-state-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 12px rgba(59,130,246,0.25);
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+}
+
 .services-container {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;

@@ -112,7 +112,7 @@ include '../../includes/header.php';
     <div class="col-lg-2 col-md-4 col-sm-6">
         <div class="card stats-card border-0 h-100">
             <div class="card-body text-center">
-                <div class="bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                <div class="stat-circle bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
                     <i class="bi bi-people-fill text-primary fs-4"></i>
                 </div>
                 <h3 class="fw-bold text-primary mb-1"><?= number_format($stats['total'] ?? 0) ?></h3>
@@ -125,7 +125,7 @@ include '../../includes/header.php';
     <div class="col-lg-2 col-md-4 col-sm-6">
         <div class="card stats-card border-0 h-100">
             <div class="card-body text-center">
-                <div class="bg-success bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                <div class="stat-circle bg-success bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
                     <i class="bi bi-person-check-fill text-success fs-4"></i>
                 </div>
                 <h3 class="fw-bold text-success mb-1"><?= number_format($stats['active'] ?? 0) ?></h3>
@@ -138,7 +138,7 @@ include '../../includes/header.php';
     <div class="col-lg-2 col-md-4 col-sm-6">
         <div class="card stats-card border-0 h-100">
             <div class="card-body text-center">
-                <div class="bg-warning bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                <div class="stat-circle bg-warning bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
                     <i class="bi bi-arrow-up-circle-fill text-warning fs-4"></i>
                 </div>
                 <h3 class="fw-bold text-warning mb-1"><?= number_format($stats['converted_to_members'] ?? 0) ?></h3>
@@ -151,7 +151,7 @@ include '../../includes/header.php';
     <div class="col-lg-2 col-md-4 col-sm-6">
         <div class="card stats-card border-0 h-100">
             <div class="card-body text-center">
-                <div class="bg-info bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                <div class="stat-circle bg-info bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
                     <i class="bi bi-clock-fill text-info fs-4"></i>
                 </div>
                 <h3 class="fw-bold text-info mb-1"><?= number_format($stats['recent_converts'] ?? 0) ?></h3>
@@ -164,7 +164,7 @@ include '../../includes/header.php';
     <div class="col-lg-2 col-md-4 col-sm-6">
         <div class="card stats-card border-0 h-100">
             <div class="card-body text-center">
-                <div class="bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                <div class="stat-circle bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
                     <i class="bi bi-droplet-fill text-primary fs-4"></i>
                 </div>
                 <h3 class="fw-bold text-primary mb-1"><?= number_format($stats['baptized'] ?? 0) ?></h3>
@@ -177,7 +177,7 @@ include '../../includes/header.php';
     <div class="col-lg-2 col-md-4 col-sm-6">
         <div class="card stats-card border-0 h-100">
             <div class="card-body text-center">
-                <div class="bg-secondary bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                <div class="stat-circle bg-secondary bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
                     <i class="bi bi-hourglass text-secondary fs-4"></i>
                 </div>
                 <h3 class="fw-bold text-secondary mb-1"><?= number_format($stats['not_baptized'] ?? 0) ?></h3>
@@ -247,7 +247,7 @@ include '../../includes/header.php';
         <?php if (empty($converts)): ?>
         <div class="text-center py-5">
             <div class="mb-3">
-                <i class="bi bi-person-x text-muted" style="font-size: 4rem;"></i>
+                <i class="bi bi-person-x text-muted empty-state-icon"></i>
             </div>
             <h5 class="text-muted">No New Converts Found</h5>
             <p class="text-muted mb-4">No new converts match your current search criteria.</p>

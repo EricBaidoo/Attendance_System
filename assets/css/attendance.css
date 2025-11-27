@@ -21,15 +21,58 @@
     margin-bottom: 0.5rem;
 }
 
-/* Live indicator animation */
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.3; }
-    100% { opacity: 1; }
+/* Progress styling */
+.progress-container {
+    margin-top: 1.5rem;
 }
 
-.live-indicator {
-    text-align: center;
+.progress-track {
+    background: #e9ecef;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, #28a745, #20c997);
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+/* Summary card styling */
+.summary-percentage {
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.1));
+    color: #2c3e50;
+}
+
+/* Live indicator styles */
+.live-session-indicator {
+    color: #ff4757;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.live-session-icon {
+    font-size: 0.8rem;
+    animation: pulse 2s infinite;
+}
+
+.attendance-counter {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+}
+
+.people-icon-large {
+    font-size: 5.5rem;
+    opacity: 0.3;
+}
+
+.live-indicator-container {
+    background: rgba(255,255,255,0.2);
+    padding: 1rem;
+    border-radius: 15px;
 }
 
 .service-selection {

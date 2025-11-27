@@ -1,5 +1,12 @@
 /* Members Page - Clean Bootstrap-based Styles */
 
+/* Member avatar styling */
+.member-avatar {
+    width: 40px;
+    height: 40px;
+    font-weight: 600;
+}
+
 /* Form Styling */
 .form-gradient-header {
     background: linear-gradient(135deg, #198754 0%, #146c43 100%);

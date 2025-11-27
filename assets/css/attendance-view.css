@@ -46,8 +46,65 @@
     pointer-events: none;
 }
 
-.report-header .container {
-    position: relative;
+/* Summary card styling */
+.summary-absent {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.2));
+    color: #dc3545;
+}
+
+.total-members-container {
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.1));
+    padding: 1rem;
+    border-radius: 15px;
+}
+
+/* Status badge styling */
+.status-absent {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.status-not-marked {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+/* No session styling */
+.no-session-container {
+    padding: 4rem;
+}
+
+.no-session-title {
+    color: #6c757d;
+    margin-top: 1rem;
+    font-size: 1.8rem;
+}
+
+.no-session-text {
+    color: #95a5a6;
+    font-size: 1.2rem;
+}
+
+/* Stats display styles */
+.stats-number-large {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.stats-label-large {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.calendar-icon-large {
+    font-size: 5.5rem;
+    color: #6c757d;
+    opacity: 0.5;
+}
     z-index: 2;
 }
 

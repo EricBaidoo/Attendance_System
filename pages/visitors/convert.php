@@ -256,42 +256,7 @@ include '../../includes/header.php';
 
 <!-- Using Bootstrap classes only -->
 
-<style>
-    .conversion-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 0.9375rem;
-        box-shadow: 0 0.9375rem 2.1875rem rgba(0, 0, 0, 0.1);
-    }
-    .form-control:focus, .form-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
-    }
-    .btn-convert {
-        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-        border: none;
-        color: white;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    .btn-convert:hover {
-        transform: translateY(-0.125rem);
-        box-shadow: 0 0.625rem 1.875rem rgba(72, 187, 120, 0.3);
-        color: white;
-    }
-    .btn-member {
-        background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
-        border: none;
-        color: white;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    .btn-member:hover {
-        transform: translateY(-0.125rem);
-        box-shadow: 0 0.625rem 1.875rem rgba(237, 137, 54, 0.3);
-        color: white;
-    }
-</style>
+
 
 <div class="row">
     <div class="col-lg-8">
@@ -300,7 +265,7 @@ include '../../includes/header.php';
             <div class="conversion-card">
                 <div class="card-body text-center py-4">
                     <div class="mb-3">
-                        <i class="bi bi-person-circle" style="font-size: 4rem; opacity: 0.9;"></i>
+                        <i class="bi bi-person-circle person-circle-large"></i>
                     </div>
                     <h3 class="mb-2"><?= htmlspecialchars($visitor['name']) ?></h3>
                     <p class="mb-1">

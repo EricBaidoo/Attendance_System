@@ -106,7 +106,7 @@ include '../../includes/header.php';
     <div class="col-lg-2 col-md-4 col-sm-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
-                <div class="bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                <div class="stat-circle bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
                     <i class="bi bi-people-fill text-primary fs-4"></i>
                 </div>
                 <h3 class="fw-bold text-primary mb-1"><?php echo number_format($stats['total']); ?></h3>
@@ -119,7 +119,7 @@ include '../../includes/header.php';
     <div class="col-lg-2 col-md-4 col-sm-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
-                <div class="bg-success bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                <div class="stat-circle bg-success bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
                     <i class="bi bi-star-fill text-success fs-4"></i>
                 </div>
                 <h3 class="fw-bold text-success mb-1"><?php echo number_format($stats['first_time']); ?></h3>
@@ -132,7 +132,7 @@ include '../../includes/header.php';
     <div class="col-lg-2 col-md-4 col-sm-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
-                <div class="bg-info bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                <div class="stat-circle bg-info bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
                     <i class="bi bi-arrow-repeat text-info fs-4"></i>
                 </div>
                 <h3 class="fw-bold text-info mb-1"><?php echo number_format($stats['return_visitors']); ?></h3>
@@ -145,7 +145,7 @@ include '../../includes/header.php';
     <div class="col-lg-2 col-md-4 col-sm-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
-                <div class="bg-warning bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                <div class="stat-circle bg-warning bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
                     <i class="bi bi-clock text-warning fs-4"></i>
                 </div>
                 <h3 class="fw-bold text-warning mb-1"><?php echo number_format($stats['recent_visitors'] ?? 0); ?></h3>
@@ -158,7 +158,7 @@ include '../../includes/header.php';
     <div class="col-lg-2 col-md-4 col-sm-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
-                <div class="bg-danger bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                <div class="stat-circle bg-danger bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
                     <i class="bi bi-exclamation-circle text-danger fs-4"></i>
                 </div>
                 <h3 class="fw-bold text-danger mb-1"><?php echo number_format($stats['pending_followups'] ?? 0); ?></h3>
@@ -171,7 +171,7 @@ include '../../includes/header.php';
     <div class="col-lg-2 col-md-4 col-sm-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
-                <div class="bg-secondary bg-opacity-10 rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                <div class="stat-circle bg-secondary bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
                     <i class="bi bi-check-circle text-secondary fs-4"></i>
                 </div>
                 <h3 class="fw-bold text-secondary mb-1"><?php echo number_format($stats['became_members'] ?? 0); ?></h3>
@@ -239,7 +239,7 @@ include '../../includes/header.php';
         <?php if (empty($visitors)): ?>
         <div class="text-center py-5">
             <div class="mb-3">
-                <i class="bi bi-person-x text-muted" style="font-size: 4rem;"></i>
+                <i class="bi bi-person-x text-muted empty-state-icon"></i>
             </div>
             <h5 class="text-muted">No Visitors Found</h5>
             <p class="text-muted mb-4">No visitors match your current search criteria.</p>

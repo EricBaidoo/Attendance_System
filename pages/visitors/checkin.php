@@ -172,7 +172,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin_visitor'])) {
             border: 2px solid #e9ecef;
             padding: 15px 18px;
             transition: all 0.3s ease;
-            font-size: 16px;
             background: rgba(255, 255, 255, 0.9);
         }
         .form-control:focus, .form-select:focus {
@@ -187,7 +186,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin_visitor'])) {
             border-radius: 12px;
             padding: 15px 35px;
             font-weight: 600;
-            font-size: 18px;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -249,7 +247,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin_visitor'])) {
             padding: 40px !important;
         }
         .welcome-icon {
-            font-size: 3rem;
             margin-bottom: 15px;
             opacity: 0.9;
         }
@@ -275,7 +272,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin_visitor'])) {
             <div class="col-lg-7 col-md-9">
                 <div class="card checkin-card">
                     <div class="checkin-header">
-                        <div class="welcome-icon">
+                        <div class="welcome-icon welcome-icon-large">
                             <i class="bi bi-heart-fill"></i>
                         </div>
                         <h1 class="mb-2">Welcome!</h1>
@@ -300,7 +297,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin_visitor'])) {
                         <?php if (empty($active_services)): ?>
                             <div class="alert alert-warning text-center" role="alert">
                                 <div class="mb-3">
-                                    <i class="bi bi-clock" style="font-size: 3rem;"></i>
+                                    <i class="bi bi-clock clock-icon-large"></i>
                                 </div>
                                 <h4><strong>No Active Services</strong></h4>
                                 <p class="mb-0">Currently there are no open services for check-in. Please contact a staff member for assistance.</p>
@@ -408,7 +405,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin_visitor'])) {
                                         <option value="other">Other</option>
                                     </select>
                                     
-                                    <div id="invited_by_details_section" class="mt-3" style="display: none;">
+                                    <div id="invited_by_details_section" class="mt-3 d-none">
                                         <input type="text" class="form-control" name="invited_by_details" 
                                                id="invited_by_details" placeholder="Please specify...">
                                     </div>

@@ -143,7 +143,7 @@ include '../../includes/header.php';
                         <h1><i class="bi bi-check-square-fill"></i> Mark Attendance</h1>
                         <?php if ($selected_session): ?>
                             <p><strong><?php echo htmlspecialchars($selected_session['service_name']); ?></strong> • <?php echo date('F j, Y'); ?></p>
-                            <small class="text-light" style="opacity: 0.8;">
+                            <small class="text-light opacity-75">
                                 <i class="bi bi-geo-alt"></i> <?php echo htmlspecialchars($selected_session['location']); ?> • 
                                 <i class="bi bi-clock"></i> Started at <?php echo date('g:i A', strtotime($selected_session['opened_at'])); ?>
                             </small>
@@ -153,17 +153,17 @@ include '../../includes/header.php';
                     </div>
                     <div class="col-md-4 text-end">
                         <?php if ($selected_session): ?>
-                            <div class="live-indicator" style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 15px;">
-                                <div style="color: #ff4757; font-size: 0.9rem; font-weight: 600;">
-                                    <i class="bi bi-circle-fill" style="font-size: 0.5rem; animation: pulse 2s infinite;"></i> LIVE SESSION
+                            <div class="live-indicator-container">
+                                <div class="live-session-indicator">
+                                    <i class="bi bi-circle-fill live-session-icon"></i> LIVE SESSION
                                 </div>
-                                <div style="font-size: 1.5rem; font-weight: 700; margin-top: 0.5rem;">
+                                <div class="attendance-counter">
                                     <?php echo $attendance_summary['present']; ?> / <?php echo $attendance_summary['total']; ?>
                                 </div>
                                 <small>Present</small>
                             </div>
                         <?php else: ?>
-                            <i class="bi bi-people-fill" style="font-size: 4rem; opacity: 0.3;"></i>
+                            <i class="bi bi-people-fill people-icon-large"></i>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -294,16 +294,16 @@ include '../../includes/header.php';
                     <div class="summary-number" id="totalCount"><?php echo $attendance_summary['total']; ?></div>
                     <div class="summary-label">Total Members</div>
                 </div>
-                <div class="summary-card summary-percentage" style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.1)); color: #2c3e50;">
+                <div class="summary-card summary-percentage">
                     <div class="summary-number" id="percentageCount"><?php echo $attendance_summary['percentage']; ?>%</div>
                     <div class="summary-label">Attendance Rate</div>
                 </div>
             </div>
             
             <!-- Progress Bar -->
-            <div style="margin-top: 1.5rem;">
-                <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
-                    <div id="progressBar" style="background: linear-gradient(90deg, #28a745, #20c997); height: 100%; width: <?php echo $attendance_summary['percentage']; ?>%; border-radius: 4px; transition: width 0.5s ease;"></div>
+            <div class="progress-container">
+                <div class="progress-track">
+                    <div id="progressBar" class="progress-fill" data-width="<?php echo $attendance_summary['percentage']; ?>"></div>
                 </div>
                 <small class="text-muted mt-1 d-block">Real-time attendance progress</small>
             </div>

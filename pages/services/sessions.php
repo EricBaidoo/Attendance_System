@@ -293,7 +293,7 @@ include '../../includes/header.php';
                                     </div>
                                     
                                     <div class="session-opener">
-                                        <i class="bi bi-person" style="color: #3b82f6; margin-right: 0.5rem;"></i>
+                                        <i class="bi bi-person text-primary me-2"></i>
                                         Opened by <?php echo htmlspecialchars($session['opened_by_user']); ?>
                                         <?php if ($session['closed_by_user']): ?>
                                             • Closed by <?php echo htmlspecialchars($session['closed_by_user']); ?>
@@ -341,7 +341,7 @@ include '../../includes/header.php';
                                                        class="btn btn-success btn-sm">
                                                         <i class="bi bi-check-square"></i> Mark
                                                     </a>
-                                                    <form method="post" style="display: inline;" onsubmit="return confirm('Close this session? All unmarked members will be marked absent.')">
+                                                    <form method="post" class="d-inline" onsubmit="return confirm('Close this session? All unmarked members will be marked absent.')">
                                                         <input type="hidden" name="session_id" value="<?php echo $session['id']; ?>">
                                                         <input type="hidden" name="close_session" value="1">
                                                         <button type="submit" class="btn btn-danger btn-sm">

@@ -125,16 +125,16 @@ $page_title = "Attendance Report - Bridge Ministries International";
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="summary-card text-center" style="background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.2)); color: #dc3545;">
+                            <div class="summary-card text-center summary-absent">
                                 <div class="summary-number"><?php echo $attendance_stats['absent']; ?></div>
                                 <div class="summary-label">Absent</div>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="text-center">
-                                <div style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.1)); padding: 1rem; border-radius: 15px;">
-                                    <div style="font-size: 2rem; font-weight: 700; color: #2c3e50;"><?php echo $attendance_stats['total_members']; ?></div>
-                                    <div style="font-size: 0.9rem; font-weight: 600; color: #6c757d; text-transform: uppercase; letter-spacing: 1px;">Total Members</div>
+                                <div class="total-members-container">
+                                    <div class="stats-number-large"><?php echo $attendance_stats['total_members']; ?></div>
+                                    <div class="stats-label-large">Total Members</div>
                                 </div>
                             </div>
                         </div>
@@ -183,11 +183,11 @@ $page_title = "Attendance Report - Bridge Ministries International";
                                         <i class="bi bi-check-circle"></i> Present
                                     </span>
                                 <?php elseif ($record['status'] === 'absent'): ?>
-                                    <span class="status-badge" style="background-color: rgba(220, 53, 69, 0.1); color: #dc3545;">
+                                    <span class="status-badge status-absent">
                                         <i class="bi bi-x-circle"></i> Absent
                                     </span>
                                 <?php else: ?>
-                                    <span class="status-badge" style="background-color: rgba(108, 117, 125, 0.1); color: #6c757d;">
+                                    <span class="status-badge status-not-marked">
                                         <i class="bi bi-dash-circle"></i> Not Marked
                                     </span>
                                 <?php endif; ?>
@@ -206,10 +206,10 @@ $page_title = "Attendance Report - Bridge Ministries International";
         </div>
         
         <?php else: ?>
-        <div class="text-center" style="padding: 4rem;">
-            <i class="bi bi-calendar-x" style="font-size: 4rem; color: #6c757d; opacity: 0.5;"></i>
-            <h3 style="color: #6c757d; margin-top: 1rem;">No Session Selected</h3>
-            <p style="color: #95a5a6;">Please select a session to view attendance report.</p>
+        <div class="text-center no-session-container">
+            <i class="bi bi-calendar-x calendar-icon-large"></i>
+            <h3 class="no-session-title">No Session Selected</h3>
+            <p class="no-session-text">Please select a session to view attendance report.</p>
             <a href="../services/sessions.php" class="btn btn-primary">
                 <i class="bi bi-calendar"></i> View Sessions
             </a>

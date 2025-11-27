@@ -143,28 +143,7 @@ include '../../includes/header.php';
 
 <!-- Using Bootstrap classes only -->
 
-<style>
-.form-control, .form-select {
-    border: 0.125rem solid #e9ecef;
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    transition: all 0.3s ease;
-}
 
-.form-control:focus, .form-select:focus {
-    border-color: #6f42c1;
-    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.15);
-    background-color: #fff;
-}
-
-.section-divider {
-    height: 3px;
-    background: linear-gradient(90deg, #6f42c1, #20c997, #fd7e14);
-    border: none;
-    border-radius: 3px;
-    margin: 2rem 0;
-}
-</style>
 
 <?php if (isset($error)): ?>
 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -261,7 +240,7 @@ include '../../includes/header.php';
                         <option value="other" <?php echo ($invited_by_type == 'other') ? 'selected' : ''; ?>>Other</option>
                     </select>
                 </div>
-                <div class="col-md-6 mb-3" id="invited_by_details" <?php echo ($invited_by_type && !in_array($invited_by_type, ['website', 'self'])) ? '' : 'style="display: none;"'; ?>>
+                <div class="col-md-6 mb-3 d-none" id="invited_by_details">
                     <label class="form-label fw-medium">Details</label>
                     <input type="text" class="form-control" name="invited_by_details" id="invited_by_details_input"
                            value="<?php echo htmlspecialchars($invited_by_details); ?>">

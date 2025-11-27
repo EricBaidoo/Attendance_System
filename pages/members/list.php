@@ -450,7 +450,7 @@ include '../../includes/header.php';
                             // Member column
                             echo '<td class="ps-4">';
                             echo '<div class="d-flex align-items-center">';
-                            echo '<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-weight: 600;">' . $initials . '</div>';
+                            echo '<div class="member-avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3">' . $initials . '</div>';
                             echo '<div>';
                             echo '<div class="fw-semibold">' . htmlspecialchars($row['name']) . '</div>';
                             echo '</div>';

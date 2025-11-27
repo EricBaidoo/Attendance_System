@@ -30,46 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Staff Login - Bridge Ministries International</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-size: 1.1rem; /* Increased base font size */
-        }
-        .login-card {
-            max-width: 25rem;
-            margin: auto;
-        }
-        .brand-section {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(0.625rem);
-            border-radius: 1rem;
-        }
-        .brand-section h1 {
-            font-size: 2rem !important; /* Larger brand title */
-        }
-        .brand-section p {
-            font-size: 1.15rem; /* Larger subtitle */
-        }
-        .card-body h2 {
-            font-size: 1.8rem !important; /* Larger welcome text */
-        }
-        .form-label {
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-        .form-control {
-            font-size: 1.05rem;
-            padding: 0.75rem 1rem;
-        }
-        .btn {
-            font-size: 1.1rem !important;
-            padding: 0.75rem 1.5rem;
-        }
-        .alert {
-            font-size: 1.05rem;
-        }
-    </style>
+
 </head>
 <body>
     <div class="container-fluid vh-100 d-flex align-items-center">
@@ -77,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-lg-8 col-xl-6">
                 <!-- Brand Section -->
                 <div class="text-center mb-5 brand-section p-4">
-                    <img src="assets/css/image/bmi logo.png" alt="BMI Logo" class="img-fluid mb-3" style="max-height: 5rem;">
+                    <img src="assets/css/image/bmi logo.png" alt="BMI Logo" class="img-fluid mb-3 brand-logo">
                     <h1 class="h2 text-white fw-bold">Bridge Ministries International</h1>
                     <p class="text-white-50">Attendance Management System</p>
                 </div>
