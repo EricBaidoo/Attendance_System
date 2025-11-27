@@ -45,14 +45,64 @@ if ($levels_up == 0) {
         body { 
             padding-top: 0 !important;
             margin: 0;
+            font-size: 1.1rem; /* Increased base font size */
+            line-height: 1.6;
         }
         .navbar {
             margin-bottom: 0;
+            font-size: 1.05rem; /* Larger navbar text */
         }
         .content-wrapper {
             padding-top: 1rem;
         }
-        .navbar-brand { font-weight: 600; }
+        .navbar-brand { 
+            font-weight: 600; 
+            font-size: 1.3rem !important; /* Larger brand text */
+        }
+        /* Increase card text sizes */
+        .card-body {
+            font-size: 1.05rem;
+        }
+        .card-title {
+            font-size: 1.3rem !important;
+        }
+        /* Increase button text */
+        .btn {
+            font-size: 1rem !important;
+            padding: 0.625rem 1.25rem;
+        }
+        /* Increase table text */
+        .table {
+            font-size: 1rem;
+        }
+        .table th {
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+        /* Increase form text */
+        .form-label {
+            font-size: 1.05rem;
+            font-weight: 500;
+        }
+        .form-control {
+            font-size: 1rem;
+            padding: 0.625rem 0.875rem;
+        }
+        /* Increase heading sizes */
+        h1 { font-size: 2.2rem !important; }
+        h2 { font-size: 1.9rem !important; }
+        h3 { font-size: 1.6rem !important; }
+        h4 { font-size: 1.4rem !important; }
+        h5 { font-size: 1.2rem !important; }
+        h6 { font-size: 1.1rem !important; }
+        /* Increase alert text */
+        .alert {
+            font-size: 1.05rem;
+        }
+        /* Increase badge text */
+        .badge {
+            font-size: 0.9rem;
+        }
         @media (max-width: 991px) {
             .navbar-collapse {
                 background: #2c3e50 !important;
@@ -68,10 +118,21 @@ if ($levels_up == 0) {
                 align-items: center !important;
                 gap: 0.75rem !important;
                 margin-bottom: 0.25rem !important;
+                font-size: 1.1rem !important; /* Larger mobile nav text */
             }
             .navbar-nav .nav-link:hover {
                 background: rgba(255,255,255,0.2) !important;
             }
+            /* Mobile font adjustments */
+            body {
+                font-size: 1.05rem;
+            }
+            .card-body {
+                font-size: 1rem;
+            }
+            h1 { font-size: 1.8rem !important; }
+            h2 { font-size: 1.6rem !important; }
+            h3 { font-size: 1.4rem !important; }
         }
     </style>
 </head>

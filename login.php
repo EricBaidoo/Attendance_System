@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         body { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            font-size: 1.1rem; /* Increased base font size */
         }
         .login-card {
             max-width: 25rem;
@@ -43,6 +44,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(0.625rem);
             border-radius: 1rem;
+        }
+        .brand-section h1 {
+            font-size: 2rem !important; /* Larger brand title */
+        }
+        .brand-section p {
+            font-size: 1.15rem; /* Larger subtitle */
+        }
+        .card-body h2 {
+            font-size: 1.8rem !important; /* Larger welcome text */
+        }
+        .form-label {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        .form-control {
+            font-size: 1.05rem;
+            padding: 0.75rem 1rem;
+        }
+        .btn {
+            font-size: 1.1rem !important;
+            padding: 0.75rem 1.5rem;
+        }
+        .alert {
+            font-size: 1.05rem;
         }
     </style>
 </head>
