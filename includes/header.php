@@ -94,7 +94,7 @@ if ($levels_up == 0) {
                     <li class="nav-item">
                         <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], 'sessions') !== false || strpos($_SERVER['REQUEST_URI'], 'attendance') !== false ? 'active' : ''; ?>" 
                            href="<?php echo $relative_path; ?>pages/services/sessions.php">
-                            <i class="bi bi-clipboard-check"></i> Attendance
+                            <i class="bi bi-clipboard-check"></i> Sessions
                         </a>
                     </li>
                     <li class="nav-item">
