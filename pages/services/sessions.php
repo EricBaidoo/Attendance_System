@@ -180,22 +180,28 @@ $stats = $stats_stmt->fetch();
 $page_title = "Today's Sessions - Bridge Ministries International";
 include '../../includes/header.php';
 ?>
+<link href="../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">
 
-<!-- Using Bootstrap classes only -->
-
-<div class="sessions-container">
-    <div class="page-header">
-        <div class="container">
+<!-- Professional Sessions Dashboard -->
+<div class="container-fluid py-4">
+    <!-- Dashboard Header -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
             <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1><i class="bi bi-calendar-day"></i> Today's Sessions</h1>
-                    <p><?php echo date('l, F j, Y'); ?> - Active Service Sessions</p>
+                <div class="col-lg-8">
+                    <h1 class="text-primary mb-2 fw-bold">
+                        <i class="bi bi-calendar-day"></i> Today's Service Sessions
+                    </h1>
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <span class="text-muted">Manage active service sessions for <strong class="text-dark"><?php echo date('l, F j, Y'); ?></strong></span>
+                        <span class="badge bg-light text-dark"><?php echo count($today_sessions); ?> Sessions Today</span>
+                    </div>
                 </div>
-                <div class="col-md-4 text-end">
-                    <a href="list.php" class="btn btn-light me-2">
+                <div class="col-lg-4 text-end">
+                    <a href="list.php" class="btn btn-outline-primary me-2">
                         <i class="bi bi-list"></i> All Services
                     </a>
-                    <a href="../attendance/mark.php" class="btn btn-outline-light">
+                    <a href="../attendance/mark.php" class="btn btn-primary">
                         <i class="bi bi-check-square"></i> Mark Attendance
                     </a>
                 </div>
@@ -203,341 +209,281 @@ include '../../includes/header.php';
         </div>
     </div>
 
-    <div class="content-wrapper">
-        <div class="container">
-            <!-- Alert Messages -->
-            <?php if ($success): ?>
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($success); ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            <?php endif; ?>
-            
-            <?php if ($error): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-triangle"></i> <?php echo htmlspecialchars($error); ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            <?php endif; ?>
+    <!-- Alert Messages -->
+    <?php if ($success): ?>
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                <span><?php echo htmlspecialchars($success); ?></span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+    
+    <?php if ($error): ?>
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                <span><?php echo htmlspecialchars($error); ?></span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
 
-            <!-- Statistics Cards -->
-            <div class="row mb-4">
-                <div class="col-md-3 mb-3">
-                    <div class="stats-card total-services">
-                        <h3 class="stats-number"><?php echo $stats['total_today']; ?></h3>
-                        <p class="stats-label">Total Today</p>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="stats-card active-sessions">
-                        <h3 class="stats-number"><?php echo $stats['open_count']; ?></h3>
-                        <p class="stats-label">Open Sessions</p>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="stats-card total-attendance">
-                        <h3 class="stats-number"><?php echo $stats['closed_count']; ?></h3>
-                        <p class="stats-label">Completed</p>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="stats-card avg-attendance">
-                        <h3 class="stats-number"><?php echo round($stats['avg_attendance']); ?></h3>
-                        <p class="stats-label">Avg Attendance</p>
+    <!-- Statistics Cards -->
+    <div class="row g-3 g-lg-4 mb-4">
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="card border-0 shadow-sm h-100 members-card">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="text-white-50 mb-2 fw-semibold">Total Sessions</h6>
+                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['total_today']; ?></h2>
+                            <small class="text-white-50">
+                                <i class="bi bi-calendar"></i> Today
+                            </small>
+                        </div>
+                        <div class="rounded p-3">
+                            <i class="bi bi-calendar-week text-white fs-2"></i>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="card border-0 shadow-sm h-100 visitors-card">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="text-white-50 mb-2 fw-semibold">Open Sessions</h6>
+                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['open_count']; ?></h2>
+                            <small class="text-white-50">
+                                <i class="bi bi-broadcast"></i> Live
+                            </small>
+                        </div>
+                        <div class="rounded p-3">
+                            <i class="bi bi-door-open-fill text-white fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="card border-0 shadow-sm h-100 converts-card">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="text-white-50 mb-2 fw-semibold">Completed</h6>
+                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['closed_count']; ?></h2>
+                            <small class="text-white-50">
+                                <i class="bi bi-check-circle"></i> Finished
+                            </small>
+                        </div>
+                        <div class="rounded p-3">
+                            <i class="bi bi-lock-fill text-white fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="card border-0 shadow-sm h-100 departments-card">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="text-white-50 mb-2 fw-semibold">Avg Attendance</h6>
+                            <h2 class="text-white mb-2 fw-bold"><?php echo round($stats['avg_attendance']); ?></h2>
+                            <small class="text-white-50">
+                                <i class="bi bi-people"></i> Members
+                            </small>
+                        </div>
+                        <div class="rounded p-3">
+                            <i class="bi bi-graph-up text-white fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <!-- Active Sessions Section -->
-        <div class="section-card">
-            <h2 class="section-title">
+    <!-- Active Sessions Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <h3 class="text-primary mb-4 fw-bold">
                 <i class="bi bi-clock-history"></i> Active Sessions
-            </h2>
+            </h3>
 
             <?php if (empty($today_sessions)): ?>
-                <div class="empty-state">
-                    <i class="bi bi-calendar-plus"></i>
-                    <h4>No Sessions Today</h4>
-                    <p>No service sessions have been started for today yet.</p>
+                <div class="text-center py-5">
+                    <i class="bi bi-calendar-plus text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
+                    <h4 class="text-muted mt-3 mb-2">No Sessions Today</h4>
+                    <p class="text-muted mb-4">No service sessions have been started for today yet.</p>
+                    <a href="#start-session" class="btn btn-primary" onclick="document.getElementById('start-session').scrollIntoView();">
+                        <i class="bi bi-plus"></i> Start First Session
+                    </a>
                 </div>
             <?php else: ?>
+                <div class="row g-4">
                     <?php foreach ($today_sessions as $session): ?>
                         <?php
                         $attendance_percentage = $session['total_members'] > 0 
                             ? round(($session['present_count'] / $session['total_members']) * 100) 
                             : 0;
                         
-                        $status_class = $session['status'] === 'open' ? 'status-open' : 'status-closed';
-                        $session_status_class = $session['status'] === 'open' ? 'open' : 'closed';
-                        $status_icon = $session['status'] === 'open' ? 'door-open' : 'lock';
+                        $status_color = $session['status'] === 'open' ? 'success' : 'secondary';
+                        $status_icon = $session['status'] === 'open' ? 'door-open-fill' : 'lock-fill';
                         ?>
-                        <div class="session-item-card status-<?php echo $session['status']; ?>">
-                            <div class="row align-items-center">
-                                <div class="col-md-8">
-                                    <div class="session-header">
-                                        <div class="session-icon <?php echo $session_status_class; ?>">
-                                            <i class="bi bi-<?php echo $status_icon; ?>"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="session-title"><?php echo htmlspecialchars($session['service_name']); ?></h4>
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm mb-3">
+                                <div class="card-body p-4">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-8">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="session-icon me-3">
+                                                    <i class="bi bi-<?php echo $status_icon; ?> text-<?php echo $status_color; ?> fs-4"></i>
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-primary mb-1 fw-bold"><?php echo htmlspecialchars($session['service_name']); ?></h4>
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <span class="badge bg-<?php echo $status_color; ?>">
+                                                            <?php echo ucfirst($session['status']); ?>
+                                                        </span>
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-clock"></i> Started at <?php echo date('g:i A', strtotime($session['opened_at'])); ?>
+                                                            <?php if ($session['closed_at']): ?>
+                                                                • Ended at <?php echo date('g:i A', strtotime($session['closed_at'])); ?>
+                                                            <?php endif; ?>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
                                             <div class="session-meta">
-                                                <span class="status-badge <?php echo $status_class; ?>">
-                                                    <?php echo ucfirst($session['status']); ?>
-                                                </span>
-                                                <span class="session-time">Started at <?php echo date('g:i A', strtotime($session['opened_at'])); ?></span>
-                                                <?php if ($session['closed_at']): ?>
-                                                    <span class="session-time">Ended at <?php echo date('g:i A', strtotime($session['closed_at'])); ?></span>
-                                                <?php endif; ?>
+                                                <small class="text-muted">
+                                                    <i class="bi bi-person text-primary me-1"></i>
+                                                    Opened by <strong><?php echo htmlspecialchars($session['opened_by_user']); ?></strong>
+                                                    <?php if ($session['closed_by_user']): ?>
+                                                        • Closed by <strong><?php echo htmlspecialchars($session['closed_by_user']); ?></strong>
+                                                    <?php endif; ?>
+                                                </small>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="session-opener">
-                                        <i class="bi bi-person text-primary me-2"></i>
-                                        Opened by <?php echo htmlspecialchars($session['opened_by_user']); ?>
-                                        <?php if ($session['closed_by_user']): ?>
-                                            • Closed by <?php echo htmlspecialchars($session['closed_by_user']); ?>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                                    
-                                    <div class="col-md-4">
-                                        <?php if ($session['status'] === 'closed'): ?>
-                                            <!-- Attendance Statistics -->
-                                            <div class="attendance-stats">
-                                                <div class="stats-row">
-                                                    <div class="stat-group">
-                                                        <div class="stat-number present"><?php echo $session['present_count']; ?></div>
-                                                        <div class="stat-text">Present</div>
+                                            
+                                        <div class="col-lg-4">
+                                            <?php if ($session['status'] === 'closed'): ?>
+                                                <!-- Attendance Statistics -->
+                                                <div class="text-center">
+                                                    <div class="row g-2 mb-3">
+                                                        <div class="col-4">
+                                                            <div class="p-3 bg-success bg-opacity-10 rounded-3">
+                                                                <div class="fw-bold text-success fs-4"><?php echo $session['present_count']; ?></div>
+                                                                <small class="text-muted">Present</small>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-4">
+                                                            <div class="p-3 bg-danger bg-opacity-10 rounded-3">
+                                                                <div class="fw-bold text-danger fs-4"><?php echo $session['absent_count']; ?></div>
+                                                                <small class="text-muted">Absent</small>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-4">
+                                                            <div class="p-3 bg-primary bg-opacity-10 rounded-3">
+                                                                <div class="fw-bold text-primary fs-4"><?php echo $attendance_percentage; ?>%</div>
+                                                                <small class="text-muted">Rate</small>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div class="stat-group">
-                                                        <div class="stat-number absent"><?php echo $session['absent_count']; ?></div>
-                                                        <div class="stat-text">Absent</div>
-                                                    </div>
-                                                    <div class="stat-group">
-                                                        <div class="stat-number rate"><?php echo $attendance_percentage; ?>%</div>
-                                                        <div class="stat-text">Rate</div>
-                                                    </div>
-                                                </div>
-                                                
-                                                <a href="../attendance/view.php?session_id=<?php echo $session['id']; ?>" 
-                                                   class="btn btn-primary btn-sm">
-                                                    <i class="bi bi-eye"></i> View Report
-                                                </a>
-                                            </div>
-                                        <?php else: ?>
-                                            <!-- Live Session Actions -->
-                                            <div class="live-session">
-                                                <div class="live-indicator">
-                                                    <i class="bi bi-broadcast"></i> LIVE SESSION
-                                                </div>
-                                                <div class="attendance-count">
-                                                    <?php echo $session['present_count']; ?> / <?php echo $session['total_members']; ?>
-                                                </div>
-                                                <div class="attendance-label">Present</div>
-                                                
-                                                <div class="action-buttons">
-                                                    <a href="../attendance/mark.php?session_id=<?php echo $session['id']; ?>" 
-                                                       class="btn btn-success btn-sm">
-                                                        <i class="bi bi-check-square"></i> Mark
+                                                    
+                                                    <a href="../attendance/view.php?session_id=<?php echo $session['id']; ?>" 
+                                                       class="btn btn-primary btn-sm w-100">
+                                                        <i class="bi bi-eye"></i> View Detailed Report
                                                     </a>
-                                                    <form method="post" class="d-inline" onsubmit="return confirm('Close this session? All unmarked members will be marked absent.')">
-                                                        <input type="hidden" name="session_id" value="<?php echo $session['id']; ?>">
-                                                        <input type="hidden" name="close_session" value="1">
-                                                        <button type="submit" class="btn btn-danger btn-sm">
-                                                            <i class="bi bi-lock"></i> Close
-                                                        </button>
-                                                    </form>
                                                 </div>
-                                            </div>
-                                        <?php endif; ?>
+                                            <?php else: ?>
+                                                <!-- Live Session Actions -->
+                                                <div class="text-center">
+                                                    <div class="alert alert-success border-0 mb-3">
+                                                        <i class="bi bi-broadcast"></i> <strong>LIVE SESSION</strong>
+                                                    </div>
+                                                    <div class="attendance-summary p-3 bg-light rounded-3 mb-3">
+                                                        <div class="fw-bold fs-3 text-primary"><?php echo $session['present_count']; ?> / <?php echo $session['total_members']; ?></div>
+                                                        <small class="text-muted">Members Present</small>
+                                                    </div>
+                                                    
+                                                    <div class="d-flex gap-2">
+                                                        <a href="../attendance/mark.php?session_id=<?php echo $session['id']; ?>" 
+                                                           class="btn btn-success btn-sm flex-fill">
+                                                            <i class="bi bi-check-square"></i> Mark
+                                                        </a>
+                                                        <form method="post" class="flex-fill" onsubmit="return confirm('Close this session? All unmarked members will be marked absent.')">
+                                                            <input type="hidden" name="session_id" value="<?php echo $session['id']; ?>">
+                                                            <input type="hidden" name="close_session" value="1">
+                                                            <button type="submit" class="btn btn-danger btn-sm w-100">
+                                                                <i class="bi bi-lock"></i> Close
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
+                </div>
             <?php endif; ?>
         </div>
+    </div>
 
-        <!-- Start New Session Section -->
-        <div class="section-card">
-            <h2 class="section-title">
+    <!-- Start New Session Section -->
+    <div class="card border-0 shadow-sm" id="start-session">
+        <div class="card-body p-4">
+            <h3 class="text-primary mb-4 fw-bold">
                 <i class="bi bi-plus-circle"></i> Start New Session
-            </h2>
+            </h3>
             
             <?php if (empty($service_templates)): ?>
-                <div class="empty-state">
-                    <i class="bi bi-exclamation-triangle"></i>
-                    <h4>No Service Templates</h4>
-                    <p>Please create some services first before opening sessions.</p>
+                <div class="text-center py-5">
+                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 4rem; opacity: 0.7;"></i>
+                    <h4 class="text-muted mt-3 mb-2">No Service Templates</h4>
+                    <p class="text-muted mb-4">Please create some services first before opening sessions.</p>
                     <a href="list.php" class="btn btn-primary">
                         <i class="bi bi-plus"></i> Create Services
                     </a>
                 </div>
             <?php else: ?>
-                <div class="row">
+                <div class="row g-4">
                     <?php foreach ($service_templates as $template): ?>
-                    <div class="col-md-4 mb-3">
-                        <div class="template-card">
-                            <div class="template-icon">
-                                <i class="bi bi-calendar-plus"></i>
-                            </div>
-                            <h5 class="template-title"><?php echo htmlspecialchars($template['name']); ?></h5>
-                            <p class="template-description"><?php echo htmlspecialchars($template['description']); ?></p>
-                            
-                            <form method="post" class="start-session-form">
-                                <input type="hidden" name="service_id" value="<?php echo $template['id']; ?>">
-                                <input type="hidden" name="session_date" value="<?php echo $today; ?>">
-                                <input type="hidden" name="open_session" value="1">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card border-0 shadow-sm h-100" style="transition: transform 0.3s ease;">
+                            <div class="card-body p-4 text-center">
+                                <div class="template-icon mx-auto mb-3" style="width: 4rem; height: 4rem; background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%); border-radius: 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                                    <i class="bi bi-calendar-plus"></i>
+                                </div>
+                                <h5 class="text-primary fw-bold mb-3"><?php echo htmlspecialchars($template['name']); ?></h5>
+                                <p class="text-muted mb-4"><?php echo htmlspecialchars($template['description']); ?></p>
                                 
-                                <button type="submit" class="btn btn-primary btn-start-session">
-                                    <i class="bi bi-play-fill"></i> Start Session
-                                </button>
-                            </form>
+                                <form method="post" class="start-session-form">
+                                    <input type="hidden" name="service_id" value="<?php echo $template['id']; ?>">
+                                    <input type="hidden" name="session_date" value="<?php echo $today; ?>">
+                                    <input type="hidden" name="open_session" value="1">
+                                    
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="bi bi-play-fill"></i> Start Session
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
         </div>
-        </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-// Professional hover effects and interactions
-document.addEventListener('DOMContentLoaded', function() {
-    // Stats cards hover effects
-    const statsCards = document.querySelectorAll('.stats-card');
-    statsCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-2px)';
-            this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-        });
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)';
-        });
-    });
-    
-    // Session items hover effects
-    const sessionItems = document.querySelectorAll('.session-item');
-    sessionItems.forEach(item => {
-        item.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-1px)';
-            this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-        });
-        item.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-        });
-    });
-    
-    // Template cards - no hover effects (removed)
-    
-    // Button hover effects
-    const buttons = document.querySelectorAll('.btn');
-    buttons.forEach(button => {
-        const originalTransform = button.style.transform;
-        button.addEventListener('mouseenter', function() {
-            if (!this.disabled) {
-                this.style.transform = 'translateY(-1px)';
-            }
-        });
-        button.addEventListener('mouseleave', function() {
-            this.style.transform = originalTransform || 'translateY(0)';
-        });
-    });
-});
-
-// Auto-refresh for live sessions (every 60 seconds for better performance)
-let refreshInterval;
-function startAutoRefresh() {
-    const liveIndicators = document.querySelectorAll('.live-indicator');
-    if (liveIndicators.length > 0) {
-        refreshInterval = setTimeout(function() {
-            window.location.reload();
-        }, 60000); // 60 seconds
-    }
-}
-
-// Start auto-refresh on page load
-startAutoRefresh();
-
-// Clear refresh interval when page is hidden to save resources
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden && refreshInterval) {
-        clearTimeout(refreshInterval);
-    } else if (!document.hidden) {
-        startAutoRefresh();
-    }
-});
-
-// Enhanced form validation for location input
-document.querySelectorAll('form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        const locationInput = this.querySelector('input[name="location"]');
-        if (locationInput && locationInput.value.trim() === '') {
-            e.preventDefault();
-            locationInput.style.borderColor = '#ef4444';
-            locationInput.focus();
-            
-            // Show error message
-            let errorMsg = locationInput.parentNode.querySelector('.error-message');
-            if (!errorMsg) {
-                errorMsg = document.createElement('div');
-                errorMsg.className = 'error-message';
-                errorMsg.style.color = '#ef4444';
-                errorMsg.style.fontSize = '0.75rem';
-                errorMsg.style.marginTop = '0.25rem';
-                errorMsg.textContent = 'Please enter a location for the session.';
-                locationInput.parentNode.appendChild(errorMsg);
-            }
-            
-            // Remove error styling on input
-            locationInput.addEventListener('input', function() {
-                this.style.borderColor = '#e5e7eb';
-                const errorMsg = this.parentNode.querySelector('.error-message');
-                if (errorMsg) {
-                    errorMsg.remove();
-                }
-            });
-        }
-    });
-});
-
-// Smooth scrolling for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    });
-});
-
-// Loading state for forms
-document.querySelectorAll('form').forEach(form => {
-    form.addEventListener('submit', function() {
-        const submitButton = this.querySelector('button[type="submit"]');
-        if (submitButton && !submitButton.disabled) {
-            const originalText = submitButton.innerHTML;
-            submitButton.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
-            submitButton.disabled = true;
-            
-            // Re-enable after 5 seconds as fallback
-            setTimeout(() => {
-                submitButton.innerHTML = originalText;
-                submitButton.disabled = false;
-            }, 5000);
-        }
-    });
-});
-</script>
 
 <?php include '../../includes/footer.php'; ?>
