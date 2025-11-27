@@ -1,23 +1,38 @@
 <?php
-// Determine the correct relative path based on current file location
-$current_file = $_SERVER['PHP_SELF'];
-$current_dir = dirname($current_file);
+// More robust path detection for hosting environments
+$script_path = $_SERVER['SCRIPT_NAME'];
+$request_path = $_SERVER['REQUEST_URI'];
 
-// Count directory levels from the root of the project
-// Root level (index.php): 0 levels
-// pages/members/list.php: 2 levels
-$levels_deep = substr_count(ltrim($current_dir, '/'), '/');
+// Remove query string and get clean path
+$clean_path = parse_url($request_path, PHP_URL_PATH);
 
-// Generate relative path back to root
-if ($levels_deep == 0) {
-    // Root level files (index.php)
+// Count how many directories we are from the root
+$path_parts = explode('/', trim($clean_path, '/'));
+$script_parts = explode('/', trim($script_path, '/'));
+
+// Find the project root by looking for common patterns
+$project_root_found = false;
+$levels_up = 0;
+
+// Check if we're in a subdirectory (pages/something/)
+if (strpos($clean_path, '/pages/') !== false) {
+    $levels_up = 2; // pages/subfolder/ = 2 levels up
+} else if (strpos($clean_path, '/includes/') !== false) {
+    $levels_up = 1; // includes/ = 1 level up  
+} else {
+    $levels_up = 0; // root level
+}
+
+// Generate the relative path
+if ($levels_up == 0) {
     $relative_path = './';
 } else {
-    // Subdirectory files (pages/members/list.php)
-    $relative_path = str_repeat('../', $levels_deep);
+    $relative_path = str_repeat('../', $levels_up);
 }
-?>
-<!DOCTYPE html>
+
+// Debug info (remove this after testing)
+// echo "<!-- DEBUG: Script: $script_path | Request: $clean_path | Levels up: $levels_up | Relative: $relative_path -->";
+?><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
