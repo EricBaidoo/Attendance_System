@@ -182,6 +182,97 @@ include '../../includes/header.php';
 ?>
 <link href="../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">
 
+<style>
+/* Force Bootstrap Icons to load properly */
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css');
+
+.bi {
+    font-family: "bootstrap-icons" !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.bi::before {
+    font-family: "bootstrap-icons" !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+}
+
+/* Service template card enhancements */
+.template-icon {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.template-icon i {
+    display: inline-block;
+    font-size: 1.5rem !important;
+    line-height: 1;
+}
+
+/* Fallback content for icons that don't load */
+.template-icon::after {
+    content: "⛪";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    display: none;
+}
+
+/* Show fallback if icon doesn't load */
+.template-icon i:empty::before {
+    content: "⛪";
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.card:hover .template-icon {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 50, 0.3);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Service icon styling */
+.session-icon i {
+    font-size: 1.2rem;
+}
+
+/* Enhanced button styling */
+.start-session-form .btn-primary {
+    background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.start-session-form .btn-primary:hover {
+    background: linear-gradient(135deg, #1a1a5e 0%, #000032 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 50, 0.3);
+}
+
+/* Force icon visibility */
+.bi-sun::before { content: "\F5A3"; }
+.bi-heart::before { content: "\F2DC"; }
+.bi-book::before { content: "\F1CD"; }
+.bi-people::before { content: "\F4E6"; }
+.bi-emoji-smile::before { content: "\F25D"; }
+.bi-megaphone::before { content: "\F3B6"; }
+.bi-lightning::before { content: "\F387"; }
+.bi-cup::before { content: "\F22C"; }
+.bi-droplet::before { content: "\F254"; }
+.bi-stars::before { content: "\F5CB"; }
+.bi-calendar-plus::before { content: "\F1E8"; }
+.bi-play-fill::before { content: "\F4DF"; }
+</style>
+
 <!-- Professional Sessions Dashboard -->
 <div class="container-fluid py-4">
     <!-- Dashboard Header -->
@@ -458,11 +549,38 @@ include '../../includes/header.php';
             <?php else: ?>
                 <div class="row g-4">
                     <?php foreach ($service_templates as $template): ?>
+                    <?php
+                    // Determine appropriate icon based on service name/type
+                    $service_icon = 'calendar-plus';
+                    $service_name_lower = strtolower($template['name']);
+                    
+                    if (strpos($service_name_lower, 'sunday') !== false || strpos($service_name_lower, 'morning') !== false || strpos($service_name_lower, 'evening') !== false) {
+                        $service_icon = 'sun';
+                    } elseif (strpos($service_name_lower, 'prayer') !== false) {
+                        $service_icon = 'heart';
+                    } elseif (strpos($service_name_lower, 'bible study') !== false || strpos($service_name_lower, 'study') !== false) {
+                        $service_icon = 'book';
+                    } elseif (strpos($service_name_lower, 'youth') !== false) {
+                        $service_icon = 'people';
+                    } elseif (strpos($service_name_lower, 'children') !== false) {
+                        $service_icon = 'emoji-smile';
+                    } elseif (strpos($service_name_lower, 'conference') !== false || strpos($service_name_lower, 'seminar') !== false) {
+                        $service_icon = 'megaphone';
+                    } elseif (strpos($service_name_lower, 'revival') !== false) {
+                        $service_icon = 'lightning';
+                    } elseif (strpos($service_name_lower, 'communion') !== false) {
+                        $service_icon = 'cup';
+                    } elseif (strpos($service_name_lower, 'baptism') !== false) {
+                        $service_icon = 'droplet';
+                    } elseif (strpos($service_name_lower, 'celebration') !== false || strpos($service_name_lower, 'special') !== false) {
+                        $service_icon = 'stars';
+                    }
+                    ?>
                     <div class="col-lg-4 col-md-6">
                         <div class="card border-0 shadow-sm h-100" style="transition: transform 0.3s ease;">
                             <div class="card-body p-4 text-center">
                                 <div class="template-icon mx-auto mb-3" style="width: 4rem; height: 4rem; background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%); border-radius: 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
-                                    <i class="bi bi-calendar-plus"></i>
+                                    <i class="bi bi-<?php echo $service_icon; ?>"></i>
                                 </div>
                                 <h5 class="text-primary fw-bold mb-3"><?php echo htmlspecialchars($template['name']); ?></h5>
                                 <p class="text-muted mb-4"><?php echo htmlspecialchars($template['description']); ?></p>

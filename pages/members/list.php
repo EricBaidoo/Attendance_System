@@ -67,42 +67,30 @@ if (!empty($where_conditions)) {
     $where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
 }
 
-// Get statistics based on congregation groups
+// Get member statistics
 try {
-    // First check if congregation_group column exists
-    $column_check = $pdo->query("SHOW COLUMNS FROM members LIKE 'congregation_group'");
+    // Check if congregation_group column exists
+    $table_check = $pdo->query("SHOW COLUMNS FROM members LIKE 'congregation_group'");
+    $has_congregation_group = $table_check->rowCount() > 0;
     
-    if ($column_check->rowCount() > 0) {
-        // Column exists, use congregation_group
+    if ($has_congregation_group) {
         $stats_sql = "SELECT 
             COUNT(*) as total,
             COUNT(CASE WHEN gender = 'male' THEN 1 END) as male,
             COUNT(CASE WHEN gender = 'female' THEN 1 END) as female,
             COUNT(CASE WHEN baptized = 'yes' THEN 1 END) as baptized,
             COUNT(CASE WHEN congregation_group = 'Adult' OR congregation_group IS NULL THEN 1 END) as adults,
-            COUNT(CASE WHEN (congregation_group = 'Adult' OR congregation_group IS NULL) AND gender = 'male' THEN 1 END) as adult_male,
-            COUNT(CASE WHEN (congregation_group = 'Adult' OR congregation_group IS NULL) AND gender = 'female' THEN 1 END) as adult_female,
             COUNT(CASE WHEN congregation_group = 'Youth' THEN 1 END) as youths,
-            COUNT(CASE WHEN congregation_group = 'Youth' AND gender = 'male' THEN 1 END) as youth_male,
-            COUNT(CASE WHEN congregation_group = 'Youth' AND gender = 'female' THEN 1 END) as youth_female,
             COUNT(CASE WHEN congregation_group = 'Teen' THEN 1 END) as teens,
-            COUNT(CASE WHEN congregation_group = 'Teen' AND gender = 'male' THEN 1 END) as teen_male,
-            COUNT(CASE WHEN congregation_group = 'Teen' AND gender = 'female' THEN 1 END) as teen_female,
-            COUNT(CASE WHEN congregation_group = 'Children' THEN 1 END) as children,
-            COUNT(CASE WHEN congregation_group = 'Children' AND gender = 'male' THEN 1 END) as children_male,
-            COUNT(CASE WHEN congregation_group = 'Children' AND gender = 'female' THEN 1 END) as children_female
+            COUNT(CASE WHEN congregation_group = 'Children' THEN 1 END) as children
             FROM members m $where_clause";
     } else {
-        // Column doesn't exist, use basic stats only
         $stats_sql = "SELECT 
             COUNT(*) as total,
             COUNT(CASE WHEN gender = 'male' THEN 1 END) as male,
             COUNT(CASE WHEN gender = 'female' THEN 1 END) as female,
             COUNT(CASE WHEN baptized = 'yes' THEN 1 END) as baptized,
-            COUNT(*) as adults, COUNT(*) as adult_male, 0 as adult_female,
-            0 as youths, 0 as youth_male, 0 as youth_female,
-            0 as teens, 0 as teen_male, 0 as teen_female,
-            0 as children, 0 as children_male, 0 as children_female
+            COUNT(*) as adults, 0 as youths, 0 as teens, 0 as children
             FROM members m $where_clause";
     }
     
@@ -110,480 +98,405 @@ try {
     $stmt->execute($params);
     $stats = $stmt->fetch();
 } catch (Exception $e) {
-    $stats = [
-        'total' => 0, 'male' => 0, 'female' => 0, 'baptized' => 0,
-        'adults' => 0, 'adult_male' => 0, 'adult_female' => 0,
-        'youths' => 0, 'youth_male' => 0, 'youth_female' => 0,
-        'teens' => 0, 'teen_male' => 0, 'teen_female' => 0,
-        'children' => 0, 'children_male' => 0, 'children_female' => 0
-    ];
+    $stats = ['total' => 0, 'male' => 0, 'female' => 0, 'baptized' => 0, 'adults' => 0, 'youths' => 0, 'teens' => 0, 'children' => 0];
 }
 
-// Page configuration
-$page_title = "Members Directory - Bridge Ministries International";
-$page_header = true;
-$page_icon = "bi bi-people-fill";
-$page_heading = "Member Management";
-$page_description = "Manage church members and their information";
-$page_actions = '<a href="add.php" class="btn btn-primary me-2"><i class="bi bi-person-plus"></i> Add New Member</a>';
+// Get departments for filter dropdown
+try {
+    $departments_stmt = $pdo->query("SELECT id, name FROM departments ORDER BY name");
+    $departments = $departments_stmt->fetchAll();
+} catch (Exception $e) {
+    $departments = [];
+}
 
+// Get members with pagination
+$page = $_GET['page'] ?? 1;
+$limit = 20;
+$offset = ($page - 1) * $limit;
+
+$members_sql = "SELECT m.*, d.name as department_name 
+                FROM members m 
+                LEFT JOIN departments d ON m.department_id = d.id 
+                $where_clause 
+                ORDER BY m.name 
+                LIMIT $limit OFFSET $offset";
+
+$members_stmt = $pdo->prepare($members_sql);
+$members_stmt->execute($params);
+$members = $members_stmt->fetchAll();
+
+// Get total count for pagination
+$count_sql = "SELECT COUNT(*) as total FROM members m $where_clause";
+$count_stmt = $pdo->prepare($count_sql);
+$count_stmt->execute($params);
+$total_members = $count_stmt->fetch()['total'];
+$total_pages = ceil($total_members / $limit);
+
+$page_title = "Members Directory - Bridge Ministries International";
 include '../../includes/header.php';
 ?>
+<link href="../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">
+<link href="../../assets/css/members.css?v=<?php echo time(); ?>" rel="stylesheet">
 
-<!-- Statistics Cards -->
-<div class="row g-4 mb-4">
-    <!-- Total Members -->
-    <div class="col-lg-3 col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <h6 class="text-muted mb-1">Total Members</h6>
-                        <h2 class="text-primary mb-0"><?php echo number_format($stats['total']); ?></h2>
+<!-- Professional Members Dashboard -->
+<div class="container-fluid py-4">
+    <!-- Dashboard Header -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="text-primary mb-2 fw-bold">
+                        <i class="bi bi-people-fill"></i> Members Directory
+                    </h1>
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <span class="text-muted">Manage church members and their information</span>
+                        <span class="badge bg-light text-dark"><?php echo $stats['total']; ?> Total Members</span>
                     </div>
-                    <div class="bg-primary bg-opacity-10 rounded-3 p-3">
-                        <i class="bi bi-people-fill text-primary fs-4"></i>
+                </div>
+                <div class="col-lg-4 text-end">
+                    <a href="add.php" class="btn btn-outline-primary me-2">
+                        <i class="bi bi-person-plus"></i> Add Member
+                    </a>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-download"></i> Export
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-excel me-2"></i>Excel</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-pdf me-2"></i>PDF</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Male Members -->
-    <div class="col-lg-3 col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <h6 class="text-muted mb-1">Male Members</h6>
-                        <h2 class="text-info mb-0"><?php echo number_format($stats['male']); ?></h2>
-                    </div>
-                    <div class="bg-info bg-opacity-10 rounded-3 p-3">
-                        <i class="bi bi-person text-info fs-4"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Female Members -->
-    <div class="col-lg-3 col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <h6 class="text-muted mb-1">Female Members</h6>
-                        <h2 class="text-warning mb-0"><?php echo number_format($stats['female']); ?></h2>
-                    </div>
-                    <div class="bg-warning bg-opacity-10 rounded-3 p-3">
-                        <i class="bi bi-person-dress text-warning fs-4"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Baptized Members -->
-    <div class="col-lg-3 col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <h6 class="text-muted mb-1">Baptized</h6>
-                        <h2 class="text-success mb-0"><?php echo number_format($stats['baptized']); ?></h2>
-                    </div>
-                    <div class="bg-success bg-opacity-10 rounded-3 p-3">
-                        <i class="bi bi-droplet text-success fs-4"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Congregation Groups Section -->
-<div class="row g-3 mb-4">
-    <!-- Adults Section -->
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-primary text-white">
-                <h6 class="mb-0"><i class="bi bi-people me-2"></i>Adults</h6>
-            </div>
-            <div class="card-body p-3">
-                <div class="row text-center">
-                    <div class="col-4">
-                        <div class="h4 mb-0 text-primary"><?php echo number_format($stats['adults']); ?></div>
-                        <small class="text-muted">Total</small>
-                    </div>
-                    <div class="col-4">
-                        <div class="h5 mb-0 text-info"><?php echo number_format($stats['adult_male']); ?></div>
-                        <small class="text-muted"><i class="bi bi-person"></i> Male</small>
-                    </div>
-                    <div class="col-4">
-                        <div class="h5 mb-0 text-warning"><?php echo number_format($stats['adult_female']); ?></div>
-                        <small class="text-muted"><i class="bi bi-person-dress"></i> Female</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Youths Section -->
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-success text-white">
-                <h6 class="mb-0"><i class="bi bi-people me-2"></i>Youths</h6>
-            </div>
-            <div class="card-body p-3">
-                <div class="row text-center">
-                    <div class="col-4">
-                        <div class="h4 mb-0 text-success"><?php echo number_format($stats['youths']); ?></div>
-                        <small class="text-muted">Total</small>
-                    </div>
-                    <div class="col-4">
-                        <div class="h5 mb-0 text-info"><?php echo number_format($stats['youth_male']); ?></div>
-                        <small class="text-muted"><i class="bi bi-person"></i> Male</small>
-                    </div>
-                    <div class="col-4">
-                        <div class="h5 mb-0 text-warning"><?php echo number_format($stats['youth_female']); ?></div>
-                        <small class="text-muted"><i class="bi bi-person-dress"></i> Female</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Teens & Children Section -->
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-info text-white">
-                <h6 class="mb-0"><i class="bi bi-people me-2"></i>Teens & Children</h6>
-            </div>
-            <div class="card-body p-2">
-                <div class="row g-2">
-                    <div class="col-6">
-                        <div class="text-center p-2 bg-light rounded">
-                            <div class="h6 mb-0 text-secondary"><?php echo number_format($stats['teens']); ?></div>
-                            <small class="text-muted">Teens</small>
-                            <div class="small mt-1">
-                                <span class="badge bg-info"><?php echo $stats['teen_male']; ?>M</span>
-                                <span class="badge bg-warning"><?php echo $stats['teen_female']; ?>F</span>
-                            </div>
+    <!-- Statistics Cards -->
+    <div class="row g-3 g-lg-4 mb-4">
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="card border-0 shadow-sm h-100 members-card">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="text-white-50 mb-2 fw-semibold">Total Members</h6>
+                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['total']; ?></h2>
+                            <small class="text-white-50">
+                                <i class="bi bi-people"></i> Active congregation
+                            </small>
+                        </div>
+                        <div class="rounded p-3">
+                            <i class="bi bi-people-fill text-white fs-2"></i>
                         </div>
                     </div>
-                    <div class="col-6">
-                        <div class="text-center p-2 bg-light rounded">
-                            <div class="h6 mb-0 text-secondary"><?php echo number_format($stats['children']); ?></div>
-                            <small class="text-muted">Children</small>
-                            <div class="small mt-1">
-                                <span class="badge bg-info"><?php echo $stats['children_male']; ?>M</span>
-                                <span class="badge bg-warning"><?php echo $stats['children_female']; ?>F</span>
-                            </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="card border-0 shadow-sm h-100 visitors-card">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="text-white-50 mb-2 fw-semibold">Baptized</h6>
+                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['baptized']; ?></h2>
+                            <small class="text-white-50">
+                                <i class="bi bi-droplet"></i> <?php echo $stats['total'] > 0 ? round(($stats['baptized']/$stats['total'])*100) : 0; ?>% of members
+                            </small>
+                        </div>
+                        <div class="rounded p-3">
+                            <i class="bi bi-droplet-fill text-white fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="card border-0 shadow-sm h-100 converts-card">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="text-white-50 mb-2 fw-semibold">Male Members</h6>
+                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['male']; ?></h2>
+                            <small class="text-white-50">
+                                <i class="bi bi-person"></i> <?php echo $stats['total'] > 0 ? round(($stats['male']/$stats['total'])*100) : 0; ?>% of congregation
+                            </small>
+                        </div>
+                        <div class="rounded p-3">
+                            <i class="bi bi-person-fill text-white fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="card border-0 shadow-sm h-100 departments-card">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="text-white-50 mb-2 fw-semibold">Female Members</h6>
+                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['female']; ?></h2>
+                            <small class="text-white-50">
+                                <i class="bi bi-person-dress"></i> <?php echo $stats['total'] > 0 ? round(($stats['female']/$stats['total'])*100) : 0; ?>% of congregation
+                            </small>
+                        </div>
+                        <div class="rounded p-3">
+                            <i class="bi bi-person-dress text-white fs-2"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Search and Filter Card -->
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-white border-bottom">
-        <h5 class="mb-0">
-            <i class="bi bi-search text-primary me-2"></i>
-            Search & Filter Members
-        </h5>
-    </div>
-    <div class="card-body">
-        <form method="GET" class="row g-3">
-            <div class="col-md-4">
-                <label class="form-label fw-medium">Search Members</label>
-                <input type="text" class="form-control" name="search" 
-                       value="<?php echo htmlspecialchars($search); ?>" 
-                       placeholder="Search by name, email, or phone...">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label fw-medium">Department</label>
-                <select class="form-select" name="department">
-                    <option value="">All Departments</option>
-                    <?php
-                    try {
-                        $dept_stmt = $pdo->query("SELECT * FROM departments ORDER BY name");
-                        while ($dept = $dept_stmt->fetch()) {
-                            $selected = ($department_filter == $dept['id']) ? 'selected' : '';
-                            echo '<option value="' . $dept['id'] . '" ' . $selected . '>' . htmlspecialchars($dept['name']) . '</option>';
-                        }
-                    } catch (Exception $e) {
-                        echo '<option value="">No departments found</option>';
-                    }
-                    ?>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label fw-medium">Status</label>
-                <select class="form-select" name="status">
-                    <option value="" <?php echo ($status_filter == '') ? 'selected' : ''; ?>>All Status</option>
-                    <option value="active" <?php echo ($status_filter == 'active') ? 'selected' : ''; ?>>Active</option>
-                    <option value="inactive" <?php echo ($status_filter == 'inactive') ? 'selected' : ''; ?>>Inactive</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label fw-medium">Congregation Group</label>
-                <select class="form-select" name="group">
-                    <option value="" <?php echo ($group_filter == '') ? 'selected' : ''; ?>>All Groups</option>
-                    <option value="Adult" <?php echo ($group_filter == 'Adult') ? 'selected' : ''; ?>>Adult</option>
-                    <option value="Youth" <?php echo ($group_filter == 'Youth') ? 'selected' : ''; ?>>Youth</option>
-                    <option value="Teen" <?php echo ($group_filter == 'Teen') ? 'selected' : ''; ?>>Teen</option>
-                    <option value="Children" <?php echo ($group_filter == 'Children') ? 'selected' : ''; ?>>Children</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label fw-medium">Baptism</label>
-                <select class="form-select" name="baptism">
-                    <option value="" <?php echo ($baptism_filter == '') ? 'selected' : ''; ?>>All Members</option>
-                    <option value="yes" <?php echo ($baptism_filter == 'yes') ? 'selected' : ''; ?>>Baptized</option>
-                    <option value="no" <?php echo ($baptism_filter == 'no') ? 'selected' : ''; ?>>Not Baptized</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">&nbsp;</label>
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary flex-fill">
+    <!-- Filters and Search -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <h5 class="text-primary fw-bold mb-3">
+                <i class="bi bi-funnel"></i> Search & Filters
+            </h5>
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Search Members</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="search" class="form-control" placeholder="Name, email, or phone" value="<?php echo htmlspecialchars($search); ?>">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
+                        <option value="inactive" <?php echo $status_filter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                        <option value="" <?php echo $status_filter === '' ? 'selected' : ''; ?>>All</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Department</label>
+                    <select name="department" class="form-select">
+                        <option value="">All Departments</option>
+                        <?php foreach ($departments as $dept): ?>
+                        <option value="<?php echo $dept['id']; ?>" <?php echo $department_filter == $dept['id'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($dept['name']); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Baptism</label>
+                    <select name="baptism" class="form-select">
+                        <option value="">All</option>
+                        <option value="yes" <?php echo $baptism_filter === 'yes' ? 'selected' : ''; ?>>Baptized</option>
+                        <option value="no" <?php echo $baptism_filter === 'no' ? 'selected' : ''; ?>>Not Baptized</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
                         <i class="bi bi-search"></i> Filter
                     </button>
-                    <a href="list.php" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-clockwise"></i>
-                    </a>
                 </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Members Table Card -->
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white border-bottom">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
-                <i class="bi bi-people-fill text-primary me-2"></i>
-                Members List (<?php echo number_format($stats['total']); ?>)
-            </h5>
-            <div class="d-flex gap-2">
-                <button class="btn btn-outline-success btn-sm" onclick="exportData()">
-                    <i class="bi bi-download"></i> Export
-                </button>
-                <a href="add.php" class="btn btn-primary btn-sm">
-                    <i class="bi bi-plus-circle"></i> Add Member
-                </a>
-            </div>
+            </form>
         </div>
     </div>
-    
-    <?php if ($search || $department_filter || $status_filter != 'active' || $baptism_filter || $group_filter): ?>
-    <div class="alert alert-info m-3 mb-0">
-        <strong>Active Filters:</strong>
-        <?php if ($search): ?>
-            <span class="badge bg-primary ms-2">Search: <?php echo htmlspecialchars($search); ?></span>
-        <?php endif; ?>
-        <?php if ($department_filter): ?>
-            <?php 
-            $dept_name = $pdo->prepare("SELECT name FROM departments WHERE id = ?");
-            $dept_name->execute([$department_filter]);
-            $dept = $dept_name->fetch();
-            ?>
-            <span class="badge bg-info ms-2">Department: <?php echo htmlspecialchars($dept['name']); ?></span>
-        <?php endif; ?>
-        <?php if ($status_filter != 'active'): ?>
-            <span class="badge bg-warning ms-2">Status: <?php echo ucfirst($status_filter); ?></span>
-        <?php endif; ?>
-        <?php if ($baptism_filter): ?>
-            <span class="badge bg-success ms-2">Baptism: <?php echo ($baptism_filter == 'yes') ? 'Baptized' : 'Not Baptized'; ?></span>
-        <?php endif; ?>
-        <?php if ($group_filter): ?>
-            <span class="badge bg-secondary ms-2">Group: <?php echo htmlspecialchars($group_filter); ?></span>
-        <?php endif; ?>
-        <a href="list.php" class="btn btn-outline-secondary btn-sm ms-3">Clear All Filters</a>
-    </div>
-    <?php endif; ?>
-    
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-4">Member</th>
-                        <th>Contact Info</th>
-                        <th>Gender</th>
-                        <th>Date of Birth</th>
-                        <th>Location</th>
-                        <th>Occupation</th>
-                        <th>Congregation Group</th>
-                        <th>Department</th>
-                        <th>Status</th>
-                        <th class="pe-4">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $sql = "SELECT m.*, d.name AS department_name 
-                            FROM members m 
-                            LEFT JOIN departments d ON m.department_id = d.id 
-                            $where_clause 
-                            ORDER BY m.name";
-                    $stmt = $pdo->prepare($sql);
-                    $stmt->execute($params);
-                    
-                    if ($stmt->rowCount() == 0) {
-                        echo '<tr><td colspan="10" class="text-center py-5">';
-                        echo '<div class="text-muted">';
-                        echo '<i class="bi bi-inbox display-4 d-block mb-3"></i>';
-                        echo '<h5>No members found</h5>';
-                        echo '<p>Try adjusting your search filters or <a href="add.php">add a new member</a></p>';
-                        echo '</div>';
-                        echo '</td></tr>';
-                    } else {
-                        while ($row = $stmt->fetch()) {
-                            $initials = strtoupper(substr($row['name'], 0, 2));
-                            echo '<tr>';
-                            
-                            // Member column
-                            echo '<td class="ps-4">';
-                            echo '<div class="d-flex align-items-center">';
-                            echo '<div class="member-avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3">' . $initials . '</div>';
-                            echo '<div>';
-                            echo '<div class="fw-semibold">' . htmlspecialchars($row['name']) . '</div>';
-                            echo '</div>';
-                            echo '</div>';
-                            echo '</td>';
-                            
-                            // Contact column
-                            echo '<td>';
-                            echo '<div>';
-                            if ($row['phone']) {
-                                echo '<div class="small"><i class="bi bi-telephone text-muted me-1"></i>' . htmlspecialchars($row['phone']) . '</div>';
-                            }
-                            if ($row['email']) {
-                                echo '<div class="small text-muted"><i class="bi bi-envelope me-1"></i>' . htmlspecialchars($row['email']) . '</div>';
-                            }
-                            if (!$row['phone'] && !$row['email']) {
-                                echo '<span class="text-muted">No contact info</span>';
-                            }
-                            echo '</div>';
-                            echo '</td>';
-                            
-                            // Gender column
-                            echo '<td>';
-                            if ($row['gender']) {
-                                $gender_icon = $row['gender'] == 'male' ? 'bi-person' : 'bi-person-dress';
-                                $gender_color = $row['gender'] == 'male' ? 'text-primary' : 'text-danger';
-                                echo '<i class="bi ' . $gender_icon . ' ' . $gender_color . ' me-1"></i>' . ucfirst($row['gender']);
-                            } else {
-                                echo '<span class="text-muted">Not specified</span>';
-                            }
-                            echo '</td>';
-                            
-                            // Date of Birth column
-                            echo '<td>';
-                            if ($row['dob']) {
-                                $dob = new DateTime($row['dob']);
-                                $now = new DateTime();
-                                $age = $now->diff($dob)->y;
-                                echo '<div class="small">' . $dob->format('M j, Y') . '</div>';
-                                echo '<div class="text-muted small">Age: ' . $age . '</div>';
-                            } else {
-                                echo '<span class="text-muted">Not provided</span>';
-                            }
-                            echo '</td>';
-                            
-                            // Location column
-                            echo '<td>';
-                            echo $row['location'] ? htmlspecialchars($row['location']) : '<span class="text-muted">Not specified</span>';
-                            echo '</td>';
-                            
-                            // Occupation column
-                            echo '<td>';
-                            if ($row['occupation']) {
-                                echo '<span class="badge bg-light text-dark border">' . htmlspecialchars($row['occupation']) . '</span>';
-                            } else {
-                                echo '<span class="text-muted">Not specified</span>';
-                            }
-                            echo '</td>';
-                            
-                            // Congregation group column
-                            echo '<td>';
-                            $group = $row['congregation_group'] ?? 'Adult';
-                            $group_colors = [
-                                'Adult' => 'bg-primary',
-                                'Youth' => 'bg-success', 
-                                'Teen' => 'bg-info',
-                                'Children' => 'bg-warning'
-                            ];
-                            $color_class = $group_colors[$group] ?? 'bg-secondary';
-                            echo '<span class="badge ' . $color_class . '">' . htmlspecialchars($group) . '</span>';
-                            echo '</td>';
-                            
-                            // Department column
-                            echo '<td>';
-                            echo $row['department_name'] ? '<span class="badge bg-light text-dark">' . htmlspecialchars($row['department_name']) . '</span>' : '<span class="text-muted">Unassigned</span>';
-                            echo '</td>';
-                            
-                            // Status column
-                            echo '<td>';
-                            $status_class = $row['status'] == 'active' ? 'bg-success' : 'bg-danger';
-                            echo '<span class="badge ' . $status_class . '">' . ucfirst($row['status']) . '</span>';
-                            if ($row['baptized'] == 'yes') {
-                                echo '<br><small class="text-success mt-1"><i class="bi bi-check-circle"></i> Baptized</small>';
-                            }
-                            echo '</td>';
-                            
-                            // Actions column
-                            echo '<td class="pe-4">';
-                            echo '<div class="btn-group btn-group-sm" role="group">';
-                            echo '<a href="view.php?id=' . $row['id'] . '" class="btn btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>';
-                            echo '<a href="edit.php?id=' . $row['id'] . '" class="btn btn-outline-warning" title="Edit"><i class="bi bi-pencil"></i></a>';
-                            echo '<button class="btn btn-outline-danger" title="Delete" onclick="confirmDelete(' . $row['id'] . ', \'' . htmlspecialchars($row['name']) . '\')"><i class="bi bi-trash"></i></button>';
-                            echo '</div>';
-                            echo '</td>';
-                            
-                            echo '</tr>';
-                        }
-                    }
-                    ?>
-                </tbody>
-            </table>
+
+    <!-- Members Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="text-primary fw-bold mb-0">
+                    <i class="bi bi-list-ul"></i> Members List
+                </h5>
+                <span class="text-muted">Showing <?php echo count($members); ?> of <?php echo $total_members; ?> members</span>
+            </div>
+
+            <?php if (empty($members)): ?>
+                <div class="text-center py-5">
+                    <i class="bi bi-person-x text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
+                    <h4 class="text-muted mt-3 mb-2">No Members Found</h4>
+                    <p class="text-muted mb-4">Try adjusting your search criteria or add new members.</p>
+                    <a href="add.php" class="btn btn-primary">
+                        <i class="bi bi-person-plus"></i> Add First Member
+                    </a>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="fw-semibold">
+                                    <i class="bi bi-person me-1"></i>Name
+                                </th>
+                                <th class="fw-semibold">
+                                    <i class="bi bi-envelope me-1"></i>Contact
+                                </th>
+                                <th class="fw-semibold">
+                                    <i class="bi bi-building me-1"></i>Department
+                                </th>
+                                <th class="fw-semibold">
+                                    <i class="bi bi-droplet me-1"></i>Baptism
+                                </th>
+                                <th class="fw-semibold">
+                                    <i class="bi bi-activity me-1"></i>Status
+                                </th>
+                                <th class="fw-semibold text-center">
+                                    <i class="bi bi-gear me-1"></i>Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($members as $member): ?>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle me-3">
+                                                <i class="bi bi-person-fill"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-semibold"><?php echo htmlspecialchars($member['name']); ?></h6>
+                                                <small class="text-muted">
+                                                    <i class="bi bi-<?php echo $member['gender'] === 'male' ? 'person' : 'person-dress'; ?> me-1"></i>
+                                                    <?php echo ucfirst($member['gender']); ?>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <small class="d-block">
+                                                <i class="bi bi-envelope me-1 text-primary"></i>
+                                                <?php echo htmlspecialchars($member['email']); ?>
+                                            </small>
+                                            <small class="text-muted">
+                                                <i class="bi bi-telephone me-1"></i>
+                                                <?php echo htmlspecialchars($member['phone']); ?>
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">
+                                            <?php echo htmlspecialchars($member['department_name'] ?? 'No Department'); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <?php if ($member['baptized'] === 'yes'): ?>
+                                            <span class="badge bg-primary">
+                                                <i class="bi bi-droplet-fill me-1"></i>Baptized
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-droplet me-1"></i>Not Baptized
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($member['status'] === 'active'): ?>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle me-1"></i>Active
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-pause-circle me-1"></i>Inactive
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="view.php?id=<?php echo $member['id']; ?>" class="btn btn-outline-primary" title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="edit.php?id=<?php echo $member['id']; ?>" class="btn btn-outline-secondary" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <div class="btn-group btn-group-sm">
+                                                <button type="button" class="btn btn-outline-danger dropdown-toggle" data-bs-toggle="dropdown" title="More Actions">
+                                                    <i class="bi bi-three-dots"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="update_status.php?id=<?php echo $member['id']; ?>&action=toggle">
+                                                        <i class="bi bi-arrow-repeat me-2"></i>Toggle Status
+                                                    </a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-danger" href="#" onclick="confirmDelete(<?php echo $member['id']; ?>)">
+                                                        <i class="bi bi-trash me-2"></i>Delete
+                                                    </a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <?php if ($total_pages > 1): ?>
+                <nav aria-label="Members pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page - 1])); ?>">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                            <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
+                                <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $i])); ?>"><?php echo $i; ?></a>
+                            </li>
+                        <?php endfor; ?>
+                        <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page + 1])); ?>">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <?php endif; ?>
+            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <script>
-function exportData() {
-    const table = document.querySelector('.table');
-    const rows = Array.from(table.querySelectorAll('tr'));
-    let csv = [];
-    
-    rows.forEach(row => {
-        const cols = Array.from(row.querySelectorAll('td, th'));
-        const csvRow = cols.slice(0, -1).map(col => col.innerText.replace(/,/g, ';')); // Exclude actions column
-        csv.push(csvRow.join(','));
-    });
-    
-    const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
-    const downloadLink = document.createElement('a');
-    downloadLink.download = 'members_list.csv';
-    downloadLink.href = window.URL.createObjectURL(csvFile);
-    downloadLink.style.display = 'none';
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-}
-
-function confirmDelete(memberId, memberName) {
-    if (confirm('Are you sure you want to delete ' + memberName + '? This action cannot be undone.')) {
-        // In production, implement AJAX delete
-        alert('Delete functionality would be implemented here with proper backend handling.');
+function confirmDelete(memberId) {
+    if (confirm('Are you sure you want to delete this member? This action cannot be undone.')) {
+        window.location.href = 'delete.php?id=' + memberId;
     }
 }
+
+// Auto-dismiss alerts
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+});
 </script>
+
+<style>
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 50, 0.05);
+}
+
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+</style>
 
 <?php include '../../includes/footer.php'; ?>

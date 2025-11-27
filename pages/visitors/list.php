@@ -39,7 +39,7 @@ try {
     $follow_up_filter = $_GET['follow_up'] ?? '';
     
     // Build where conditions
-    $where_conditions = [];
+    $where_conditions = ['(v.status IS NULL OR v.status != \'converted_to_convert\')'];
     $params = [];
     
     if ($search) {
@@ -56,426 +56,402 @@ try {
     }
     
     if ($follow_up_filter) {
-        $where_conditions[] = "v.follow_up_needed = ?";
-        $params[] = $follow_up_filter;
+        if ($follow_up_filter === 'pending') {
+            $where_conditions[] = "v.follow_up_needed = 'yes' AND v.follow_up_completed = 'no'";
+        } elseif ($follow_up_filter === 'completed') {
+            $where_conditions[] = "v.follow_up_completed = 'yes'";
+        }
     }
     
-    // Exclude visitors who have been converted to new converts
-    $where_conditions[] = "(v.status IS NULL OR v.status != 'converted_to_convert')";
+    $where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
     
-    // Build the query
-    $where_clause = $where_conditions ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
+    // Get visitors with pagination
+    $page = $_GET['page'] ?? 1;
+    $limit = 20;
+    $offset = ($page - 1) * $limit;
     
-    $visitors_sql = "
-        SELECT v.*, s.name as service_name 
-        FROM visitors v 
-        LEFT JOIN services s ON v.service_id = s.id 
-        $where_clause 
-        ORDER BY DATE(v.created_at) DESC, v.created_at DESC
-    ";
+    $visitors_sql = "SELECT v.* FROM visitors v 
+                     $where_clause 
+                     ORDER BY v.created_at DESC 
+                     LIMIT $limit OFFSET $offset";
     
     $visitors_stmt = $pdo->prepare($visitors_sql);
     $visitors_stmt->execute($params);
     $visitors = $visitors_stmt->fetchAll();
     
+    // Get total count for pagination
+    $count_sql = "SELECT COUNT(*) as total FROM visitors v $where_clause";
+    $count_stmt = $pdo->prepare($count_sql);
+    $count_stmt->execute($params);
+    $total_visitors = $count_stmt->fetch()['total'];
+    $total_pages = ceil($total_visitors / $limit);
+    
 } catch (Exception $e) {
     die("Database error: " . $e->getMessage());
 }
 
-// Page configuration
-$page_title = "Visitor Management";
-$page_header = true;
-$page_icon = "bi bi-person-badge";
-$page_heading = "Visitor Management";
-$page_description = "Track active church visitors, follow-ups, and manage conversions";
-if ($user_role == 'admin') {
-    $page_actions = '<a href="new_converts.php" class="btn btn-info me-2"><i class="bi bi-people-fill"></i> View New Converts</a>' .
-                   '<a href="add.php" class="btn btn-primary me-2"><i class="bi bi-person-plus"></i> Add Visitor</a>' .
-                   '<a href="checkin.php" class="btn btn-success"><i class="bi bi-check-circle"></i> Visitor Check-In</a>';
-} else {
-    $page_actions = '<a href="new_converts.php" class="btn btn-info me-2"><i class="bi bi-people-fill"></i> View New Converts</a>' .
-                   '<a href="checkin.php" class="btn btn-primary"><i class="bi bi-check-circle"></i> Visitor Check-In</a>';
-}
-
+$page_title = "Visitors Directory - Bridge Ministries International";
 include '../../includes/header.php';
 ?>
+<link href="../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">
+<link href="../../assets/css/visitors.css?v=<?php echo time(); ?>" rel="stylesheet">
 
-<!-- Statistics Cards -->
-<div class="row g-4 mb-4">
-    <!-- Total Visitors -->
-    <div class="col-lg-2 col-md-4 col-sm-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-                <div class="stat-circle bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
-                    <i class="bi bi-people-fill text-primary fs-4"></i>
+<!-- Professional Visitors Dashboard -->
+<div class="container-fluid py-4">
+    <!-- Dashboard Header -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="text-primary mb-2 fw-bold">
+                        <i class="bi bi-person-badge"></i> Visitors Directory
+                    </h1>
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <span class="text-muted">Manage church visitors and follow-up activities</span>
+                        <span class="badge bg-light text-dark"><?php echo $stats['total']; ?> Total Visitors</span>
+                    </div>
                 </div>
-                <h3 class="fw-bold text-primary mb-1"><?php echo number_format($stats['total']); ?></h3>
-                <p class="text-muted mb-0 small">Total Visitors</p>
+                <div class="col-lg-4 text-end">
+                    <a href="add.php" class="btn btn-outline-primary me-2">
+                        <i class="bi bi-person-plus"></i> Add Visitor
+                    </a>
+                    <a href="checkin.php" class="btn btn-primary">
+                        <i class="bi bi-check-square"></i> Check-In
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-    
-    <!-- First Time Visitors -->
-    <div class="col-lg-2 col-md-4 col-sm-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-                <div class="stat-circle bg-success bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
-                    <i class="bi bi-star-fill text-success fs-4"></i>
-                </div>
-                <h3 class="fw-bold text-success mb-1"><?php echo number_format($stats['first_time']); ?></h3>
-                <p class="text-muted mb-0 small">First Time</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Return Visitors -->
-    <div class="col-lg-2 col-md-4 col-sm-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-                <div class="stat-circle bg-info bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
-                    <i class="bi bi-arrow-repeat text-info fs-4"></i>
-                </div>
-                <h3 class="fw-bold text-info mb-1"><?php echo number_format($stats['return_visitors']); ?></h3>
-                <p class="text-muted mb-0 small">Return Visitors</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Recent Visitors -->
-    <div class="col-lg-2 col-md-4 col-sm-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-                <div class="stat-circle bg-warning bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
-                    <i class="bi bi-clock text-warning fs-4"></i>
-                </div>
-                <h3 class="fw-bold text-warning mb-1"><?php echo number_format($stats['recent_visitors'] ?? 0); ?></h3>
-                <p class="text-muted mb-0 small">Last 7 Days</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Pending Follow-ups -->
-    <div class="col-lg-2 col-md-4 col-sm-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-                <div class="stat-circle bg-danger bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
-                    <i class="bi bi-exclamation-circle text-danger fs-4"></i>
-                </div>
-                <h3 class="fw-bold text-danger mb-1"><?php echo number_format($stats['pending_followups'] ?? 0); ?></h3>
-                <p class="text-muted mb-0 small">Follow-ups Due</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Became Members -->
-    <div class="col-lg-2 col-md-4 col-sm-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body text-center">
-                <div class="stat-circle bg-secondary bg-opacity-10 rounded-circle p-3 mx-auto mb-3">
-                    <i class="bi bi-check-circle text-secondary fs-4"></i>
-                </div>
-                <h3 class="fw-bold text-secondary mb-1"><?php echo number_format($stats['became_members'] ?? 0); ?></h3>
-                <p class="text-muted mb-0 small">Became Members</p>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Search and Filter Section -->
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <form method="GET" class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label fw-semibold">Search Visitors</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0">
-                        <i class="bi bi-search text-muted"></i>
-                    </span>
-                    <input type="text" class="form-control border-start-0" name="search" 
-                           value="<?php echo htmlspecialchars($search); ?>" 
-                           placeholder="Search by name, email, or phone...">
+    <!-- Statistics Cards -->
+    <div class="row g-3 g-lg-4 mb-4">
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="card border-0 shadow-sm h-100 members-card">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="text-white-50 mb-2 fw-semibold">Total Visitors</h6>
+                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['total']; ?></h2>
+                            <small class="text-white-50">
+                                <i class="bi bi-people"></i> All time
+                            </small>
+                        </div>
+                        <div class="rounded p-3">
+                            <i class="bi bi-person-badge text-white fs-2"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label fw-semibold">Visit Type</label>
-                <select class="form-select" name="first_time">
-                    <option value="">All Visitors</option>
-                    <option value="yes" <?php echo $first_time_filter == 'yes' ? 'selected' : ''; ?>>First Time Only</option>
-                    <option value="no" <?php echo $first_time_filter == 'no' ? 'selected' : ''; ?>>Return Visitors</option>
-                </select>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="card border-0 shadow-sm h-100 visitors-card">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="text-white-50 mb-2 fw-semibold">First Time</h6>
+                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['first_time']; ?></h2>
+                            <small class="text-white-50">
+                                <i class="bi bi-star"></i> New visitors
+                            </small>
+                        </div>
+                        <div class="rounded p-3">
+                            <i class="bi bi-star-fill text-white fs-2"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label fw-semibold">Follow-up Status</label>
-                <select class="form-select" name="follow_up">
-                    <option value="">All Status</option>
-                    <option value="yes" <?php echo $follow_up_filter == 'yes' ? 'selected' : ''; ?>>Needs Follow-up</option>
-                    <option value="no" <?php echo $follow_up_filter == 'no' ? 'selected' : ''; ?>>No Follow-up</option>
-                </select>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="card border-0 shadow-sm h-100 converts-card">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="text-white-50 mb-2 fw-semibold">Follow-ups Pending</h6>
+                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['pending_followups']; ?></h2>
+                            <small class="text-white-50">
+                                <i class="bi bi-clock"></i> Needs attention
+                            </small>
+                        </div>
+                        <div class="rounded p-3">
+                            <i class="bi bi-telephone-fill text-white fs-2"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-2">
-                <div class="d-grid gap-2">
+        </div>
+        
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="card border-0 shadow-sm h-100 departments-card">
+                <div class="card-body text-white p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="text-white-50 mb-2 fw-semibold">Became Members</h6>
+                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['became_members']; ?></h2>
+                            <small class="text-white-50">
+                                <i class="bi bi-check-circle"></i> Converted
+                            </small>
+                        </div>
+                        <div class="rounded p-3">
+                            <i class="bi bi-person-check-fill text-white fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <h5 class="text-primary fw-bold mb-3">
+                <i class="bi bi-funnel"></i> Search & Filters
+            </h5>
+            <form method="GET" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Search Visitors</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="search" class="form-control" placeholder="Name, email, or phone" value="<?php echo htmlspecialchars($search); ?>">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Visitor Type</label>
+                    <select name="first_time" class="form-select">
+                        <option value="">All Visitors</option>
+                        <option value="yes" <?php echo $first_time_filter === 'yes' ? 'selected' : ''; ?>>First Time</option>
+                        <option value="no" <?php echo $first_time_filter === 'no' ? 'selected' : ''; ?>>Return Visitors</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Follow-up Status</label>
+                    <select name="follow_up" class="form-select">
+                        <option value="">All</option>
+                        <option value="pending" <?php echo $follow_up_filter === 'pending' ? 'selected' : ''; ?>>Pending</option>
+                        <option value="completed" <?php echo $follow_up_filter === 'completed' ? 'selected' : ''; ?>>Completed</option>
+                    </select>
+                </div>
+                <div class="col-12">
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-funnel"></i> Filter
+                        <i class="bi bi-search"></i> Search & Filter
                     </button>
-                    <?php if ($search || $first_time_filter || $follow_up_filter): ?>
-                    <a href="list.php" class="btn btn-outline-secondary">
+                    <a href="list.php" class="btn btn-outline-secondary ms-2">
                         <i class="bi bi-x-circle"></i> Clear
                     </a>
-                    <?php endif; ?>
                 </div>
-            </div>
-        </form>
-    </div>
-</div>
-<!-- Visitors Table -->
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white border-bottom">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bi bi-table text-primary me-2"></i>Visitors List</h5>
-            <span class="badge bg-primary fs-6"><?php echo count($visitors); ?> visitors found</span>
+            </form>
         </div>
     </div>
-    <div class="card-body p-0">
-        <?php if (empty($visitors)): ?>
-        <div class="text-center py-5">
-            <div class="mb-3">
-                <i class="bi bi-person-x text-muted empty-state-icon"></i>
-            </div>
-            <h5 class="text-muted">No Visitors Found</h5>
-            <p class="text-muted mb-4">No visitors match your current search criteria.</p>
-            <a href="add.php" class="btn btn-primary">
-                <i class="bi bi-person-plus me-2"></i>Add First Visitor
-            </a>
-        </div>
-        <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light sticky-top">
-                    <tr>
-                        <th class="border-end">
-                            <i class="bi bi-person me-1"></i>Name
-                        </th>
-                        <th class="border-end">
-                            <i class="bi bi-envelope me-1"></i>Contact
-                        </th>
-                        <th class="border-end">
-                            <i class="bi bi-person-plus me-1"></i>Referred By
-                        </th>
-                        <th class="border-end">
-                            <i class="bi bi-calendar me-1"></i>Visit Date
-                        </th>
-                        <th class="border-end">
-                            <i class="bi bi-building me-1"></i>Service
-                        </th>
-                        <th class="border-end">
-                            <i class="bi bi-star me-1"></i>Type
-                        </th>
-                        <th class="border-end">
-                            <i class="bi bi-check-circle me-1"></i>Status
-                        </th>
-                        <th class="text-center">
-                            <i class="bi bi-gear"></i>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($visitors as $visitor): ?>
-                    <tr class="align-middle">
-                        <td class="border-end">
-                            <div class="d-flex align-items-center">
-                                <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
-                                    <i class="bi bi-person text-primary"></i>
-                                </div>
-                                <div>
-                                    <div class="fw-semibold"><?php echo htmlspecialchars($visitor['name']); ?></div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="border-end">
-                            <div>
-                                <?php if ($visitor['phone']): ?>
-                                <div class="mb-1">
-                                    <i class="bi bi-telephone text-muted me-1"></i>
-                                    <small><?php echo htmlspecialchars($visitor['phone']); ?></small>
-                                </div>
-                                <?php endif; ?>
-                                <?php if ($visitor['email']): ?>
-                                <div>
-                                    <i class="bi bi-envelope text-muted me-1"></i>
-                                    <small><?php echo htmlspecialchars($visitor['email']); ?></small>
-                                </div>
-                                <?php endif; ?>
-                                <?php if (!$visitor['phone'] && !$visitor['email']): ?>
-                                <span class="text-muted">-</span>
-                                <?php endif; ?>
-                            </div>
-                        </td>
-                        <td class="border-end">
-                            <div>
-                                <?php if ($visitor['invited_by']): ?>
-                                <div class="d-flex align-items-center">
-                                    <?php 
-                                    $invited_by = $visitor['invited_by'];
-                                    if (strpos($invited_by, 'Member:') === 0) {
-                                        echo '<i class="bi bi-person-check text-success me-2"></i>';
-                                        echo '<span class="fw-medium">' . htmlspecialchars(str_replace('Member: ', '', $invited_by)) . '</span>';
-                                        echo '<br><small class="text-success">Church Member</small>';
-                                    } elseif (strpos($invited_by, 'Social Media:') === 0) {
-                                        echo '<i class="bi bi-share text-primary me-2"></i>';
-                                        echo '<span class="fw-medium">' . htmlspecialchars(str_replace('Social Media: ', '', $invited_by)) . '</span>';
-                                        echo '<br><small class="text-primary">Social Media</small>';
-                                    } elseif ($invited_by === 'Website') {
-                                        echo '<i class="bi bi-globe text-info me-2"></i>';
-                                        echo '<span class="fw-medium">Website</span>';
-                                        echo '<br><small class="text-info">Online Discovery</small>';
-                                    } elseif ($invited_by === 'Self-directed') {
-                                        echo '<i class="bi bi-person-walking text-secondary me-2"></i>';
-                                        echo '<span class="fw-medium">Self-directed</span>';
-                                        echo '<br><small class="text-secondary">Came Alone</small>';
-                                    } else {
-                                        echo '<i class="bi bi-info-circle text-warning me-2"></i>';
-                                        echo '<span class="fw-medium">' . htmlspecialchars($invited_by) . '</span>';
-                                        echo '<br><small class="text-warning">Other</small>';
-                                    }
-                                    ?>
-                                </div>
-                                <?php else: ?>
-                                <span class="text-muted">Not specified</span>
-                                <?php endif; ?>
-                            </div>
-                        </td>
-                            </div>
-                        </td>
-                        <td class="border-end">
-                            <div class="fw-medium"><?php echo date('M d, Y', strtotime($visitor['date'])); ?></div>
-                            <small class="text-muted"><?php echo date('l', strtotime($visitor['date'])); ?></small>
-                        </td>
-                        <td class="border-end">
-                            <span class="badge bg-light text-dark">
-                                <?php echo htmlspecialchars($visitor['service_name'] ?? 'Unknown Service'); ?>
-                            </span>
-                        </td>
-                        <td class="border-end">
-                            <?php if ($visitor['first_time'] == 'yes'): ?>
-                            <span class="badge bg-success">
-                                <i class="bi bi-star-fill me-1"></i>First Time
-                            </span>
-                            <?php else: ?>
-                            <span class="badge bg-info">
-                                <i class="bi bi-arrow-repeat me-1"></i>Return
-                            </span>
-                            <?php endif; ?>
-                        </td>
-                        <td class="border-end">
-                            <div>
-                                <?php if (($visitor['became_member'] ?? 'no') == 'yes'): ?>
-                                <span class="badge bg-primary mb-1">
-                                    <i class="bi bi-check-circle me-1"></i>Member
-                                </span>
-                                <?php endif; ?>
-                                <?php if (($visitor['follow_up_needed'] ?? 'no') == 'yes' && ($visitor['follow_up_completed'] ?? 'no') == 'no'): ?>
-                                <span class="badge bg-warning">
-                                    <i class="bi bi-clock me-1"></i>Follow-up
-                                </span>
-                                <?php endif; ?>
-                            </div>
-                        </td>
-                        <td class="text-center">
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" 
-                                        data-bs-toggle="dropdown">
-                                    <i class="bi bi-three-dots"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="view.php?id=<?php echo $visitor['id']; ?>">
-                                        <i class="bi bi-eye me-2"></i>View Details
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="edit.php?id=<?php echo $visitor['id']; ?>">
-                                        <i class="bi bi-pencil me-2"></i>Edit
-                                    </a></li>
-                                    <?php if (($visitor['follow_up_needed'] ?? 'no') == 'yes' && ($visitor['follow_up_completed'] ?? 'no') == 'no'): ?>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-success" href="#" 
-                                           onclick="handleVisitorAction('follow-up', <?php echo $visitor['id']; ?>, '<?php echo addslashes($visitor['name']); ?>')">
-                                        <i class="bi bi-telephone me-2"></i>Complete Follow-up
-                                    </a></li>
-                                    <?php endif; ?>
-                                    <?php if (($visitor['became_member'] ?? 'no') != 'yes'): ?>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-primary" href="convert.php?id=<?php echo $visitor['id']; ?>">
-                                        <i class="bi bi-person-plus me-2"></i>Convert to New Convert
-                                    </a></li>
-                                    <?php endif; ?>
-                                    <?php if ($user_role == 'admin'): ?>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="#" 
-                                           onclick="handleVisitorAction('delete', <?php echo $visitor['id']; ?>, '<?php echo addslashes($visitor['name']); ?>')">
-                                        <i class="bi bi-trash me-2"></i>Delete Visitor
-                                    </a></li>
-                                    <?php endif; ?>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php endif; ?>
-    </div>
-</div>
 
-<?php include '../../includes/footer.php'; ?>
+    <!-- Visitors Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="text-primary fw-bold mb-0">
+                    <i class="bi bi-list-ul"></i> Visitors List
+                </h5>
+                <span class="text-muted">Showing <?php echo count($visitors); ?> of <?php echo $total_visitors; ?> visitors</span>
+            </div>
+
+            <?php if (empty($visitors)): ?>
+                <div class="text-center py-5">
+                    <i class="bi bi-person-x text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
+                    <h4 class="text-muted mt-3 mb-2">No Visitors Found</h4>
+                    <p class="text-muted mb-4">Try adjusting your search criteria or add new visitors.</p>
+                    <a href="add.php" class="btn btn-primary">
+                        <i class="bi bi-person-plus"></i> Add First Visitor
+                    </a>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="fw-semibold">
+                                    <i class="bi bi-person me-1"></i>Visitor
+                                </th>
+                                <th class="fw-semibold">
+                                    <i class="bi bi-envelope me-1"></i>Contact
+                                </th>
+                                <th class="fw-semibold">
+                                    <i class="bi bi-calendar me-1"></i>Visit Date
+                                </th>
+                                <th class="fw-semibold">
+                                    <i class="bi bi-star me-1"></i>Type
+                                </th>
+                                <th class="fw-semibold">
+                                    <i class="bi bi-telephone me-1"></i>Follow-up
+                                </th>
+                                <th class="fw-semibold text-center">
+                                    <i class="bi bi-gear me-1"></i>Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($visitors as $visitor): ?>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle me-3">
+                                                <i class="bi bi-person-badge"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-semibold"><?php echo htmlspecialchars($visitor['name']); ?></h6>
+                                                <small class="text-muted">
+                                                    ID: #<?php echo $visitor['id']; ?>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <small class="d-block">
+                                                <i class="bi bi-envelope me-1 text-primary"></i>
+                                                <?php echo htmlspecialchars($visitor['email'] ?? 'Not provided'); ?>
+                                            </small>
+                                            <small class="text-muted">
+                                                <i class="bi bi-telephone me-1"></i>
+                                                <?php echo htmlspecialchars($visitor['phone'] ?? 'Not provided'); ?>
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="d-block fw-semibold">
+                                            <?php echo date('M j, Y', strtotime($visitor['created_at'])); ?>
+                                        </span>
+                                        <small class="text-muted">
+                                            <?php echo date('g:i A', strtotime($visitor['created_at'])); ?>
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <?php if ($visitor['first_time'] === 'yes'): ?>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-star-fill me-1"></i>First Time
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge bg-primary">
+                                                <i class="bi bi-arrow-repeat me-1"></i>Return Visitor
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($visitor['follow_up_needed'] === 'yes'): ?>
+                                            <?php if ($visitor['follow_up_completed'] === 'yes'): ?>
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle me-1"></i>Completed
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="badge bg-warning">
+                                                    <i class="bi bi-clock me-1"></i>Pending
+                                                </span>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-dash-circle me-1"></i>Not Needed
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="view.php?id=<?php echo $visitor['id']; ?>" class="btn btn-outline-primary" title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="edit.php?id=<?php echo $visitor['id']; ?>" class="btn btn-outline-secondary" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <div class="btn-group btn-group-sm">
+                                                <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" title="More Actions">
+                                                    <i class="bi bi-three-dots"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="update_followup.php?id=<?php echo $visitor['id']; ?>">
+                                                        <i class="bi bi-telephone me-2"></i>Update Follow-up
+                                                    </a></li>
+                                                    <li><a class="dropdown-item" href="convert.php?id=<?php echo $visitor['id']; ?>">
+                                                        <i class="bi bi-arrow-up-circle me-2"></i>Convert to Member/Convert
+                                                    </a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-danger" href="#" onclick="confirmDelete(<?php echo $visitor['id']; ?>)">
+                                                        <i class="bi bi-trash me-2"></i>Delete
+                                                    </a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <?php if ($total_pages > 1): ?>
+                <nav aria-label="Visitors pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page - 1])); ?>">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                            <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
+                                <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $i])); ?>"><?php echo $i; ?></a>
+                            </li>
+                        <?php endfor; ?>
+                        <li class="page-item <?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $page + 1])); ?>">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
 
 <script>
-// Action button handlers
-function handleVisitorAction(action, visitorId, visitorName) {
-    let confirmMessage = '';
-    let endpoint = '';
-    
-    switch(action) {
-        case 'delete':
-            confirmMessage = `Are you sure you want to delete visitor "${visitorName}"? This action cannot be undone.`;
-            endpoint = 'delete.php';
-            break;
-        case 'follow-up':
-            confirmMessage = `Mark follow-up as completed for "${visitorName}"?`;
-            endpoint = 'update_followup.php';
-            break;
-        case 'convert':
-            confirmMessage = `Convert visitor "${visitorName}" to a church member? This will create a new member record.`;
-            endpoint = 'convert_to_member.php';
-            break;
-        default:
-            return;
-    }
-    
-    if (confirm(confirmMessage)) {
-        const data = {
-            visitor_id: visitorId,
-            action: action === 'follow-up' ? 'complete' : action
-        };
-        
-        fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload(); // Refresh the page to see changes
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
-        });
+function confirmDelete(visitorId) {
+    if (confirm('Are you sure you want to delete this visitor? This action cannot be undone.')) {
+        window.location.href = 'delete.php?id=' + visitorId;
     }
 }
+
+// Auto-dismiss alerts
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+});
 </script>
+
+<style>
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(25, 135, 84, 0.05);
+}
+
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+</style>
+
+<?php include '../../includes/footer.php'; ?>
