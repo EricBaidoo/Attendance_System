@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Staff Login - Bridge Ministries International</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -94,14 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         Sign In to Dashboard
                     </button>
                 </form>
-            </div>
-            
-            <!-- Footer Section -->
-            <div class="login-footer">
-                <p class="footer-text">
-                    <i class="fas fa-shield-alt me-2"></i>
-                    Secure Staff Portal
-                </p>
             </div>
         </div>
     </div>
