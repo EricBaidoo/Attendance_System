@@ -252,7 +252,7 @@ include 'includes/header.php';
                 </a>
             </div>
             <div class="col-lg-4 col-md-6">
-                <a href="pages/attendance/mark.php" class="action-tile text-decoration-none">
+                <a href="pages/attendance/attendance.php" class="action-tile text-decoration-none">
                     <div class="p-4 rounded-3 bg-warning bg-opacity-15 border border-warning border-opacity-50 h-100 d-flex align-items-center hover-lift">
                         <div class="action-icon me-3 bg-warning bg-opacity-20">
                             <i class="bi bi-clipboard-check-fill text-warning fs-3"></i>

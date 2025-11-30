@@ -131,44 +131,58 @@ if ($selected_session) {
 $page_title = "Mark Attendance - Bridge Ministries International";
 include '../../includes/header.php';
 ?>
-<!-- Additional CSS for attendance page -->
-<!-- Using Bootstrap classes only -->
+<link href="../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">
+<link href="../../assets/css/attendance-modern.css?v=<?php echo time(); ?>" rel="stylesheet">
 
-<div class="attendance-container">
-    <div class="container">
-        <div class="attendance-header">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h1><i class="bi bi-check-square-fill"></i> Mark Attendance</h1>
-                        <?php if ($selected_session): ?>
-                            <p><strong><?php echo htmlspecialchars($selected_session['service_name']); ?></strong> • <?php echo date('F j, Y'); ?></p>
-                            <small class="text-light opacity-75">
-                                <i class="bi bi-geo-alt"></i> <?php echo htmlspecialchars($selected_session['location']); ?> • 
-                                <i class="bi bi-clock"></i> Started at <?php echo date('g:i A', strtotime($selected_session['opened_at'])); ?>
-                            </small>
-                        <?php else: ?>
-                            <p>No open sessions available for attendance marking</p>
-                        <?php endif; ?>
+<div class="container-fluid py-4">
+    <!-- Dashboard Header -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <div class="feature-icon bg-gradient-primary text-white rounded-3 me-3">
+                            <i class="bi bi-check-square-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <h1 class="mb-1 fw-bold text-dark">Mark Attendance</h1>
+                            <?php if ($selected_session): ?>
+                                <p class="text-muted mb-0">
+                                    <strong><?php echo htmlspecialchars($selected_session['service_name'] ?? ''); ?></strong> • 
+                                    <?php echo date('F j, Y'); ?>
+                                </p>
+                                <div class="d-flex gap-3 text-muted small">
+                                    <span><i class="bi bi-geo-alt me-1"></i><?php echo htmlspecialchars($selected_session['location'] ?? ''); ?></span>
+                                    <span><i class="bi bi-clock me-1"></i>Started <?php echo date('g:i A', strtotime($selected_session['opened_at'])); ?></span>
+                                </div>
+                            <?php else: ?>
+                                <p class="text-muted mb-0">No active sessions available</p>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    <div class="col-md-4 text-end">
-                        <?php if ($selected_session): ?>
-                            <div class="live-indicator-container">
-                                <div class="live-session-indicator">
-                                    <i class="bi bi-circle-fill live-session-icon"></i> LIVE SESSION
-                                </div>
-                                <div class="attendance-counter">
-                                    <?php echo $attendance_summary['present']; ?> / <?php echo $attendance_summary['total']; ?>
-                                </div>
-                                <small>Present</small>
+                </div>
+                <div class="col-md-4 text-end">
+                    <?php if ($selected_session): ?>
+                        <div class="d-flex align-items-center justify-content-end">
+                            <div class="live-indicator me-3">
+                                <span class="badge bg-success fs-6 px-3 py-2 live-indicator">
+                                    <i class="bi bi-circle-fill me-1" style="font-size: 0.7rem;"></i>LIVE SESSION
+                                </span>
                             </div>
-                        <?php else: ?>
-                            <i class="bi bi-people-fill people-icon-large"></i>
-                        <?php endif; ?>
-                    </div>
+                            <div class="text-center">
+                                <div class="fs-3 fw-bold text-success"><?php echo $attendance_summary['present']; ?></div>
+                                <small class="text-muted">of <?php echo $attendance_summary['total']; ?> Present</small>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div class="feature-icon bg-light text-muted rounded-3">
+                            <i class="bi bi-people-fill fs-1"></i>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
+    </div>
 
         <?php if ($success): ?>
             <div class="alert alert-success" role="alert">
@@ -191,11 +205,11 @@ include '../../includes/header.php';
                     <div class="col-md-6 mb-3">
                         <div class="service-card <?php echo ($selected_session_id == $session['id']) ? 'active' : ''; ?>" 
                              onclick="selectSession(<?php echo $session['id']; ?>)">
-                            <h4><?php echo htmlspecialchars($session['service_name']); ?></h4>
+                            <h4><?php echo htmlspecialchars($session['service_name'] ?? ''); ?></h4>
                             <p class="service-date">
                                 <i class="bi bi-clock"></i> Started <?php echo date('g:i A', strtotime($session['opened_at'])); ?>
                             </p>
-                            <p><i class="bi bi-geo-alt"></i> <?php echo htmlspecialchars($session['location']); ?></p>
+                            <p><i class="bi bi-geo-alt"></i> <?php echo htmlspecialchars($session['location'] ?? ''); ?></p>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -207,7 +221,7 @@ include '../../includes/header.php';
         <!-- Attendance Controls -->
         <div class="attendance-marking">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3><i class="bi bi-list-check"></i> Attendance for <?php echo htmlspecialchars($selected_session['service_name']); ?></h3>
+                <h3><i class="bi bi-list-check"></i> Attendance for <?php echo htmlspecialchars($selected_session['service_name'] ?? ''); ?></h3>
                 <div>
                     <button class="btn btn-success btn-sm" onclick="markAllPresent()">
                         <i class="bi bi-check-all"></i> Mark All Present
@@ -255,8 +269,8 @@ include '../../includes/header.php';
                         <div class="member-info">
                             <div class="member-avatar-lg"><?php echo $initials; ?></div>
                             <div class="member-details">
-                                <h5><?php echo htmlspecialchars($member['name']); ?></h5>
-                                <div class="member-department"><?php echo htmlspecialchars($member['department_name']); ?></div>
+                                <h5><?php echo htmlspecialchars($member['name'] ?? ''); ?></h5>
+                                <div class="member-department"><?php echo htmlspecialchars($member['department_name'] ?? 'No Department'); ?></div>
                             </div>
                         </div>
 
@@ -464,5 +478,5 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     });
 });
 </script>
-</body>
-</html>
+
+<?php include '../../includes/footer.php'; ?>

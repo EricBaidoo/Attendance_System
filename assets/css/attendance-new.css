@@ -1,0 +1,234 @@
+/* Attendance Page Specific Styles */
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.session-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-radius: 1rem !important;
+}
+
+.session-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.member-avatar {
+    font-size: 18px;
+    font-weight: bold;
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+}
+
+.attendance-member-card {
+    transition: all 0.3s ease;
+    border-radius: 1rem !important;
+    overflow: hidden;
+}
+
+.attendance-member-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1) !important;
+}
+
+.attendance-member-card.border-success {
+    border-color: #198754 !important;
+    border-width: 2px !important;
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.1) 0%, rgba(25, 135, 84, 0.05) 100%);
+}
+
+.attendance-btn {
+    transition: all 0.2s ease;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+}
+
+.attendance-btn:hover {
+    transform: scale(1.02);
+}
+
+.attendance-btn:active {
+    transform: scale(0.98);
+}
+
+.progress-bar {
+    transition: width 0.5s ease-in-out;
+    border-radius: 10px;
+}
+
+.live-indicator .badge {
+    animation: pulse 2s infinite;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+@keyframes pulse {
+    0% { 
+        transform: scale(1); 
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7);
+    }
+    70% { 
+        transform: scale(1.05); 
+        box-shadow: 0 0 0 10px rgba(25, 135, 84, 0);
+    }
+    100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+    }
+}
+
+/* Member Grid Responsive Layout */
+.member-card {
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.member-card[data-status="present"] .card {
+    border-left: 4px solid #198754;
+}
+
+/* Search and Filter Styles */
+.btn-group .btn-check:checked + .btn {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: white;
+}
+
+.input-group-text {
+    background: rgba(13, 110, 253, 0.1);
+    border-color: rgba(13, 110, 253, 0.2);
+    color: #0d6efd;
+}
+
+/* Stats Cards Enhanced */
+.bg-gradient-success {
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%) !important;
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%) !important;
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%) !important;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%) !important;
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%) !important;
+}
+
+/* Card Hover Effects */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Progress Animation */
+.progress {
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.1);
+}
+
+.progress-bar-animated {
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+/* Live Counter Animation */
+@keyframes countUp {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.count-animation {
+    animation: countUp 0.3s ease-out;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .feature-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .member-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .attendance-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .live-indicator {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Loading States */
+.btn:disabled {
+    opacity: 0.8;
+    transform: scale(0.98);
+}
+
+/* Success Animation */
+@keyframes successPulse {
+    0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(25, 135, 84, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+}
+
+.btn-success.attendance-btn {
+    animation: successPulse 2s infinite;
+}
+
+/* Bootstrap Icons Enhancement */
+.bi {
+    font-family: "bootstrap-icons" !important;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Specific icon fixes for attendance page */
+.bi-clipboard-check::before { content: "\f2a2"; }
+.bi-broadcast::before { content: "\f1f6"; }
+.bi-check-circle-fill::before { content: "\f26a"; }
+.bi-circle::before { content: "\f28a"; }
+.bi-people-fill::before { content: "\f5d7"; }
+.bi-person-x::before { content: "\f616"; }
+.bi-calculator::before { content: "\f1e7"; }
+.bi-percent::before { content: "\f5e9"; }
+.bi-calendar-event::before { content: "\f1e0"; }
+.bi-search::before { content: "\f6e5"; }
+.bi-check-all::before { content: "\f265"; }
+.bi-eye::before { content: "\f3c6"; }
+.bi-hourglass-split::before { content: "\f4a4"; }
+.bi-calendar-x::before { content: "\f1e8"; }
+.bi-plus-circle::before { content: "\f5ce"; }
+.bi-graph-up::before { content: "\f3e3"; }
+.bi-clock::before { content: "\f28b"; }
+.bi-geo-alt::before { content: "\f3b2"; }
+.bi-building::before { content: "\f1ad"; }
+.bi-bar-chart::before { content: "\f1bc"; }

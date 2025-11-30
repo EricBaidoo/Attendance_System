@@ -1,0 +1,613 @@
+/* Modern Attendance System Styles - Consistent with Members & Services pages */
+
+/* === GLOBAL ATTENDANCE STYLES === */
+
+/* Page containers */
+.attendance-container,
+.report-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: calc(100vh - 120px);
+    padding: 2rem 0;
+}
+
+/* Feature Icons */
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.card:hover .feature-icon {
+    transform: scale(1.1);
+}
+
+/* === CARD STYLING === */
+
+/* Main content cards */
+.card {
+    border-radius: 1rem !important;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+/* Session selection cards */
+.session-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-radius: 1rem !important;
+}
+
+.session-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.session-card.border-primary {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(13, 110, 253, 0.05) 100%);
+}
+
+/* === ATTENDANCE MARK PAGE SPECIFIC === */
+
+/* Attendance controls */
+.attendance-controls {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.control-group {
+    margin-bottom: 1.5rem;
+}
+
+.control-group:last-child {
+    margin-bottom: 0;
+}
+
+.control-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.search-attendance {
+    border: 2px solid #e9ecef;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.search-attendance:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    outline: none;
+}
+
+/* Filter buttons */
+.filter-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 0.75rem;
+    padding: 0.5rem 1rem;
+    color: #495057;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: #e9ecef;
+    border-color: #007bff;
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border-color: #007bff;
+    color: white;
+}
+
+/* Members grid layout */
+.members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* Member attendance cards */
+.member-attendance-card {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.member-attendance-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.member-attendance-card.present {
+    border-color: #28a745;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);
+}
+
+/* Member info section */
+.member-info {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.member-avatar-lg {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #007bff, #6610f2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.25rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.member-details h5 {
+    margin: 0 0 0.25rem 0;
+    font-weight: 600;
+    color: #212529;
+}
+
+.member-department {
+    color: #6c757d;
+    font-size: 0.875rem;
+    background: #f8f9fa;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    display: inline-block;
+    border: 1px solid #e9ecef;
+}
+
+/* Attendance buttons section */
+.attendance-buttons {
+    flex-shrink: 0;
+    margin-left: 1rem;
+}
+
+.attendance-btn.btn-present {
+    background: #f8f9fa;
+    border: 2px solid #007bff;
+    color: #007bff;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.attendance-btn.btn-present:hover {
+    background: #007bff;
+    color: white;
+    transform: scale(1.05);
+}
+
+.attendance-btn.btn-present.marked {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border-color: #28a745;
+    color: white;
+}
+
+.attendance-btn.btn-present.marked:hover {
+    background: linear-gradient(135deg, #20c997, #17a2b8);
+    border-color: #20c997;
+}
+
+/* Attendance summary */
+.attendance-summary {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-top: 2rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.attendance-summary h3 {
+    margin-bottom: 1.5rem;
+    color: #212529;
+    font-weight: 600;
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.summary-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.summary-card.summary-present {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-color: #b1dfbb;
+}
+
+.summary-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.summary-card.summary-present .summary-number {
+    color: #155724;
+}
+
+/* === RESPONSIVE DESIGN === */
+
+@media (max-width: 768px) {
+    .members-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .member-attendance-card {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .member-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .member-avatar-lg {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .attendance-buttons {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .attendance-btn {
+        width: 100%;
+    }
+    
+    .filter-buttons {
+        justify-content: center;
+    }
+    
+    .summary-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* === MEMBER CARDS === */
+
+/* Member avatar styling */
+.member-avatar {
+    font-size: 18px;
+    font-weight: bold;
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #007bff, #6610f2) !important;
+}
+
+/* Attendance member cards */
+.attendance-member-card {
+    transition: all 0.3s ease;
+    border-radius: 1rem !important;
+    overflow: hidden;
+}
+
+.attendance-member-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1) !important;
+}
+
+.attendance-member-card.border-success {
+    border-color: #198754 !important;
+    border-width: 2px !important;
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.1) 0%, rgba(25, 135, 84, 0.05) 100%);
+}
+
+/* === BUTTON STYLING === */
+
+.attendance-btn {
+    transition: all 0.2s ease;
+    border-radius: 0.75rem;
+    font-weight: 500;
+}
+
+.attendance-btn:hover {
+    transform: scale(1.05);
+}
+
+.attendance-btn.btn-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border: none;
+}
+
+.attendance-btn.btn-outline-primary {
+    border: 2px solid #007bff;
+    color: #007bff;
+    font-weight: 500;
+}
+
+.attendance-btn.btn-outline-primary:hover {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border-color: #007bff;
+    transform: scale(1.05);
+}
+
+/* === PROGRESS & STATISTICS === */
+
+.progress-bar {
+    transition: width 0.5s ease-in-out;
+    background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+.live-indicator {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* === GRADIENT BACKGROUNDS === */
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #ffc107, #fd7e14) !important;
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #17a2b8, #007bff) !important;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff, #6610f2) !important;
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, #6c757d, #495057) !important;
+}
+
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333) !important;
+}
+
+/* === TABLE STYLING === */
+
+.table-responsive {
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.table > :not(caption) > * > * {
+    padding: 1rem 0.75rem;
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover td {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.table-light th {
+    background-color: #f8f9fa !important;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+}
+
+/* === BADGES & STATUS === */
+
+.badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+}
+
+.status-badge {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+}
+
+/* Department badges */
+.department-badge {
+    background: linear-gradient(135deg, rgba(108, 117, 125, 0.1), rgba(108, 117, 125, 0.05));
+    color: #495057;
+    border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+/* === SEARCH & FILTERS === */
+
+.input-group-text {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 1px solid #ced4da;
+    color: #495057;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.btn-group .btn-check:checked + .btn {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border-color: #007bff;
+}
+
+/* === EMPTY STATES === */
+
+.no-session-container,
+.empty-state {
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.calendar-icon-large {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 1rem;
+}
+
+/* === RESPONSIVE DESIGN === */
+
+@media (max-width: 768px) {
+    .feature-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .member-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .card-body {
+        padding: 1.5rem !important;
+    }
+    
+    .attendance-container,
+    .report-container {
+        padding: 1rem 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .d-flex.gap-2,
+    .d-flex.gap-3 {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+    
+    .btn-group {
+        width: 100%;
+    }
+    
+    .text-end {
+        text-align: left !important;
+    }
+}
+
+/* === PRINT STYLES === */
+
+@media print {
+    .btn, 
+    .card-header .d-flex > div:last-child,
+    .attendance-btn,
+    .session-card {
+        display: none !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #dee2e6 !important;
+        break-inside: avoid;
+    }
+    
+    .attendance-container,
+    .report-container {
+        background: white !important;
+        padding: 0 !important;
+    }
+    
+    .table {
+        font-size: 0.875rem;
+    }
+    
+    .feature-icon {
+        transform: none !important;
+    }
+}
+
+/* === ACCESSIBILITY IMPROVEMENTS === */
+
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+.card:focus-within {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .bg-gradient-primary,
+    .bg-gradient-success,
+    .bg-gradient-warning,
+    .bg-gradient-info,
+    .bg-gradient-secondary,
+    .bg-gradient-danger {
+        background: var(--bs-primary) !important;
+    }
+    
+    .member-avatar {
+        background: var(--bs-primary) !important;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .card,
+    .session-card,
+    .attendance-member-card,
+    .attendance-btn,
+    .feature-icon,
+    .progress-bar {
+        transition: none !important;
+    }
+    
+    .live-indicator {
+        animation: none !important;
+    }
+    
+    .card:hover,
+    .session-card:hover,
+    .attendance-member-card:hover {
+        transform: none !important;
+    }
+}
