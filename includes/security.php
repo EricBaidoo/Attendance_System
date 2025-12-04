@@ -19,7 +19,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $timeout_duration = 1800;
 
 // Check if user is logged in
-function requireLogin($redirect_to = '/ATTENDANCE%20SYSTEM/login.php') {
+function requireLogin($redirect_to = 'login.php') {
     if (!isset($_SESSION['user_id'])) {
         header("Location: $redirect_to");
         exit;
@@ -117,7 +117,7 @@ function hasRole($required_roles) {
 }
 
 // Require specific role
-function requireRole($required_roles, $redirect_to = '/ATTENDANCE%20SYSTEM/index.php') {
+function requireRole($required_roles, $redirect_to = 'index.php') {
     if (!hasRole($required_roles)) {
         header("Location: $redirect_to?access_denied=1");
         exit;

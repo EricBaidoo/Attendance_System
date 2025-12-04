@@ -26,6 +26,7 @@ if (!file_exists($log_dir)) {
 
 // Custom error handler
 function customErrorHandler($errno, $errstr, $errfile, $errline) {
+    // Define log directory within the function
     $log_dir = __DIR__ . '/../logs';
     
     $error_types = [

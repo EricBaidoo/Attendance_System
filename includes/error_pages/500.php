@@ -22,7 +22,7 @@
                             The error has been logged and we'll fix it as soon as possible.
                         </p>
                         <div class="d-grid gap-2 d-md-block">
-                            <a href="/ATTENDANCE%20SYSTEM/" class="btn btn-primary">
+                            <a href="/" class="btn btn-primary">
                                 <i class="bi bi-house me-1"></i> Go to Dashboard
                             </a>
                             <button onclick="history.back()" class="btn btn-outline-secondary">

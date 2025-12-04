@@ -1,34 +1,57 @@
 -- Production Database Update Script
 -- Date: December 4, 2025
--- Description: All database changes made during checkin system enhancement
+-- Description: Database changes for checkin system enhancement and phone field consistency
 
--- 1. Add phone2 column to members table (if not exists)
-ALTER TABLE members 
-ADD COLUMN IF NOT EXISTS phone2 VARCHAR(20) DEFAULT NULL AFTER phone1;
+-- ==========================================
+-- SECTION 1: INSPECTION QUERIES (Run first to check current structure)
+-- ==========================================
 
--- Alternative for MySQL versions that don't support IF NOT EXISTS:
--- ALTER TABLE members ADD COLUMN phone2 VARCHAR(20) DEFAULT NULL AFTER phone1;
-
--- 2. Change address column to location in visitors table
--- First check if address column exists, then rename it
-ALTER TABLE visitors 
-CHANGE COLUMN address location VARCHAR(255) DEFAULT NULL;
-
--- Alternative: If the column doesn't exist, add it
--- ALTER TABLE visitors ADD COLUMN location VARCHAR(255) DEFAULT NULL AFTER phone;
-
--- 3. Verify the changes
-SELECT 'Members table structure:' as info;
+-- Check current members table structure
 DESCRIBE members;
 
-SELECT 'Visitors table structure:' as info;
+-- Check current visitors table structure  
 DESCRIBE visitors;
 
--- 4. Check for any data integrity issues
-SELECT 'Members with phone2 data:' as info;
-SELECT COUNT(*) as count FROM members WHERE phone2 IS NOT NULL;
+-- Note: Check the DESCRIBE results above to see if phone2 and location columns already exist
+-- If they exist, you can skip Section 2
 
-SELECT 'Visitors with location data:' as info;
-SELECT COUNT(*) as count FROM visitors WHERE location IS NOT NULL;
+-- ==========================================
+-- SECTION 2: DATABASE UPDATES (Run after reviewing inspection results)
+-- ==========================================
+
+-- Add phone2 column to members table 
+-- EXPECTED ERROR: If you get "#1060 - Duplicate column name 'phone2'" - this means the column already exists (GOOD!)
+ALTER TABLE members 
+ADD COLUMN phone2 VARCHAR(20) DEFAULT NULL;
+
+-- Add location column to visitors table
+-- EXPECTED ERROR: If you get "#1060 - Duplicate column name 'location'" - this means the column already exists (GOOD!)
+ALTER TABLE visitors 
+ADD COLUMN location VARCHAR(255) DEFAULT NULL;
+
+-- ==========================================
+-- SECTION 3: VERIFICATION (Run after updates to confirm changes)
+-- ==========================================
+
+-- Verify members table structure
+DESCRIBE members;
+
+-- Verify visitors table structure
+DESCRIBE visitors;
+
+-- Check data counts
+SELECT 
+    'Members' as table_name,
+    COUNT(*) as total_records,
+    SUM(CASE WHEN phone IS NOT NULL THEN 1 ELSE 0 END) as with_phone,
+    SUM(CASE WHEN phone2 IS NOT NULL THEN 1 ELSE 0 END) as with_phone2
+FROM members
+UNION ALL
+SELECT 
+    'Visitors' as table_name,
+    COUNT(*) as total_records,
+    SUM(CASE WHEN phone IS NOT NULL THEN 1 ELSE 0 END) as with_phone,
+    SUM(CASE WHEN location IS NOT NULL THEN 1 ELSE 0 END) as with_location
+FROM visitors;
 
 -- End of script

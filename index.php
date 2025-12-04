@@ -9,7 +9,7 @@ requireLogin();
 $page_title = "Bridge Ministries International - Dashboard";
 $page_header = true;
 $page_icon = "bi bi-house-heart";
-$base_url = "/ATTENDANCE%20SYSTEM/";
+$base_url = "/";
 
 // Determine user role and access level
 $user_role = $_SESSION['role'] ?? 'guest';
