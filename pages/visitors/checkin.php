@@ -100,17 +100,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin_visitor'])) {
                 $visitor_id = $pdo->lastInsertId();
             }
             
-            // Record visitor attendance
-            $attendance_sql = "INSERT INTO visitor_attendance (visitor_id, service_id, visit_date, created_at) 
-                              VALUES (?, ?, CURDATE(), NOW()) 
-                              ON DUPLICATE KEY UPDATE visit_number = visit_number + 1";
-            $pdo->prepare($attendance_sql)->execute([$visitor_id, $service_id]);
+            // Check if already checked in today (prevent duplicates)
+            $today_check_sql = "SELECT id FROM visitors WHERE (name = ? OR phone = ? OR email = ?) AND DATE(date) = CURDATE()";
+            $today_check_stmt = $pdo->prepare($today_check_sql);
+            $today_check_stmt->execute([$name, $phone, $email]);
             
-            $pdo->commit();
-            $message = "Welcome! Your attendance has been recorded successfully.";
-            
-            // Clear form data
-            $_POST = [];
+            if ($today_check_stmt->fetchColumn()) {
+                $error = "You have already checked in today. Welcome back!";
+                $pdo->rollBack();
+            } else {
+                if ($existing_visitor) {
+                    // Update existing visitor and record new visit
+                    $visitor_id = $existing_visitor['id'];
+                    $update_sql = "UPDATE visitors SET name = ?, phone = ?, email = ?, 
+                                  first_time = 'no', how_heard = COALESCE(?, how_heard),
+                                  invited_by = COALESCE(?, invited_by), follow_up_needed = 'no', 
+                                  status = 'contacted'
+                                  WHERE id = ?";
+                    $pdo->prepare($update_sql)->execute([$name, $phone, $email, $how_heard, $invited_by, $visitor_id]);
+                    
+                    // Record new visit
+                    $new_visit_sql = "INSERT INTO visitors (name, phone, email, service_id, date, first_time, 
+                                     how_heard, invited_by, follow_up_needed, status, created_at) 
+                                     VALUES (?, ?, ?, ?, CURDATE(), 'no', ?, ?, 'no', 'contacted', NOW())";
+                    $pdo->prepare($new_visit_sql)->execute([$name, $phone, $email, $service_id, $how_heard, $invited_by]);
+                    
+                    $message = "👋 Welcome back, " . htmlspecialchars($name) . "! Thank you for visiting us again today.";
+                } else {
+                    // Create new first-time visitor
+                    $insert_sql = "INSERT INTO visitors (name, phone, email, service_id, date, first_time, how_heard, invited_by,
+                                  follow_up_needed, status, created_at) 
+                                  VALUES (?, ?, ?, ?, CURDATE(), ?, ?, ?, 'yes', 'pending', NOW())";
+                    $pdo->prepare($insert_sql)->execute([$name, $phone, $email, $service_id, $is_first_time, $how_heard, $invited_by]);
+                    
+                    $message = "🎉 Welcome to our church, " . htmlspecialchars($name) . "! We're so excited you're here. Someone from our team will follow up with you soon.";
+                }
+                
+                $pdo->commit();
+                // Clear form data
+                $_POST = [];
+            }
             
         } catch (Exception $e) {
             $pdo->rollBack();
@@ -127,144 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin_visitor'])) {
     <title>Visitor Check-In - Church Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Using Bootstrap classes only -->
-</head>
-<body class="checkin-page">
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .checkin-card {
-            background: rgba(255, 255, 255, 0.98);
-            border: none;
-            border-radius: 1.25rem;
-            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
-            backdrop-filter: blur(10px);
-        }
-        .checkin-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 30px;
-            border-radius: 20px 20px 0 0;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .checkin-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
-        }
-        .checkin-header h1, .checkin-header p {
-            position: relative;
-            z-index: 1;
-        }
-        .form-control, .form-select {
-            border-radius: 12px;
-            border: 2px solid #e9ecef;
-            padding: 15px 18px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.9);
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
-            background: white;
-            transform: translateY(-1px);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 12px;
-            padding: 15px 35px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
-        }
-        .btn-primary:active {
-            transform: translateY(-1px);
-        }
-        .alert {
-            border: none;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-        .alert-success {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            color: white;
-        }
-        .alert-danger {
-            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-            color: white;
-        }
-        .alert-warning {
-            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
-            color: white;
-        }
-        .service-card {
-            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        .service-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
-            transform: translateY(-2px);
-        }
-        .service-card.selected {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .form-check-input:checked {
-            background-color: #667eea;
-            border-color: #667eea;
-        }
-        .form-label {
-            color: #2d3748;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .card-body {
-            padding: 40px !important;
-        }
-        .welcome-icon {
-            margin-bottom: 15px;
-            opacity: 0.9;
-        }
-        .first-time-section {
-            background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
-            border: 2px solid #9ae6b4;
-            border-radius: 12px;
-            padding: 20px;
-        }
-        @media (max-width: 768px) {
-            .card-body {
-                padding: 25px !important;
-            }
-            .checkin-header {
-                padding: 30px 20px;
-            }
-        }
-    </style>
+    <link href="../../assets/css/visitors.css" rel="stylesheet">
 </head>
 <body class="checkin-page">
     <div class="container">

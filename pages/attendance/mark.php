@@ -117,13 +117,18 @@ if ($selected_session) {
     $members_stmt->execute([$selected_session_id]);
     $members = $members_stmt->fetchAll();
     
-    // Calculate real-time summary
+    // Calculate real-time summary using DISTINCT count like sessions.php
     $attendance_summary['total'] = count($members);
-    foreach ($members as $member) {
-        if ($member['attendance_status'] === 'present') {
-            $attendance_summary['present']++;
-        }
-    }
+    
+    // Get accurate present count using DISTINCT like sessions.php
+    $present_count_sql = "SELECT COUNT(DISTINCT member_id) as present_count 
+                         FROM attendance 
+                         WHERE session_id = ? AND status = 'present'";
+    $present_count_stmt = $pdo->prepare($present_count_sql);
+    $present_count_stmt->execute([$selected_session_id]);
+    $present_result = $present_count_stmt->fetch();
+    $attendance_summary['present'] = $present_result['present_count'] ?? 0;
+    
     $attendance_summary['absent'] = $attendance_summary['total'] - $attendance_summary['present'];
     $attendance_summary['percentage'] = $attendance_summary['total'] > 0 ? round(($attendance_summary['present'] / $attendance_summary['total']) * 100) : 0;
 }
@@ -166,7 +171,7 @@ include '../../includes/header.php';
                         <div class="d-flex align-items-center justify-content-end">
                             <div class="live-indicator me-3">
                                 <span class="badge bg-success fs-6 px-3 py-2 live-indicator">
-                                    <i class="bi bi-circle-fill me-1" style="font-size: 0.7rem;"></i>LIVE SESSION
+                                    <i class="bi bi-circle-fill me-1 live-indicator"></i>LIVE SESSION
                                 </span>
                             </div>
                             <div class="text-center">

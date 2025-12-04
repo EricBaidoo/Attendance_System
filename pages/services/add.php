@@ -113,7 +113,7 @@ include '../../includes/header.php';
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
-                        <div class="service-icon mx-auto mb-3" style="width: 4rem; height: 4rem; background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%); border-radius: 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                        <div class="template-icon mx-auto mb-3">
                             <i class="bi bi-gear-wide-connected"></i>
                         </div>
                         <h3 class="text-primary fw-bold mb-2">Create Service Template</h3>

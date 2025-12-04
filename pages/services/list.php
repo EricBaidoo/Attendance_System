@@ -266,7 +266,7 @@ include '../../includes/header.php';
 
             <?php if (empty($services)): ?>
                 <div class="text-center py-5">
-                    <i class="bi bi-plus-circle text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
+                    <i class="bi bi-plus-circle text-muted empty-state-icon"></i>
                     <h4 class="text-muted mt-3 mb-2">No Service Templates</h4>
                     <p class="text-muted mb-4">Create your first service template to get started with session management.</p>
                     <a href="add.php" class="btn btn-primary">
@@ -390,9 +390,9 @@ include '../../includes/header.php';
                                             <a href="sessions.php" class="btn btn-primary btn-sm flex-fill">
                                                 <i class="bi bi-play-fill"></i> Start Session
                                             </a>
-                                            <a href="../attendance/view.php?service_id=<?php echo $service['id']; ?>" 
+                                            <a href="history.php?service_id=<?php echo $service['id']; ?>" 
                                                class="btn btn-outline-primary btn-sm flex-fill">
-                                                <i class="bi bi-eye"></i> View History
+                                                <i class="bi bi-clock-history"></i> View History
                                             </a>
                                         </div>
                                     <?php else: ?>

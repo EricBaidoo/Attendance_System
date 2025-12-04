@@ -1,5 +1,27 @@
 /* Professional Attendance View Page Styling */
 
+/* Feature Icon Styles */
+.feature-icon {
+    width: 60px; 
+    height: 60px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+}
+
+.feature-icon.large {
+    width: 100px; 
+    height: 100px;
+}
+
+/* Member Avatar Styles */
+.member-avatar {
+    width: 35px; 
+    height: 35px; 
+    font-weight: bold; 
+    font-size: 14px;
+}
+
 .report-container {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     min-height: calc(100vh - 120px);

@@ -1,375 +1,808 @@
 <?php
-// pages/reports/index.php
-session_start();
-require '../../config/database.php';
+// pages/reports/report.php - Complete System Reports
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../login.php');
-    exit;
-}
+// Handle includes gracefully
+$base_dir = dirname(__DIR__) . '/..';
 
-// Date range parameters
-$start_date = $_GET['start_date'] ?? date('Y-m-01'); // First day of current month
-$end_date = $_GET['end_date'] ?? date('Y-m-d'); // Today
-$department_filter = $_GET['department'] ?? '';
-
-// Get attendance statistics
-$attendance_stats = [];
-
-// Total attendance for date range
-$sql = "SELECT COUNT(*) as total_attendance FROM attendance WHERE date BETWEEN ? AND ? AND status = 'present'";
-$params = [$start_date, $end_date];
-
-if ($department_filter) {
-    $sql .= " AND member_id IN (SELECT id FROM members WHERE department_id = ?)";
-    $params[] = $department_filter;
-}
-
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$attendance_stats['total'] = $stmt->fetch()['total_attendance'];
-
-// Average attendance per service
-$sql = "SELECT AVG(attendance_count) as avg_attendance FROM (
-    SELECT COUNT(*) as attendance_count 
-    FROM attendance a 
-    JOIN services s ON a.service_id = s.id 
-    WHERE a.date BETWEEN ? AND ? AND a.status = 'present'";
-$params = [$start_date, $end_date];
-
-if ($department_filter) {
-    $sql .= " AND a.member_id IN (SELECT id FROM members WHERE department_id = ?)";
-    $params[] = $department_filter;
-}
-
-$sql .= " GROUP BY a.service_id, a.date) as service_attendance";
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$attendance_stats['average'] = round($stmt->fetch()['avg_attendance'] ?? 0, 1);
-
-// Get member statistics
-$member_stats_sql = "SELECT 
-    COUNT(*) as total_members,
-    COUNT(CASE WHEN status = 'active' THEN 1 END) as active_members,
-    COUNT(CASE WHEN baptized = 'yes' THEN 1 END) as baptized_members,
-    COUNT(CASE WHEN gender = 'male' THEN 1 END) as male_members,
-    COUNT(CASE WHEN gender = 'female' THEN 1 END) as female_members
-    FROM members";
-
-if ($department_filter) {
-    $member_stats_sql .= " WHERE department_id = ?";
-    $member_stmt = $pdo->prepare($member_stats_sql);
-    $member_stmt->execute([$department_filter]);
+// Try to include security - fall back to basic session handling if not available
+if (file_exists($base_dir . '/includes/security.php')) {
+    require_once $base_dir . '/includes/security.php';
 } else {
-    $member_stmt = $pdo->query($member_stats_sql);
+    // Basic session handling if security.php doesn't exist
+    session_start();
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: ../../login.php');
+        exit;
+    }
+    
+    // Basic validation function
+    function validateAndSanitize($data, $rules) {
+        $result = ['data' => []];
+        foreach ($rules as $key => $rule) {
+            $result['data'][$key] = isset($data[$key]) ? htmlspecialchars(trim($data[$key])) : '';
+        }
+        return $result;
+    }
 }
-$member_stats = $member_stmt->fetch();
 
-// Get visitor statistics
-$visitor_stats_sql = "SELECT 
-    COUNT(*) as total_visitors,
-    COUNT(CASE WHEN first_time = 'yes' THEN 1 END) as first_time_visitors,
-    COUNT(CASE WHEN became_member = 'yes' THEN 1 END) as became_members,
-    COUNT(CASE WHEN follow_up_needed = 'yes' AND follow_up_completed = 'no' THEN 1 END) as pending_followups
-    FROM visitors 
-    WHERE created_at BETWEEN ? AND ?";
+// Include database connection
+require_once $base_dir . '/config/database.php';
 
-$visitor_stmt = $pdo->prepare($visitor_stats_sql);
-$visitor_stmt->execute([$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
-$visitor_stats = $visitor_stmt->fetch();
+// Try to include error handler
+if (file_exists($base_dir . '/includes/error_handler.php')) {
+    require_once $base_dir . '/includes/error_handler.php';
+} else {
+    // Basic error logging function
+    function logDatabaseError($message) {
+        error_log("Database Error: " . $message);
+    }
+}
 
-// Get new converts statistics
-$converts_stats_sql = "SELECT 
-    COUNT(*) as total_converts,
-    COUNT(CASE WHEN status = 'active' THEN 1 END) as active_converts,
-    COUNT(CASE WHEN baptized = 'yes' THEN 1 END) as baptized_converts
-    FROM new_converts 
-    WHERE date_converted BETWEEN ? AND ?";
+// Require login if function exists
+if (function_exists('requireLogin')) {
+    requireLogin();
+}
 
-$converts_stmt = $pdo->prepare($converts_stats_sql);
-$converts_stmt->execute([$start_date, $end_date]);
-$converts_stats = $converts_stmt->fetch();
+// Get filter parameters and validate
+$validation_rules = [
+    'start_date' => ['required' => false, 'max_length' => 10],
+    'end_date' => ['required' => false, 'max_length' => 10],
+    'department_filter' => ['required' => false, 'max_length' => 10],
+    'service_filter' => ['required' => false, 'max_length' => 10],
+    'report_type' => ['required' => false, 'max_length' => 20]
+];
 
-// Get departments for filter dropdown
+$validation_result = validateAndSanitize($_GET, $validation_rules);
+$filters = $validation_result['data'];
+
+// Set default date range
+$start_date = $filters['start_date'] ?: date('Y-m-01'); // First day of current month
+$end_date = $filters['end_date'] ?: date('Y-m-d'); // Today
+$department_filter = $filters['department_filter'] ?: '';
+$service_filter = $filters['service_filter'] ?: '';
+$report_type = $filters['report_type'] ?: 'overview';
+
 try {
-    $departments_stmt = $pdo->query("SELECT id, name FROM departments ORDER BY name");
+    // Try to temporarily disable ONLY_FULL_GROUP_BY for compatibility
+    try {
+        $pdo->exec("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
+    } catch (Exception $sql_mode_error) {
+        // If we can't change SQL mode, continue with strict-compliant queries
+    }
+    
+    // Get system overview statistics
+    $overview_sql = "SELECT 
+        (SELECT COUNT(*) FROM members WHERE status = 'active') as total_members,
+        (SELECT COUNT(*) FROM visitors WHERE DATE(created_at) BETWEEN ? AND ?) as total_visitors,
+        (SELECT COUNT(*) FROM new_converts WHERE DATE(date_converted) BETWEEN ? AND ?) as new_converts,
+        (SELECT COUNT(*) FROM service_sessions WHERE session_date BETWEEN ? AND ?) as total_sessions,
+        (SELECT COUNT(*) FROM departments WHERE status = 'active') as active_departments,
+        (SELECT COUNT(*) FROM services WHERE template_status = 'active') as active_services";
+    
+    $overview_stmt = $pdo->prepare($overview_sql);
+    $overview_stmt->execute([$start_date, $end_date, $start_date, $end_date, $start_date, $end_date]);
+    $overview_stats = $overview_stmt->fetch();
+
+    // Get attendance statistics
+    $attendance_sql = "SELECT 
+        COUNT(CASE WHEN a.status = 'present' THEN 1 END) as total_present,
+        COUNT(CASE WHEN a.status = 'absent' THEN 1 END) as total_absent,
+        COUNT(DISTINCT a.session_id) as sessions_with_attendance,
+        COUNT(DISTINCT a.member_id) as unique_attendees,
+        ROUND(AVG(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) * 100, 1) as attendance_percentage
+        FROM attendance a
+        JOIN service_sessions ss ON a.session_id = ss.id
+        WHERE ss.session_date BETWEEN ? AND ?";
+    
+    if ($service_filter) {
+        $attendance_sql .= " AND ss.service_id = ?";
+        $attendance_params = [$start_date, $end_date, $service_filter];
+    } else {
+        $attendance_params = [$start_date, $end_date];
+    }
+    
+    $attendance_stmt = $pdo->prepare($attendance_sql);
+    $attendance_stmt->execute($attendance_params);
+    $attendance_stats = $attendance_stmt->fetch();
+
+    // Get member demographics
+    $demographics_sql = "SELECT 
+        COUNT(*) as total_members,
+        COUNT(CASE WHEN gender = 'male' THEN 1 END) as male_count,
+        COUNT(CASE WHEN gender = 'female' THEN 1 END) as female_count,
+        COUNT(CASE WHEN baptized = 'yes' THEN 1 END) as baptized_count,
+        COUNT(CASE WHEN congregation_group = 'Adult' THEN 1 END) as adult_count,
+        COUNT(CASE WHEN congregation_group = 'Youth' THEN 1 END) as youth_count
+        FROM members WHERE status = 'active'";
+    
+    if ($department_filter) {
+        $demographics_sql .= " AND department_id = ?";
+        $demographics_stmt = $pdo->prepare($demographics_sql);
+        $demographics_stmt->execute([$department_filter]);
+    } else {
+        $demographics_stmt = $pdo->query($demographics_sql);
+    }
+    $demographics = $demographics_stmt->fetch();
+
+    // Get top services by attendance
+    $top_services_sql = "SELECT 
+        s.id as service_id,
+        s.name as service_name,
+        COUNT(DISTINCT ss.id) as session_count,
+        COUNT(CASE WHEN a.status = 'present' THEN 1 END) as total_attendance,
+        ROUND(AVG(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) * 100, 1) as avg_attendance_rate
+        FROM services s
+        LEFT JOIN service_sessions ss ON s.id = ss.service_id AND ss.session_date BETWEEN ? AND ?
+        LEFT JOIN attendance a ON ss.id = a.session_id
+        WHERE s.template_status = 'active'
+        GROUP BY s.id, s.name
+        ORDER BY total_attendance DESC, s.name
+        LIMIT 5";
+    
+    $top_services_stmt = $pdo->prepare($top_services_sql);
+    $top_services_stmt->execute([$start_date, $end_date]);
+    $top_services = $top_services_stmt->fetchAll();
+
+    // Get attendance trends (last 30 days) - SQL strict mode compliant
+    $trends_sql = "SELECT 
+        session_date as date,
+        service_name,
+        service_id,
+        SUM(present_count) as present_count,
+        SUM(total_marked) as total_marked
+        FROM (
+            SELECT 
+                DATE(ss.session_date) as session_date,
+                s.name as service_name,
+                s.id as service_id,
+                COUNT(CASE WHEN a.status = 'present' THEN 1 END) as present_count,
+                COUNT(a.id) as total_marked
+            FROM service_sessions ss
+            JOIN services s ON ss.service_id = s.id
+            LEFT JOIN attendance a ON ss.id = a.session_id
+            WHERE ss.session_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY DATE(ss.session_date), s.id, s.name
+        ) as daily_attendance
+        GROUP BY session_date, service_id, service_name
+        ORDER BY session_date DESC, service_name";
+    
+    $trends_stmt = $pdo->query($trends_sql);
+    $trends_data = $trends_stmt->fetchAll();
+
+    // Get department performance analytics
+    $dept_performance_sql = "SELECT 
+        d.id as department_id,
+        d.name as department_name,
+        COUNT(DISTINCT m.id) as total_members,
+        COUNT(DISTINCT CASE WHEN a.status = 'present' THEN m.id END) as active_attendees,
+        COUNT(CASE WHEN a.status = 'present' THEN 1 END) as total_present,
+        COUNT(CASE WHEN a.status = 'absent' THEN 1 END) as total_absent,
+        ROUND(AVG(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) * 100, 1) as attendance_rate
+        FROM departments d
+        LEFT JOIN members m ON d.id = m.department_id AND m.status = 'active'
+        LEFT JOIN attendance a ON m.id = a.member_id
+        LEFT JOIN service_sessions ss ON a.session_id = ss.id AND ss.session_date BETWEEN ? AND ?
+        WHERE d.status = 'active'
+        GROUP BY d.id, d.name
+        ORDER BY attendance_rate DESC, total_members DESC";
+    
+    $dept_stmt = $pdo->prepare($dept_performance_sql);
+    $dept_stmt->execute([$start_date, $end_date]);
+    $department_performance = $dept_stmt->fetchAll();
+
+    // Get individual member attendance tracking
+    $member_tracking_sql = "SELECT 
+        m.id as member_id,
+        m.name as member_name,
+        d.name as department_name,
+        m.phone as phone,
+        COUNT(CASE WHEN a.status = 'present' THEN 1 END) as times_present,
+        COUNT(CASE WHEN a.status = 'absent' THEN 1 END) as times_absent,
+        COUNT(a.id) as total_sessions_marked,
+        ROUND(AVG(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) * 100, 1) as attendance_percentage,
+        MAX(ss.session_date) as last_attendance,
+        DATEDIFF(CURDATE(), MAX(ss.session_date)) as days_since_last_attendance
+        FROM members m
+        LEFT JOIN departments d ON m.department_id = d.id
+        LEFT JOIN attendance a ON m.id = a.member_id
+        LEFT JOIN service_sessions ss ON a.session_id = ss.id AND ss.session_date BETWEEN ? AND ?
+        WHERE m.status = 'active'
+        GROUP BY m.id, m.name, d.name, m.phone
+        HAVING total_sessions_marked > 0
+        ORDER BY attendance_percentage DESC, times_present DESC
+        LIMIT 50";
+    
+    $member_stmt = $pdo->prepare($member_tracking_sql);
+    $member_stmt->execute([$start_date, $end_date]);
+    $member_tracking = $member_stmt->fetchAll();
+
+    // Get frequently absent members for follow-up
+    $absent_members_sql = "SELECT 
+        m.id as member_id,
+        m.name as member_name,
+        d.name as department_name,
+        m.phone as phone,
+        COUNT(CASE WHEN a.status = 'absent' THEN 1 END) as times_absent,
+        COUNT(CASE WHEN a.status = 'present' THEN 1 END) as times_present,
+        COUNT(a.id) as total_sessions_marked,
+        ROUND(AVG(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) * 100, 1) as attendance_percentage,
+        MAX(ss.session_date) as last_attendance
+        FROM members m
+        LEFT JOIN departments d ON m.department_id = d.id
+        LEFT JOIN attendance a ON m.id = a.member_id
+        LEFT JOIN service_sessions ss ON a.session_id = ss.id AND ss.session_date BETWEEN ? AND ?
+        WHERE m.status = 'active'
+        GROUP BY m.id, m.name, d.name, m.phone
+        HAVING total_sessions_marked > 0 AND attendance_percentage < 50
+        ORDER BY attendance_percentage ASC, times_absent DESC
+        LIMIT 20";
+    
+    $absent_stmt = $pdo->prepare($absent_members_sql);
+    $absent_stmt->execute([$start_date, $end_date]);
+    $absent_members = $absent_stmt->fetchAll();
+
+    // Get departments for filter
+    $departments_stmt = $pdo->query("SELECT id, name FROM departments WHERE status = 'active' ORDER BY name");
     $departments = $departments_stmt->fetchAll();
+
+    // Get services for filter
+    $services_stmt = $pdo->query("SELECT id, name FROM services WHERE template_status = 'active' ORDER BY name");
+    $services = $services_stmt->fetchAll();
+
 } catch (Exception $e) {
+    // Log the error if error handler exists
+    if (function_exists('logDatabaseError')) {
+        logDatabaseError($e->getMessage());
+    }
+    
+    // Provide more detailed error for debugging
+    $error_message = "Database Error: " . $e->getMessage();
+    
+    // Set default values to prevent further errors
+    $overview_stats = [
+        'total_members' => 0,
+        'total_visitors' => 0,
+        'new_converts' => 0,
+        'total_sessions' => 0,
+        'active_departments' => 0,
+        'active_services' => 0
+    ];
+    
+    $attendance_stats = [
+        'total_present' => 0,
+        'total_absent' => 0,
+        'sessions_with_attendance' => 0,
+        'unique_attendees' => 0,
+        'attendance_percentage' => 0
+    ];
+    
+    $demographics = [
+        'total_members' => 0,
+        'male_count' => 0,
+        'female_count' => 0,
+        'baptized_count' => 0,
+        'adult_count' => 0,
+        'youth_count' => 0
+    ];
+    
+    $top_services = [];
+    $trends_data = [];
     $departments = [];
+    $services = [];
+    $department_performance = [];
+    $member_tracking = [];
+    $absent_members = [];
 }
 
-// Get recent attendance trends (last 10 services)
-$trends_sql = "SELECT 
-    s.name as service_name,
-    ss.session_date,
-    COUNT(CASE WHEN a.status = 'present' THEN 1 END) as present_count,
-    COUNT(a.id) as total_marked
-    FROM service_sessions ss
-    JOIN services s ON ss.service_id = s.id
-    LEFT JOIN attendance a ON ss.id = a.session_id
-    WHERE ss.session_date BETWEEN ? AND ?
-    GROUP BY ss.id, s.name, ss.session_date
-    ORDER BY ss.session_date DESC
-    LIMIT 10";
-
-$trends_stmt = $pdo->prepare($trends_sql);
-$trends_stmt->execute([$start_date, $end_date]);
-$attendance_trends = $trends_stmt->fetchAll();
-
-$page_title = "Reports & Analytics - Bridge Ministries International";
+$page_title = "System Reports - Bridge Ministries International";
 include '../../includes/header.php';
 ?>
 <link href="../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">
-<link href="../../assets/css/reports.css?v=<?php echo time(); ?>" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Bootstrap Icons Fix -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 <style>
-@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css');
+/* Modern Report Styling */
+.report-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
 
-.bi {
-    font-family: "bootstrap-icons" !important;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
+.report-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary-dark, #0056b3) 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    overflow: hidden;
+    position: relative;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
     line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    margin-bottom: 0.5rem;
 }
 
-.bi::before {
-    font-family: "bootstrap-icons" !important;
-    font-weight: normal !important;
-    font-style: normal !important;
+.stat-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    font-weight: 500;
 }
 
-/* Specific icon fixes */
-.bi-graph-up::before { content: "\f4a8"; }
-.bi-people-fill::before { content: "\f47a"; }
-.bi-lightbulb::before { content: "\f4a0"; }
-.bi-list-check::before { content: "\f4a4"; }
-.bi-bar-chart::before { content: "\f406"; }
-.bi-graph-up-arrow::before { content: "\f4a9"; }
-.bi-pie-chart::before { content: "\f47e"; }
-.bi-activity::before { content: "\f3f4"; }
-.bi-trophy::before { content: "\f5a1"; }
-.bi-person-check::before { content: "\f470"; }
-.bi-exclamation-triangle::before { content: "\f431"; }
-.bi-person-dash::before { content: "\f475"; }
-.bi-calendar-event::before { content: "\f414"; }
-.bi-shield-exclamation::before { content: "\f5a8"; }
-.bi-calendar-range::before { content: "\f417"; }
-.bi-speedometer2::before { content: "\f5a4"; }
-.bi-download::before { content: "\f426"; }
-.bi-printer::before { content: "\f486"; }
-.bi-search::before { content: "\f52a"; }
-.bi-file-excel::before { content: "\f438"; }
-.bi-file-pdf::before { content: "\f43c"; }
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+.filter-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+}
+
+.export-btn {
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.export-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.trend-item {
+    padding: 12px 16px;
+    border-left: 4px solid var(--bs-primary);
+    background: rgba(var(--bs-primary-rgb), 0.05);
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 8px;
+}
+
+/* Custom Scrollbar Styling */
+.table-responsive::-webkit-scrollbar,
+div[style*="overflow-y: auto"]::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track,
+div[style*="overflow-y: auto"]::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb,
+div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover,
+div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Fade overlay for scrollable content */
+.scrollable-table::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(transparent, rgba(255,255,255,0.8));
+    pointer-events: none;
+}
+
+.scrollable-content {
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+}
 </style>
 
-<!-- Professional Reports Dashboard -->
 <div class="container-fluid py-4">
-    <!-- Dashboard Header -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h1 class="text-primary mb-2 fw-bold">
-                        <i class="bi bi-bar-chart-fill"></i> Reports & Analytics
-                    </h1>
-                    <div class="d-flex flex-wrap align-items-center gap-3">
-                        <span class="text-muted">Comprehensive church analytics and insights</span>
-                        <span class="badge bg-light text-dark">
-                            <?php echo date('M j', strtotime($start_date)); ?> - <?php echo date('M j, Y', strtotime($end_date)); ?>
-                        </span>
-                    </div>
-                </div>
-                <div class="col-lg-4 text-end">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="bi bi-download"></i> Export
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-excel me-2"></i>Excel Report</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-pdf me-2"></i>PDF Report</a></li>
-                        </ul>
-                    </div>
-                    <button type="button" class="btn btn-primary" onclick="window.print()">
-                        <i class="bi bi-printer"></i> Print
-                    </button>
-                </div>
-            </div>
+    <?php if (isset($error_message)): ?>
+        <div class="alert alert-danger border-0 shadow-sm">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <?php echo htmlspecialchars($error_message); ?>
         </div>
-    </div>
+    <?php endif; ?>
 
-    <!-- Date Range and Filters -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
-            <h5 class="text-primary fw-bold mb-3">
-                <i class="bi bi-calendar-range"></i> Report Filters
-            </h5>
-            <form method="GET" class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Start Date</label>
-                    <input type="date" name="start_date" class="form-control" value="<?php echo $start_date; ?>">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">End Date</label>
-                    <input type="date" name="end_date" class="form-control" value="<?php echo $end_date; ?>">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Department</label>
-                    <select name="department" class="form-select">
-                        <option value="">All Departments</option>
-                        <?php foreach ($departments as $dept): ?>
-                        <option value="<?php echo $dept['id']; ?>" <?php echo $department_filter == $dept['id'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($dept['name'] ?? ''); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Key Metrics Cards -->
-    <div class="row g-3 g-lg-4 mb-4">
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
-            <div class="card border-0 shadow-sm h-100 members-card">
-                <div class="card-body text-white p-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h6 class="text-white-50 mb-2 fw-semibold">Total Members</h6>
-                            <h2 class="text-white mb-2 fw-bold"><?php echo $member_stats['total_members']; ?></h2>
-                            <small class="text-white-50">
-                                <i class="bi bi-check-circle"></i> <?php echo $member_stats['active_members']; ?> active
-                            </small>
-                        </div>
-                        <div class="rounded p-3">
-                            <i class="bi bi-people-fill text-white fs-2"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
-            <div class="card border-0 shadow-sm h-100 visitors-card">
-                <div class="card-body text-white p-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h6 class="text-white-50 mb-2 fw-semibold">Total Visitors</h6>
-                            <h2 class="text-white mb-2 fw-bold"><?php echo $visitor_stats['total_visitors']; ?></h2>
-                            <small class="text-white-50">
-                                <i class="bi bi-star"></i> <?php echo $visitor_stats['first_time_visitors']; ?> first time
-                            </small>
-                        </div>
-                        <div class="rounded p-3">
-                            <i class="bi bi-person-badge text-white fs-2"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
-            <div class="card border-0 shadow-sm h-100 converts-card">
-                <div class="card-body text-white p-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h6 class="text-white-50 mb-2 fw-semibold">New Converts</h6>
-                            <h2 class="text-white mb-2 fw-bold"><?php echo $converts_stats['total_converts']; ?></h2>
-                            <small class="text-white-50">
-                                <i class="bi bi-droplet"></i> <?php echo $converts_stats['baptized_converts']; ?> baptized
-                            </small>
-                        </div>
-                        <div class="rounded p-3">
-                            <i class="bi bi-heart-fill text-white fs-2"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
-            <div class="card border-0 shadow-sm h-100 departments-card">
-                <div class="card-body text-white p-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h6 class="text-white-50 mb-2 fw-semibold">Avg Attendance</h6>
-                            <h2 class="text-white mb-2 fw-bold"><?php echo $attendance_stats['average']; ?></h2>
-                            <small class="text-white-50">
-                                <i class="bi bi-graph-up"></i> Per service
-                            </small>
-                        </div>
-                        <div class="rounded p-3">
-                            <i class="bi bi-graph-up text-white fs-2"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detailed Analytics -->
-    <div class="row g-4">
-        <!-- Attendance Trends -->
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm h-100">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card report-card">
                 <div class="card-body p-4">
-                    <h5 class="text-primary fw-bold mb-4">
-                        <i class="bi bi-graph-up"></i> Attendance Trends
+                    <div class="row align-items-center">
+                        <div class="col-lg-8">
+                            <h1 class="h2 text-primary mb-2 fw-bold">
+                                <i class="bi bi-graph-up"></i> System Reports & Analytics
+                            </h1>
+                            <p class="text-muted mb-0">
+                                Comprehensive insights for <?php echo date('F j, Y', strtotime($start_date)); ?> 
+                                to <?php echo date('F j, Y', strtotime($end_date)); ?>
+                            </p>
+                        </div>
+                        <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                            <div class="btn-group me-2">
+                                <button class="btn btn-outline-primary export-btn" onclick="exportData('csv')">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i> CSV
+                                </button>
+                                <button class="btn btn-outline-success export-btn" onclick="exportData('excel')">
+                                    <i class="bi bi-file-earmark-excel"></i> Excel
+                                </button>
+                                <button class="btn btn-outline-danger export-btn" onclick="exportData('pdf')">
+                                    <i class="bi bi-file-earmark-pdf"></i> PDF
+                                </button>
+                            </div>
+                            <button class="btn btn-primary export-btn" onclick="window.print()">
+                                <i class="bi bi-printer"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card filter-card">
+                <div class="card-body p-4">
+                    <form method="GET" class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-calendar-range text-primary"></i> Start Date
+                            </label>
+                            <input type="date" name="start_date" class="form-control" value="<?php echo $start_date; ?>">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-calendar-check text-primary"></i> End Date
+                            </label>
+                            <input type="date" name="end_date" class="form-control" value="<?php echo $end_date; ?>">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-building text-primary"></i> Department
+                            </label>
+                            <select name="department_filter" class="form-select">
+                                <option value="">All Departments</option>
+                                <?php foreach ($departments as $dept): ?>
+                                <option value="<?php echo $dept['id']; ?>" <?php echo $department_filter == $dept['id'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($dept['name']); ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-calendar-event text-primary"></i> Service
+                            </label>
+                            <select name="service_filter" class="form-select">
+                                <option value="">All Services</option>
+                                <?php foreach ($services as $service): ?>
+                                <option value="<?php echo $service['id']; ?>" <?php echo $service_filter == $service['id'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($service['name']); ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-funnel"></i> Apply Filters
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card h-100" style="background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);">
+                <div class="card-body p-4 position-relative">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="stat-number"><?php echo number_format($overview_stats['total_members']); ?></div>
+                            <div class="stat-label">Active Members</div>
+                        </div>
+                        <div class="text-white-50">
+                            <i class="bi bi-people fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card h-100" style="background: linear-gradient(135deg, #198754 0%, #146c43 100%);">
+                <div class="card-body p-4 position-relative">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="stat-number"><?php echo number_format($attendance_stats['total_present']); ?></div>
+                            <div class="stat-label">Total Attendance</div>
+                        </div>
+                        <div class="text-white-50">
+                            <i class="bi bi-check-circle fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card h-100" style="background: linear-gradient(135deg, #fd7e14 0%, #e55a0d 100%);">
+                <div class="card-body p-4 position-relative">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="stat-number"><?php echo number_format($overview_stats['total_visitors']); ?></div>
+                            <div class="stat-label">New Visitors</div>
+                        </div>
+                        <div class="text-white-50">
+                            <i class="bi bi-person-plus fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card h-100" style="background: linear-gradient(135deg, #6f42c1 0%, #59369c 100%);">
+                <div class="card-body p-4 position-relative">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="stat-number"><?php echo $attendance_stats['attendance_percentage'] ?: '0'; ?>%</div>
+                            <div class="stat-label">Attendance Rate</div>
+                        </div>
+                        <div class="text-white-50">
+                            <i class="bi bi-graph-up fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and Analytics Row -->
+    <div class="row g-4 mb-4">
+        <!-- Attendance Trends Chart -->
+        <div class="col-lg-8">
+            <div class="card report-card h-100">
+                <div class="card-header bg-transparent border-bottom-0 pt-4 px-4 pb-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-graph-up text-primary"></i> Attendance Trends (Last 30 Days)
                     </h5>
-                    
-                    <?php if (empty($attendance_trends)): ?>
-                        <div class="text-center py-5">
-                            <i class="bi bi-graph-up text-muted" style="font-size: 3rem; opacity: 0.5;"></i>
-                            <h6 class="text-muted mt-3">No attendance data available</h6>
-                            <p class="text-muted">No service sessions found for the selected date range.</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="chart-container">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demographics Breakdown -->
+        <div class="col-lg-4">
+            <div class="card report-card h-100">
+                <div class="card-header bg-transparent border-bottom-0 pt-4 px-4 pb-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-pie-chart text-success"></i> Member Demographics
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="chart-container">
+                        <canvas id="demographicsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Performance and Recent Activity -->
+    <div class="row g-4 mb-4">
+        <!-- Top Services -->
+        <div class="col-lg-6">
+            <div class="card report-card h-100">
+                <div class="card-header bg-transparent border-bottom-0 pt-4 px-4 pb-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-star text-warning"></i> Top Performing Services
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <?php if (empty($top_services)): ?>
+                        <div class="text-center py-4">
+                            <i class="bi bi-calendar-x text-muted fs-1"></i>
+                            <p class="text-muted mt-3">No service data available for this period.</p>
                         </div>
                     <?php else: ?>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
+                        <?php foreach ($top_services as $index => $service): ?>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="badge bg-primary rounded-pill me-3"><?php echo $index + 1; ?></div>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold"><?php echo htmlspecialchars($service['service_name']); ?></div>
+                                <small class="text-muted">
+                                    <?php echo $service['total_attendance']; ?> attendees across <?php echo $service['session_count']; ?> sessions
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold text-primary"><?php echo $service['avg_attendance_rate']; ?>%</div>
+                                <small class="text-muted">avg rate</small>
+                            </div>
+                        </div>
+                        <?php if ($index < count($top_services) - 1): ?>
+                        <hr class="my-3">
+                        <?php endif; ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="col-lg-6">
+            <div class="card report-card h-100">
+                <div class="card-header bg-transparent border-bottom-0 pt-4 px-4 pb-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-speedometer2 text-info"></i> Quick Statistics
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="h4 mb-1 text-primary"><?php echo $overview_stats['total_sessions']; ?></div>
+                                <small class="text-muted">Total Sessions</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="h4 mb-1 text-success"><?php echo $overview_stats['new_converts']; ?></div>
+                                <small class="text-muted">New Converts</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="h4 mb-1 text-warning"><?php echo $overview_stats['active_departments']; ?></div>
+                                <small class="text-muted">Active Departments</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="h4 mb-1 text-info"><?php echo $attendance_stats['unique_attendees']; ?></div>
+                                <small class="text-muted">Unique Attendees</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h6 class="fw-semibold mb-3">Gender Distribution</h6>
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="me-3" style="width: 80px;">
+                                <small class="text-muted">Male</small>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" style="width: <?php echo $demographics['total_members'] > 0 ? ($demographics['male_count'] / $demographics['total_members']) * 100 : 0; ?>%"></div>
+                                </div>
+                            </div>
+                            <div class="ms-3">
+                                <small class="fw-semibold"><?php echo $demographics['male_count']; ?></small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3" style="width: 80px;">
+                                <small class="text-muted">Female</small>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: <?php echo $demographics['total_members'] > 0 ? ($demographics['female_count'] / $demographics['total_members']) * 100 : 0; ?>%"></div>
+                                </div>
+                            </div>
+                            <div class="ms-3">
+                                <small class="fw-semibold"><?php echo $demographics['female_count']; ?></small>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-semibold mb-3">Baptism Status</h6>
+                        <div class="d-flex align-items-center">
+                            <div class="me-3" style="width: 80px;">
+                                <small class="text-muted">Baptized</small>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-info" style="width: <?php echo $demographics['total_members'] > 0 ? ($demographics['baptized_count'] / $demographics['total_members']) * 100 : 0; ?>%"></div>
+                                </div>
+                            </div>
+                            <div class="ms-3">
+                                <small class="fw-semibold"><?php echo round(($demographics['baptized_count'] / max($demographics['total_members'], 1)) * 100); ?>%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Individual Member Tracking and Department Analytics -->
+    <div class="row g-4 mb-4">
+        <!-- Department Performance -->
+        <div class="col-lg-6">
+            <div class="card report-card h-100">
+                <div class="card-header bg-transparent border-bottom-0 pt-4 px-4 pb-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-building text-primary"></i> Department Performance
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <?php if (empty($department_performance)): ?>
+                        <div class="text-center py-4">
+                            <i class="bi bi-building-x text-muted fs-1"></i>
+                            <p class="text-muted mt-3">No department data available for this period.</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="table-responsive" style="max-height: 350px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 8px;">
+                            <table class="table table-hover mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th class="fw-semibold">Service</th>
-                                        <th class="fw-semibold">Date</th>
-                                        <th class="fw-semibold text-center">Present</th>
-                                        <th class="fw-semibold text-center">Total</th>
-                                        <th class="fw-semibold text-center">Rate</th>
+                                        <th>Department</th>
+                                        <th class="text-center">Members</th>
+                                        <th class="text-center">Rate</th>
+                                        <th class="text-center">Present</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($attendance_trends as $trend): ?>
-                                        <?php 
-                                        $rate = $trend['total_marked'] > 0 ? round(($trend['present_count'] / $trend['total_marked']) * 100) : 0;
-                                        $rate_color = $rate >= 80 ? 'success' : ($rate >= 60 ? 'warning' : 'danger');
-                                        ?>
-                                        <tr>
-                                            <td>
-                                                <span class="fw-semibold"><?php echo htmlspecialchars($trend['service_name'] ?? ''); ?></span>
-                                            </td>
-                                            <td>
-                                                <?php echo date('M j, Y', strtotime($trend['session_date'])); ?>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-success"><?php echo $trend['present_count']; ?></span>
-                                            </td>
-                                            <td class="text-center">
-                                                <?php echo $trend['total_marked']; ?>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-<?php echo $rate_color; ?>"><?php echo $rate; ?>%</span>
-                                            </td>
-                                        </tr>
+                                    <?php foreach ($department_performance as $dept): ?>
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold"><?php echo htmlspecialchars($dept['department_name']); ?></div>
+                                            <small class="text-muted"><?php echo $dept['active_attendees']; ?> active attendees</small>
+                                        </td>
+                                        <td class="text-center"><?php echo $dept['total_members']; ?></td>
+                                        <td class="text-center">
+                                            <span class="badge <?php echo ($dept['attendance_rate'] >= 70) ? 'bg-success' : (($dept['attendance_rate'] >= 50) ? 'bg-warning' : 'bg-danger'); ?>">
+                                                <?php echo $dept['attendance_rate'] ?: '0'; ?>%
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <strong class="text-primary"><?php echo $dept['total_present']; ?></strong>
+                                        </td>
+                                    </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
@@ -379,618 +812,430 @@ include '../../includes/header.php';
             </div>
         </div>
 
-        <!-- Member Demographics -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <h5 class="text-primary fw-bold mb-4">
-                        <i class="bi bi-pie-chart-fill"></i> Member Demographics
+        <!-- Top Attending Members -->
+        <div class="col-lg-6">
+            <div class="card report-card h-100">
+                <div class="card-header bg-transparent border-bottom-0 pt-4 px-4 pb-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-trophy text-success"></i> Top Attending Members
                     </h5>
-                    
-                    <div class="demographics-stats">
-                        <!-- Gender Distribution -->
-                        <div class="stat-item mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-semibold">Male Members</span>
-                                <span class="badge bg-primary"><?php echo $member_stats['male_members']; ?></span>
-                            </div>
-                            <div class="progress mb-1" style="height: 8px;">
-                                <div class="progress-bar bg-primary" style="width: <?php echo $member_stats['total_members'] > 0 ? ($member_stats['male_members'] / $member_stats['total_members']) * 100 : 0; ?>%"></div>
-                            </div>
-                            <small class="text-muted"><?php echo $member_stats['total_members'] > 0 ? round(($member_stats['male_members'] / $member_stats['total_members']) * 100) : 0; ?>% of total members</small>
-                        </div>
-
-                        <div class="stat-item mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-semibold">Female Members</span>
-                                <span class="badge bg-info"><?php echo $member_stats['female_members']; ?></span>
-                            </div>
-                            <div class="progress mb-1" style="height: 8px;">
-                                <div class="progress-bar bg-info" style="width: <?php echo $member_stats['total_members'] > 0 ? ($member_stats['female_members'] / $member_stats['total_members']) * 100 : 0; ?>%"></div>
-                            </div>
-                            <small class="text-muted"><?php echo $member_stats['total_members'] > 0 ? round(($member_stats['female_members'] / $member_stats['total_members']) * 100) : 0; ?>% of total members</small>
-                        </div>
-
-                        <!-- Baptism Status -->
-                        <div class="stat-item mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-semibold">Baptized Members</span>
-                                <span class="badge bg-success"><?php echo $member_stats['baptized_members']; ?></span>
-                            </div>
-                            <div class="progress mb-1" style="height: 8px;">
-                                <div class="progress-bar bg-success" style="width: <?php echo $member_stats['total_members'] > 0 ? ($member_stats['baptized_members'] / $member_stats['total_members']) * 100 : 0; ?>%"></div>
-                            </div>
-                            <small class="text-muted"><?php echo $member_stats['total_members'] > 0 ? round(($member_stats['baptized_members'] / $member_stats['total_members']) * 100) : 0; ?>% baptized</small>
-                        </div>
-
-                        <!-- Active Members -->
-                        <div class="stat-item">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-semibold">Active Members</span>
-                                <span class="badge bg-warning"><?php echo $member_stats['active_members']; ?></span>
-                            </div>
-                            <div class="progress mb-1" style="height: 8px;">
-                                <div class="progress-bar bg-warning" style="width: <?php echo $member_stats['total_members'] > 0 ? ($member_stats['active_members'] / $member_stats['total_members']) * 100 : 0; ?>%"></div>
-                            </div>
-                            <small class="text-muted"><?php echo $member_stats['total_members'] > 0 ? round(($member_stats['active_members'] / $member_stats['total_members']) * 100) : 0; ?>% active</small>
-                        </div>
-                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Enhanced Summary Report -->
-    <div class="card border-0 shadow-sm mt-4">
-        <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%);">
-            <div class="d-flex align-items-center justify-content-between">
-                <h5 class="mb-0 fw-bold text-white">
-                    <i class="bi bi-file-text-fill me-2"></i>Executive Summary Report
-                </h5>
-                <small class="text-white-50">
-                    Generated: <?php echo date('M j, Y g:i A'); ?>
-                </small>
-            </div>
-        </div>
-        <div class="card-body p-5">
-            <!-- Report Period Banner -->
-            <div class="alert alert-info border-0 mb-4" style="background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-calendar-range fs-3 text-info me-3"></i>
-                    <div>
-                        <h6 class="mb-1 fw-bold text-info">Report Period</h6>
-                        <p class="mb-0 text-dark">
-                            <strong><?php echo date('F j, Y', strtotime($start_date)); ?></strong> to 
-                            <strong><?php echo date('F j, Y', strtotime($end_date)); ?></strong>
-                            (<?php echo abs((strtotime($end_date) - strtotime($start_date)) / (60*60*24)) + 1; ?> days)
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <!-- Membership Overview Card -->
-                <div class="col-lg-6">
-                    <div class="summary-card h-100">
-                        <div class="summary-header">
-                            <div class="summary-icon members-gradient">
-                                <i class="bi bi-people-fill"></i>
-                            </div>
-                            <div>
-                                <h6 class="fw-bold text-primary mb-1">Membership Overview</h6>
-                                <small class="text-muted">Current congregation status</small>
-                            </div>
+                <div class="card-body p-4">
+                    <?php if (empty($member_tracking)): ?>
+                        <div class="text-center py-4">
+                            <i class="bi bi-person-x text-muted fs-1"></i>
+                            <p class="text-muted mt-3">No attendance data available for this period.</p>
                         </div>
-                        
-                        <div class="summary-stats">
-                            <div class="stat-row">
-                                <div class="stat-icon">
-                                    <i class="bi bi-check-circle-fill text-success"></i>
+                    <?php else: ?>
+                        <div style="max-height: 350px; overflow-y: auto; padding-right: 8px; border: 1px solid #dee2e6; border-radius: 8px; padding: 16px;">
+                            <?php foreach (array_slice($member_tracking, 0, 10) as $index => $member): ?>
+                            <div class="d-flex align-items-center mb-3 p-2 rounded <?php echo $index % 2 == 0 ? 'bg-light' : ''; ?>">
+                                <div class="badge bg-primary rounded-pill me-3"><?php echo $index + 1; ?></div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold"><?php echo htmlspecialchars($member['member_name']); ?></div>
+                                    <small class="text-muted">
+                                        <?php echo htmlspecialchars($member['department_name'] ?? 'No Department'); ?> • 
+                                        <?php echo $member['times_present']; ?> sessions attended
+                                    </small>
                                 </div>
-                                <div class="stat-content">
-                                    <span class="stat-label">Total Members</span>
-                                    <span class="stat-value text-success"><?php echo number_format($member_stats['total_members']); ?></span>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-row">
-                                <div class="stat-icon">
-                                    <i class="bi bi-activity text-primary"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="stat-label">Active Members</span>
-                                    <span class="stat-value text-primary"><?php echo number_format($member_stats['active_members']); ?></span>
-                                    <span class="stat-percentage">
-                                        (<?php echo $member_stats['total_members'] > 0 ? round(($member_stats['active_members'] / $member_stats['total_members']) * 100) : 0; ?>%)
-                                    </span>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-row">
-                                <div class="stat-icon">
-                                    <i class="bi bi-droplet-fill text-info"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="stat-label">Baptized Members</span>
-                                    <span class="stat-value text-info"><?php echo number_format($member_stats['baptized_members']); ?></span>
-                                    <span class="stat-percentage">
-                                        (<?php echo $member_stats['total_members'] > 0 ? round(($member_stats['baptized_members'] / $member_stats['total_members']) * 100) : 0; ?>%)
-                                    </span>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-row">
-                                <div class="stat-icon">
-                                    <i class="bi bi-gender-ambiguous text-secondary"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="stat-label">Gender Distribution</span>
-                                    <div class="gender-stats">
-                                        <span class="badge bg-primary me-2"><?php echo $member_stats['male_members']; ?>M</span>
-                                        <span class="badge bg-danger"><?php echo $member_stats['female_members']; ?>F</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Period Activity Card -->
-                <div class="col-lg-6">
-                    <div class="summary-card h-100">
-                        <div class="summary-header">
-                            <div class="summary-icon visitors-gradient">
-                                <i class="bi bi-graph-up"></i>
-                            </div>
-                            <div>
-                                <h6 class="fw-bold text-success mb-1">Period Activity</h6>
-                                <small class="text-muted"><?php echo date('M j', strtotime($start_date)); ?> - <?php echo date('M j', strtotime($end_date)); ?></small>
-                            </div>
-                        </div>
-                        
-                        <div class="summary-stats">
-                            <div class="stat-row">
-                                <div class="stat-icon">
-                                    <i class="bi bi-person-badge text-success"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="stat-label">New Visitors</span>
-                                    <span class="stat-value text-success"><?php echo number_format($visitor_stats['total_visitors']); ?></span>
-                                    <?php if ($visitor_stats['first_time_visitors'] > 0): ?>
-                                    <span class="stat-note">
-                                        <i class="bi bi-star-fill text-warning"></i>
-                                        <?php echo $visitor_stats['first_time_visitors']; ?> first-time
-                                    </span>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-row">
-                                <div class="stat-icon">
-                                    <i class="bi bi-heart-fill text-danger"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="stat-label">New Converts</span>
-                                    <span class="stat-value text-danger"><?php echo number_format($converts_stats['total_converts']); ?></span>
-                                    <?php if ($converts_stats['baptized_converts'] > 0): ?>
-                                    <span class="stat-note">
-                                        <i class="bi bi-droplet-fill text-info"></i>
-                                        <?php echo $converts_stats['baptized_converts']; ?> baptized
-                                    </span>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-row">
-                                <div class="stat-icon">
-                                    <i class="bi bi-graph-up text-primary"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="stat-label">Total Attendance</span>
-                                    <span class="stat-value text-primary"><?php echo number_format($attendance_stats['total']); ?></span>
-                                    <span class="stat-note">
-                                        <i class="bi bi-calculator"></i>
-                                        Avg: <?php echo $attendance_stats['average']; ?> per service
-                                    </span>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-row">
-                                <div class="stat-icon">
-                                    <i class="bi bi-telephone-fill text-warning"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="stat-label">Pending Follow-ups</span>
-                                    <span class="stat-value text-warning"><?php echo number_format($visitor_stats['pending_followups']); ?></span>
-                                    <?php if ($visitor_stats['pending_followups'] > 0): ?>
-                                    <span class="stat-note text-danger">
-                                        <i class="bi bi-exclamation-triangle"></i>
-                                        Requires attention
-                                    </span>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Key Insights Section -->
-            <div class="row g-4 mt-2">
-                <div class="col-12">
-                    <div class="insights-section">
-                        <h6 class="fw-bold text-primary mb-3">
-                            <i class="bi bi-lightbulb-fill me-2"></i>Key Insights & Recommendations
-                        </h6>
-                        <div class="row g-3">
-                            <?php
-                            $insights = [];
-                            
-                            // Attendance rate insight
-                            if ($attendance_stats['average'] > 0) {
-                                $attendance_rate = $member_stats['active_members'] > 0 ? round(($attendance_stats['average'] / $member_stats['active_members']) * 100) : 0;
-                                if ($attendance_rate >= 80) {
-                                    $insights[] = ['type' => 'success', 'icon' => 'check-circle', 'text' => 'Excellent attendance rate of ' . $attendance_rate . '% indicates strong member engagement.'];
-                                } elseif ($attendance_rate >= 60) {
-                                    $insights[] = ['type' => 'warning', 'icon' => 'exclamation-triangle', 'text' => 'Moderate attendance rate of ' . $attendance_rate . '%. Consider engagement initiatives.'];
-                                } else {
-                                    $insights[] = ['type' => 'danger', 'icon' => 'arrow-down-circle', 'text' => 'Low attendance rate of ' . $attendance_rate . '%. Review service appeal and member connectivity.'];
-                                }
-                            }
-                            
-                            // Visitor conversion insight
-                            if ($visitor_stats['total_visitors'] > 0) {
-                                $conversion_rate = round(($converts_stats['total_converts'] / $visitor_stats['total_visitors']) * 100);
-                                if ($conversion_rate >= 20) {
-                                    $insights[] = ['type' => 'success', 'icon' => 'heart', 'text' => 'Strong visitor conversion rate of ' . $conversion_rate . '%. Great evangelistic impact!'];
-                                } elseif ($conversion_rate >= 10) {
-                                    $insights[] = ['type' => 'info', 'icon' => 'info-circle', 'text' => 'Good visitor conversion rate of ' . $conversion_rate . '%. Room for improvement in follow-up.'];
-                                } else {
-                                    $insights[] = ['type' => 'warning', 'icon' => 'question-circle', 'text' => 'Low visitor conversion rate of ' . $conversion_rate . '%. Enhance visitor experience and follow-up.'];
-                                }
-                            }
-                            
-                            // Follow-up insight
-                            if ($visitor_stats['pending_followups'] > 0) {
-                                $insights[] = ['type' => 'warning', 'icon' => 'clock', 'text' => $visitor_stats['pending_followups'] . ' pending follow-ups require immediate attention for visitor retention.'];
-                            }
-                            
-                            // Baptism insight
-                            $baptism_rate = $member_stats['total_members'] > 0 ? round(($member_stats['baptized_members'] / $member_stats['total_members']) * 100) : 0;
-                            if ($baptism_rate < 50) {
-                                $insights[] = ['type' => 'info', 'icon' => 'droplet', 'text' => 'Only ' . $baptism_rate . '% of members are baptized. Consider baptism preparation classes.'];
-                            }
-                            ?>
-                            
-                            <?php foreach ($insights as $insight): ?>
-                            <div class="col-md-6">
-                                <div class="insight-item alert alert-<?php echo $insight['type']; ?> border-0">
-                                    <i class="bi bi-<?php echo $insight['icon']; ?> me-2"></i>
-                                    <?php echo $insight['text']; ?>
+                                <div class="text-end">
+                                    <div class="fw-bold text-success"><?php echo $member['attendance_percentage']; ?>%</div>
+                                    <small class="text-muted">
+                                        <?php echo $member['days_since_last_attendance'] ? $member['days_since_last_attendance'] . 'd ago' : 'Recent'; ?>
+                                    </small>
                                 </div>
                             </div>
                             <?php endforeach; ?>
                         </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Interactive Analytics Section -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-gradient-primary text-white py-3">
-                <h5 class="card-title mb-0">
-                    <i class="bi bi-graph-up text-warning me-2"></i>
-                    Interactive Analytics Dashboard
-                </h5>
-            </div>
-            <div class="card-body p-4">
-                <div class="row">
-                    <!-- Attendance Trends Chart -->
-                    <div class="col-lg-8 mb-4">
-                        <div class="card border-0 bg-light">
-                            <div class="card-header bg-transparent border-bottom">
-                                <h6 class="mb-0"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Attendance Trends (Last 12 Weeks)</h6>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="attendanceChart" height="100"></canvas>
-                            </div>
+    <!-- Follow-up Tracking -->
+    <div class="row g-4 mb-4">
+        <!-- Members Needing Follow-up -->
+        <div class="col-12">
+            <div class="card report-card">
+                <div class="card-header bg-transparent border-bottom-0 pt-4 px-4 pb-0">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-exclamation-triangle text-warning"></i> Members Needing Follow-up
+                            </h5>
+                            <p class="text-muted mb-0 mt-1">Members with low attendance rates (below 50%)</p>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-primary btn-sm" onclick="exportFollowUpList()">
+                                <i class="bi bi-download"></i> Export Follow-up List
+                            </button>
                         </div>
                     </div>
-                    
-                    <!-- Service Distribution Chart -->
-                    <div class="col-lg-4 mb-4">
-                        <div class="card border-0 bg-light">
-                            <div class="card-header bg-transparent border-bottom">
-                                <h6 class="mb-0"><i class="bi bi-pie-chart text-success me-2"></i>Service Distribution</h6>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="serviceChart" height="150"></canvas>
-                            </div>
+                </div>
+                <div class="card-body p-4">
+                    <?php if (empty($absent_members)): ?>
+                        <div class="text-center py-4">
+                            <i class="bi bi-check-circle text-success fs-1"></i>
+                            <p class="text-muted mt-3">Great! No members need immediate follow-up.</p>
                         </div>
-                    </div>
+                    <?php else: ?>
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 8px;">
+                            <table class="table table-hover mb-0" id="followUpTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Member Name</th>
+                                        <th>Department</th>
+                                        <th>Phone</th>
+                                        <th class="text-center">Attendance Rate</th>
+                                        <th class="text-center">Sessions Missed</th>
+                                        <th class="text-center">Last Attendance</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($absent_members as $member): ?>
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold"><?php echo htmlspecialchars($member['member_name']); ?></div>
+                                        </td>
+                                        <td><?php echo htmlspecialchars($member['department_name'] ?? 'No Department'); ?></td>
+                                        <td>
+                                            <?php if ($member['phone']): ?>
+                                                <a href="tel:<?php echo $member['phone']; ?>" class="text-decoration-none">
+                                                    <i class="bi bi-telephone"></i> <?php echo $member['phone']; ?>
+                                                </a>
+                                            <?php else: ?>
+                                                <span class="text-muted">No phone</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-danger"><?php echo $member['attendance_percentage']; ?>%</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <strong class="text-danger"><?php echo $member['times_absent']; ?></strong>
+                                        </td>
+                                        <td class="text-center">
+                                            <small class="text-muted">
+                                                <?php echo $member['last_attendance'] ? date('M j', strtotime($member['last_attendance'])) : 'Never'; ?>
+                                            </small>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <?php if ($member['phone']): ?>
+                                                <a href="tel:<?php echo $member['phone']; ?>" class="btn btn-outline-primary">
+                                                    <i class="bi bi-telephone"></i>
+                                                </a>
+                                                <a href="sms:<?php echo $member['phone']; ?>" class="btn btn-outline-success">
+                                                    <i class="bi bi-chat-text"></i>
+                                                </a>
+                                                <?php endif; ?>
+                                                <button class="btn btn-outline-info" onclick="markForFollowUp(<?php echo $member['member_id']; ?>)">
+                                                    <i class="bi bi-bookmark"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Member Engagement Analytics -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-gradient-success text-white py-3">
-                <h5 class="card-title mb-0">
-                    <i class="bi bi-people-fill text-warning me-2"></i>
-                    Member Engagement Analytics
-                </h5>
-            </div>
-            <div class="card-body p-4">
-                <div class="row">
-                    <!-- Engagement Metrics -->
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <div class="card bg-gradient-primary text-white border-0 h-100">
-                            <div class="card-body text-center">
-                                <i class="bi bi-trophy fs-1 mb-2"></i>
-                                <h6 class="card-title">Highly Engaged</h6>
-                                <h3 class="mb-0">156</h3>
-                                <small class="opacity-75">90%+ Attendance</small>
-                            </div>
+    <!-- All Members Tracking -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card report-card">
+                <div class="card-header bg-transparent border-bottom-0 pt-4 px-4 pb-0">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-people text-info"></i> Individual Member Tracking
+                            </h5>
+                            <p class="text-muted mb-0 mt-1">Detailed attendance tracking for all active members</p>
                         </div>
-                    </div>
-                    
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <div class="card bg-gradient-success text-white border-0 h-100">
-                            <div class="card-body text-center">
-                                <i class="bi bi-person-check fs-1 mb-2"></i>
-                                <h6 class="card-title">Regular Attendees</h6>
-                                <h3 class="mb-0">89</h3>
-                                <small class="opacity-75">60-89% Attendance</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <div class="card bg-gradient-warning text-white border-0 h-100">
-                            <div class="card-body text-center">
-                                <i class="bi bi-exclamation-triangle fs-1 mb-2"></i>
-                                <h6 class="card-title">At Risk</h6>
-                                <h3 class="mb-0">34</h3>
-                                <small class="opacity-75">30-59% Attendance</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <div class="card bg-gradient-danger text-white border-0 h-100">
-                            <div class="card-body text-center">
-                                <i class="bi bi-person-dash fs-1 mb-2"></i>
-                                <h6 class="card-title">Inactive</h6>
-                                <h3 class="mb-0">12</h3>
-                                <small class="opacity-75">Below 30%</small>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-success btn-sm me-2" onclick="exportMemberTracking()">
+                                <i class="bi bi-download"></i> Export List
+                            </button>
+                            <div class="input-group input-group-sm" style="width: 250px;">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" id="memberSearch" placeholder="Search members...">
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Engagement Timeline -->
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="card border-0 bg-light">
-                            <div class="card-header bg-transparent border-bottom">
-                                <h6 class="mb-0"><i class="bi bi-activity text-info me-2"></i>Member Engagement Timeline</h6>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="engagementChart" height="80"></canvas>
-                            </div>
+                <div class="card-body p-4">
+                    <?php if (empty($member_tracking)): ?>
+                        <div class="text-center py-4">
+                            <i class="bi bi-calendar-x text-muted fs-1"></i>
+                            <p class="text-muted mt-3">No member tracking data available for this period.</p>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Predictive Analytics -->
-<div class="row mb-4">
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-gradient-info text-white py-3">
-                <h5 class="card-title mb-0">
-                    <i class="bi bi-lightbulb text-warning me-2"></i>
-                    Predictive Insights & Forecasting
-                </h5>
-            </div>
-            <div class="card-body p-4">
-                <!-- Growth Projections -->
-                <div class="alert alert-info border-0 mb-4">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-graph-up-arrow fs-3 text-primary me-3"></i>
-                        <div>
-                            <h6 class="alert-heading mb-1">Growth Projection</h6>
-                            <p class="mb-0">Based on current trends, church membership is projected to reach <strong>340 members</strong> by December 2025 (15% growth).</p>
+                    <?php else: ?>
+                        <div class="table-responsive" style="max-height: 500px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 8px;">
+                            <table class="table table-hover table-sm mb-0" id="memberTrackingTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Member Name</th>
+                                        <th>Department</th>
+                                        <th class="text-center">Attendance Rate</th>
+                                        <th class="text-center">Present</th>
+                                        <th class="text-center">Absent</th>
+                                        <th class="text-center">Total Sessions</th>
+                                        <th class="text-center">Last Seen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($member_tracking as $index => $member): ?>
+                                    <tr class="member-row">
+                                        <td>
+                                            <span class="badge <?php echo ($index < 5) ? 'bg-success' : (($index < 15) ? 'bg-primary' : 'bg-secondary'); ?>">
+                                                #<?php echo $index + 1; ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold"><?php echo htmlspecialchars($member['member_name']); ?></div>
+                                            <?php if ($member['phone']): ?>
+                                                <small class="text-muted">
+                                                    <i class="bi bi-telephone"></i> <?php echo $member['phone']; ?>
+                                                </small>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?php echo htmlspecialchars($member['department_name'] ?? 'No Department'); ?></td>
+                                        <td class="text-center">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <div class="progress me-2" style="width: 50px; height: 6px;">
+                                                    <div class="progress-bar <?php echo ($member['attendance_percentage'] >= 80) ? 'bg-success' : (($member['attendance_percentage'] >= 60) ? 'bg-warning' : 'bg-danger'); ?>" 
+                                                         style="width: <?php echo $member['attendance_percentage']; ?>%"></div>
+                                                </div>
+                                                <span class="fw-bold"><?php echo $member['attendance_percentage']; ?>%</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-success"><?php echo $member['times_present']; ?></span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-danger"><?php echo $member['times_absent']; ?></span>
+                                        </td>
+                                        <td class="text-center"><?php echo $member['total_sessions_marked']; ?></td>
+                                        <td class="text-center">
+                                            <small class="text-muted">
+                                                <?php 
+                                                if ($member['last_attendance']) {
+                                                    echo date('M j, Y', strtotime($member['last_attendance']));
+                                                    echo '<br><small>(' . $member['days_since_last_attendance'] . ' days ago)</small>';
+                                                } else {
+                                                    echo 'Never';
+                                                }
+                                                ?>
+                                            </small>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Seasonal Patterns -->
-                <div class="alert alert-warning border-0 mb-4">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-calendar-event fs-3 text-warning me-3"></i>
-                        <div>
-                            <h6 class="alert-heading mb-1">Seasonal Attendance Pattern</h6>
-                            <p class="mb-0">December typically shows 20% higher attendance. Plan for additional seating and resources.</p>
+                        
+                        <?php if (count($member_tracking) >= 50): ?>
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-info-circle"></i> 
+                            Showing top 50 members. Use filters to see different date ranges or departments.
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Risk Analysis -->
-                <div class="alert alert-danger border-0 mb-0">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-shield-exclamation fs-3 text-danger me-3"></i>
-                        <div>
-                            <h6 class="alert-heading mb-1">Member Retention Risk</h6>
-                            <p class="mb-0">34 members showing declining attendance. Recommend pastoral follow-up within 2 weeks.</p>
-                        </div>
-                    </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Action Items Dashboard -->
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-gradient-warning text-dark py-3">
-                <h5 class="card-title mb-0">
-                    <i class="bi bi-list-check text-dark me-2"></i>
-                    Action Items
-                </h5>
-            </div>
-            <div class="card-body p-3">
-                <!-- Priority Actions -->
-                <div class="list-group list-group-flush">
-                    <div class="list-group-item d-flex align-items-center px-0 py-3 border-0">
-                        <div class="badge bg-danger rounded-pill me-3">High</div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">Follow up with inactive members</h6>
-                            <small class="text-muted">12 members need attention</small>
-                        </div>
-                    </div>
-                    
-                    <div class="list-group-item d-flex align-items-center px-0 py-3 border-0">
-                        <div class="badge bg-warning rounded-pill me-3">Med</div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">New convert baptisms</h6>
-                            <small class="text-muted">8 converts pending baptism</small>
-                        </div>
-                    </div>
-                    
-                    <div class="list-group-item d-flex align-items-center px-0 py-3 border-0">
-                        <div class="badge bg-success rounded-pill me-3">Low</div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">Anniversary celebrations</h6>
-                            <small class="text-muted">15 upcoming this month</small>
-                        </div>
-                    </div>
-                    
-                    <div class="list-group-item d-flex align-items-center px-0 py-3 border-0">
-                        <div class="badge bg-info rounded-pill me-3">Info</div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">Visitor follow-up calls</h6>
-                            <small class="text-muted">23 visitors this week</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Comparative Analysis -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-gradient-secondary text-white py-3">
-                <h5 class="card-title mb-0">
-                    <i class="bi bi-bar-chart text-warning me-2"></i>
-                    Comparative Analysis
-                </h5>
-            </div>
-            <div class="card-body p-4">
-                <div class="row">
-                    <!-- Year-over-Year Comparison -->
-                    <div class="col-lg-6 mb-4">
-                        <div class="card border-0 bg-light">
-                            <div class="card-header bg-transparent border-bottom">
-                                <h6 class="mb-0"><i class="bi bi-calendar-range text-primary me-2"></i>Year-over-Year Comparison</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <span class="text-muted">Total Attendance</span>
-                                    <span class="badge bg-success">+12.5%</span>
-                                </div>
-                                <div class="progress mb-3" style="height: 8px;">
-                                    <div class="progress-bar bg-success" style="width: 75%"></div>
-                                </div>
-                                
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <span class="text-muted">New Members</span>
-                                    <span class="badge bg-info">+8.3%</span>
-                                </div>
-                                <div class="progress mb-3" style="height: 8px;">
-                                    <div class="progress-bar bg-info" style="width: 65%"></div>
-                                </div>
-                                
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <span class="text-muted">Visitor Retention</span>
-                                    <span class="badge bg-warning">-2.1%</span>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-warning" style="width: 45%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Service Performance -->
-                    <div class="col-lg-6 mb-4">
-                        <div class="card border-0 bg-light">
-                            <div class="card-header bg-transparent border-bottom">
-                                <h6 class="mb-0"><i class="bi bi-speedometer2 text-success me-2"></i>Service Performance Metrics</h6>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="performanceChart" height="150"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 </div>
 
 <script>
+// Member search functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const memberSearch = document.getElementById('memberSearch');
+    if (memberSearch) {
+        memberSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#memberTrackingTable .member-row');
+            
+            rows.forEach(row => {
+                const memberName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const department = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                
+                if (memberName.includes(searchTerm) || department.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+
+// Export follow-up list
+function exportFollowUpList() {
+    const table = document.getElementById('followUpTable');
+    if (!table) return;
+    
+    let csv = 'Member Name,Department,Phone,Attendance Rate,Sessions Missed,Last Attendance\n';
+    
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const memberName = cells[0].textContent.trim();
+        const department = cells[1].textContent.trim();
+        const phone = cells[2].textContent.replace(/[^\d\s\+\-\(\)]/g, '').trim();
+        const attendanceRate = cells[3].textContent.trim();
+        const sessionsMissed = cells[4].textContent.trim();
+        const lastAttendance = cells[5].textContent.trim();
+        
+        csv += `"${memberName}","${department}","${phone}","${attendanceRate}","${sessionsMissed}","${lastAttendance}"\n`;
+    });
+    
+    // Create and download CSV
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'follow_up_list_' + new Date().toISOString().split('T')[0] + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+// Mark member for follow-up
+function markForFollowUp(memberId) {
+    if (confirm('Mark this member for follow-up? This will add them to your follow-up list.')) {
+        // In a real implementation, this would make an AJAX call to save the follow-up status
+        console.log('Marking member ' + memberId + ' for follow-up');
+        
+        // Visual feedback
+        const button = event.target.closest('button');
+        button.innerHTML = '<i class="bi bi-bookmark-check"></i>';
+        button.className = 'btn btn-success';
+        button.disabled = true;
+        
+        // Show success message
+        showToast('Member marked for follow-up!', 'success');
+    }
+}
+
+// Show toast notification
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 3000);
+}
+
+// Enhanced export functionality
+function exportMemberTracking() {
+    const table = document.getElementById('memberTrackingTable');
+    if (!table) return;
+    
+    let csv = 'Rank,Member Name,Department,Phone,Attendance Rate,Present,Absent,Total Sessions,Last Seen\n';
+    
+    const visibleRows = Array.from(table.querySelectorAll('tbody .member-row'))
+        .filter(row => row.style.display !== 'none');
+    
+    visibleRows.forEach((row, index) => {
+        const cells = row.querySelectorAll('td');
+        const rank = index + 1;
+        const memberName = cells[1].querySelector('.fw-semibold').textContent.trim();
+        const phone = cells[1].querySelector('small') ? 
+            cells[1].querySelector('small').textContent.replace(/[^\d\s\+\-\(\)]/g, '').trim() : '';
+        const department = cells[2].textContent.trim();
+        const attendanceRate = cells[3].querySelector('span').textContent.trim();
+        const present = cells[4].textContent.trim();
+        const absent = cells[5].textContent.trim();
+        const totalSessions = cells[6].textContent.trim();
+        const lastSeen = cells[7].textContent.replace(/\n/g, ' ').trim();
+        
+        csv += `"${rank}","${memberName}","${department}","${phone}","${attendanceRate}","${present}","${absent}","${totalSessions}","${lastSeen}"\n`;
+    });
+    
+    // Create and download CSV
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'member_tracking_' + new Date().toISOString().split('T')[0] + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
 // Chart.js Configuration
-Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-Chart.defaults.color = '#6c757d';
+Chart.defaults.font.family = 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+Chart.defaults.color = '#6b7280';
+
+// Prepare data from PHP
+const trendsData = <?php echo json_encode($trends_data); ?>;
+const demographics = <?php echo json_encode($demographics); ?>;
+
+// Process trends data for chart
+const last7Days = [];
+const attendanceByDay = {};
+
+// Get last 7 days
+for (let i = 6; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split('T')[0];
+    last7Days.push(dateStr);
+    attendanceByDay[dateStr] = 0;
+}
+
+// Fill in actual attendance data
+trendsData.forEach(item => {
+    if (attendanceByDay.hasOwnProperty(item.date)) {
+        attendanceByDay[item.date] += parseInt(item.present_count);
+    }
+});
+
+const chartData = last7Days.map(date => attendanceByDay[date]);
+const chartLabels = last7Days.map(date => {
+    return new Date(date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+});
 
 // Attendance Trends Chart
 const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
 new Chart(attendanceCtx, {
     type: 'line',
     data: {
-        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8', 'Week 9', 'Week 10', 'Week 11', 'Week 12'],
+        labels: chartLabels,
         datasets: [{
-            label: 'Total Attendance',
-            data: [234, 267, 189, 298, 312, 278, 295, 334, 298, 356, 389, 412],
+            label: 'Attendance',
+            data: chartData,
             borderColor: '#0d6efd',
             backgroundColor: 'rgba(13, 110, 253, 0.1)',
             borderWidth: 3,
             fill: true,
-            tension: 0.4
-        }, {
-            label: 'Sunday Service',
-            data: [156, 189, 134, 198, 212, 178, 195, 234, 198, 256, 289, 312],
-            borderColor: '#198754',
-            backgroundColor: 'rgba(25, 135, 84, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.4
-        }, {
-            label: 'Midweek Service',
-            data: [78, 78, 55, 100, 100, 100, 100, 100, 100, 100, 100, 100],
-            borderColor: '#ffc107',
-            backgroundColor: 'rgba(255, 193, 7, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.4
+            tension: 0.4,
+            pointBackgroundColor: '#0d6efd',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8
         }]
     },
     options: {
@@ -998,39 +1243,59 @@ new Chart(attendanceCtx, {
         maintainAspectRatio: false,
         plugins: {
             legend: {
-                position: 'top'
+                display: false
             },
             tooltip: {
-                mode: 'index',
-                intersect: false
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                borderColor: '#0d6efd',
+                borderWidth: 1,
+                cornerRadius: 8,
+                displayColors: false
             }
         },
         scales: {
             y: {
                 beginAtZero: true,
                 grid: {
-                    color: 'rgba(0,0,0,0.1)'
+                    color: 'rgba(0, 0, 0, 0.1)',
+                    drawBorder: false
+                },
+                ticks: {
+                    font: {
+                        size: 12
+                    },
+                    color: '#6b7280'
                 }
             },
             x: {
                 grid: {
-                    display: false
+                    display: false,
+                    drawBorder: false
+                },
+                ticks: {
+                    font: {
+                        size: 12
+                    },
+                    color: '#6b7280'
                 }
             }
         }
     }
 });
 
-// Service Distribution Chart
-const serviceCtx = document.getElementById('serviceChart').getContext('2d');
-new Chart(serviceCtx, {
+// Demographics Chart
+const demographicsCtx = document.getElementById('demographicsChart').getContext('2d');
+new Chart(demographicsCtx, {
     type: 'doughnut',
     data: {
-        labels: ['Sunday Service', 'Midweek Service', 'Special Events', 'Youth Service'],
+        labels: ['Male', 'Female'],
         datasets: [{
-            data: [45, 25, 20, 10],
-            backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545'],
-            borderWidth: 0
+            data: [demographics.male_count, demographics.female_count],
+            backgroundColor: ['#0d6efd', '#198754'],
+            borderWidth: 0,
+            cutout: '65%'
         }]
     },
     options: {
@@ -1041,101 +1306,22 @@ new Chart(serviceCtx, {
                 position: 'bottom',
                 labels: {
                     padding: 20,
-                    usePointStyle: true
-                }
-            }
-        }
-    }
-});
-
-// Member Engagement Timeline Chart
-const engagementCtx = document.getElementById('engagementChart').getContext('2d');
-new Chart(engagementCtx, {
-    type: 'bar',
-    data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        datasets: [{
-            label: 'Highly Engaged',
-            data: [120, 125, 130, 135, 140, 145, 150, 152, 154, 155, 156, 158],
-            backgroundColor: '#0d6efd'
-        }, {
-            label: 'Regular',
-            data: [75, 78, 80, 82, 85, 87, 89, 90, 88, 89, 89, 91],
-            backgroundColor: '#198754'
-        }, {
-            label: 'At Risk',
-            data: [45, 42, 40, 38, 36, 35, 34, 33, 34, 34, 34, 33],
-            backgroundColor: '#ffc107'
-        }, {
-            label: 'Inactive',
-            data: [20, 18, 16, 15, 14, 13, 12, 12, 11, 12, 12, 11],
-            backgroundColor: '#dc3545'
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'top'
-            }
-        },
-        scales: {
-            x: {
-                stacked: true,
-                grid: {
-                    display: false
+                    usePointStyle: true,
+                    font: {
+                        size: 12
+                    }
                 }
             },
-            y: {
-                stacked: true,
-                beginAtZero: true,
-                grid: {
-                    color: 'rgba(0,0,0,0.1)'
-                }
-            }
-        }
-    }
-});
-
-// Service Performance Chart
-const performanceCtx = document.getElementById('performanceChart').getContext('2d');
-new Chart(performanceCtx, {
-    type: 'radar',
-    data: {
-        labels: ['Attendance Rate', 'Member Retention', 'New Converts', 'Visitor Return', 'Engagement Level', 'Growth Rate'],
-        datasets: [{
-            label: 'Current Quarter',
-            data: [85, 92, 78, 65, 88, 82],
-            borderColor: '#0d6efd',
-            backgroundColor: 'rgba(13, 110, 253, 0.2)',
-            borderWidth: 2
-        }, {
-            label: 'Previous Quarter',
-            data: [78, 88, 72, 68, 85, 75],
-            borderColor: '#198754',
-            backgroundColor: 'rgba(25, 135, 84, 0.1)',
-            borderWidth: 2
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'top'
-            }
-        },
-        scales: {
-            r: {
-                beginAtZero: true,
-                max: 100,
-                grid: {
-                    color: 'rgba(0,0,0,0.1)'
-                },
-                pointLabels: {
-                    font: {
-                        size: 11
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                cornerRadius: 8,
+                callbacks: {
+                    label: function(context) {
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((context.raw / total) * 100).toFixed(1);
+                        return context.label + ': ' + context.raw + ' (' + percentage + '%)';
                     }
                 }
             }
@@ -1143,325 +1329,51 @@ new Chart(performanceCtx, {
     }
 });
 
-// Add smooth scrolling for better navigation
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
+// Export functionality
+function exportData(format) {
+    const startDate = document.querySelector('input[name="start_date"]').value;
+    const endDate = document.querySelector('input[name="end_date"]').value;
+    const department = document.querySelector('select[name="department_filter"]').value;
+    const service = document.querySelector('select[name="service_filter"]').value;
+    
+    // Create download URL
+    let url = 'export.php?format=' + format;
+    url += '&start_date=' + encodeURIComponent(startDate);
+    url += '&end_date=' + encodeURIComponent(endDate);
+    if (department) url += '&department_filter=' + encodeURIComponent(department);
+    if (service) url += '&service_filter=' + encodeURIComponent(service);
+    
+    // Trigger download
+    window.location.href = url;
+}
+
+// Auto-refresh functionality
+let refreshInterval;
+
+function startAutoRefresh() {
+    refreshInterval = setInterval(() => {
+        // In a real implementation, this would use AJAX to update data
+        console.log('Auto-refreshing report data...');
+    }, 300000); // 5 minutes
+}
+
+// Initialize auto-refresh
+startAutoRefresh();
+
+// Print optimization
+window.addEventListener('beforeprint', function() {
+    // Hide interactive elements when printing
+    document.querySelectorAll('.btn, .dropdown, .form-control').forEach(el => {
+        el.style.display = 'none';
     });
 });
 
-// Initialize tooltips
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl);
-});
-
-// Auto-refresh data every 5 minutes
-setInterval(function() {
-    // This would typically make an AJAX call to refresh data
-    console.log('Auto-refreshing dashboard data...');
-}, 300000);
-
-// Print functionality
-function printReport() {
-    window.print();
-}
-
-// Export functionality (placeholder)
-function exportReport(format) {
-    alert('Export to ' + format.toUpperCase() + ' functionality would be implemented here.');
-}
-</script>
-
-<script>
-// Print functionality
-function printReport() {
-    window.print();
-}
-
-// Auto-dismiss alerts
-document.addEventListener('DOMContentLoaded', function() {
-    // Set default date range to current month if not set
-    const startDate = document.querySelector('input[name="start_date"]');
-    const endDate = document.querySelector('input[name="end_date"]');
-    
-    if (!startDate.value) {
-        startDate.value = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
-    }
-    
-    if (!endDate.value) {
-        endDate.value = new Date().toISOString().split('T')[0];
-    }
-});
-
-// Chart animations and interactions
-document.addEventListener('DOMContentLoaded', function() {
-    // Animate progress bars
-    const progressBars = document.querySelectorAll('.progress-bar');
-    progressBars.forEach(bar => {
-        const width = bar.style.width;
-        bar.style.width = '0%';
-        setTimeout(() => {
-            bar.style.width = width;
-            bar.style.transition = 'width 1s ease-in-out';
-        }, 100);
+window.addEventListener('afterprint', function() {
+    // Restore interactive elements after printing
+    document.querySelectorAll('.btn, .dropdown, .form-control').forEach(el => {
+        el.style.display = '';
     });
 });
 </script>
-
-<style>
-@media print {
-    .btn, .dropdown, button {
-        display: none !important;
-    }
-    
-    .card {
-        border: 1px solid #dee2e6 !important;
-        box-shadow: none !important;
-    }
-}
-
-.demographics-stats .stat-item {
-    padding: 1rem;
-    background: rgba(0, 0, 50, 0.02);
-    border-radius: 0.5rem;
-    border-left: 4px solid var(--bs-primary);
-}
-
-.progress-bar {
-    transition: width 1s ease-in-out;
-}
-
-/* Enhanced Summary Report Styles */
-.summary-card {
-    background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%);
-    border: 1px solid #e0e0e0;
-    border-radius: 1rem;
-    padding: 1.5rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.summary-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #000032 0%, #1a1a5e 50%, #000032 100%);
-}
-
-.summary-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    gap: 1rem;
-}
-
-.summary-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: white;
-    flex-shrink: 0;
-}
-
-.members-gradient {
-    background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%);
-}
-
-.visitors-gradient {
-    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
-}
-
-.summary-stats {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.stat-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    background: white;
-    border-radius: 0.5rem;
-    border: 1px solid #e9ecef;
-    transition: all 0.3s ease;
-}
-
-.stat-row:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: #000032;
-}
-
-.stat-icon {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 50, 0.05);
-    flex-shrink: 0;
-}
-
-.stat-icon i {
-    font-size: 1.1rem;
-}
-
-.stat-content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.stat-label {
-    font-size: 0.9rem;
-    color: #6c757d;
-    font-weight: 500;
-}
-
-.stat-value {
-    font-size: 1.5rem;
-    font-weight: bold;
-    line-height: 1;
-}
-
-.stat-percentage {
-    font-size: 0.8rem;
-    color: #6c757d;
-    font-style: italic;
-}
-
-.stat-note {
-    font-size: 0.75rem;
-    color: #6c757d;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.gender-stats {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.gender-stats .badge {
-    font-size: 0.8rem;
-    padding: 0.5rem 0.75rem;
-}
-
-.insights-section {
-    background: linear-gradient(145deg, #f8f9fa 0%, #ffffff 100%);
-    border: 1px solid #e9ecef;
-    border-radius: 1rem;
-    padding: 1.5rem;
-    position: relative;
-}
-
-.insights-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #ffc107 0%, #fd7e14 50%, #dc3545 100%);
-    border-radius: 1rem 1rem 0 0;
-}
-
-.insight-item {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 249, 250, 0.9) 100%);
-    border-radius: 0.75rem;
-    padding: 1rem;
-    margin-bottom: 0.5rem;
-    border-left: 4px solid;
-    font-size: 0.9rem;
-    line-height: 1.4;
-}
-
-.insight-item.alert-success {
-    border-left-color: #198754;
-    background: linear-gradient(145deg, rgba(25, 135, 84, 0.1) 0%, rgba(25, 135, 84, 0.05) 100%);
-}
-
-.insight-item.alert-warning {
-    border-left-color: #ffc107;
-    background: linear-gradient(145deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
-}
-
-.insight-item.alert-danger {
-    border-left-color: #dc3545;
-    background: linear-gradient(145deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
-}
-
-.insight-item.alert-info {
-    border-left-color: #0dcaf0;
-    background: linear-gradient(145deg, rgba(13, 202, 240, 0.1) 0%, rgba(13, 202, 240, 0.05) 100%);
-}
-
-/* Report Header Enhancement */
-.card-header.bg-gradient {
-    background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%) !important;
-    border: none;
-    padding: 1.25rem 1.5rem;
-}
-
-/* Animation for summary cards */
-.summary-card {
-    animation: slideInUp 0.6s ease-out;
-}
-
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .summary-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.75rem;
-    }
-    
-    .stat-row {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-    }
-    
-    .stat-content {
-        align-items: center;
-    }
-    
-    .gender-stats {
-        justify-content: center;
-    }
-}
-</style>
 
 <?php include '../../includes/footer.php'; ?>

@@ -29,6 +29,7 @@ $department_filter = $_GET['department'] ?? '';
 $status_filter = $_GET['status'] ?? 'active';
 $baptism_filter = $_GET['baptism'] ?? '';
 $group_filter = $_GET['group'] ?? '';
+$gender_filter = $_GET['gender'] ?? '';
 
 // Build query filters
 $where_conditions = [];
@@ -39,9 +40,17 @@ if ($status_filter) {
     $params[] = $status_filter;
 }
 
+if ($gender_filter) {
+    $where_conditions[] = "(LOWER(m.gender) = LOWER(?) OR m.gender = ?)";
+    $gender_param = ucfirst(strtolower($gender_filter));
+    $params[] = $gender_filter; // Original case
+    $params[] = $gender_param; // Capitalized case
+}
+
 if ($search) {
-    $where_conditions[] = "(m.name LIKE ? OR m.email LIKE ? OR m.phone LIKE ?)";
+    $where_conditions[] = "(m.name LIKE ? OR m.email LIKE ? OR m.phone LIKE ? OR m.phone2 LIKE ?)";
     $search_param = "%$search%";
+    $params[] = $search_param;
     $params[] = $search_param;
     $params[] = $search_param;
     $params[] = $search_param;
@@ -182,32 +191,34 @@ include '../../includes/header.php';
 </style>
 
 <!-- Professional Members Dashboard -->
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
     <!-- Dashboard Header -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h1 class="text-primary mb-2 fw-bold">
-                        <i class="bi bi-people-fill"></i> Members Directory
-                    </h1>
-                    <div class="d-flex flex-wrap align-items-center gap-3">
-                        <span class="text-muted">Manage church members and their information</span>
-                        <span class="badge bg-light text-dark"><?php echo $stats['total']; ?> Total Members</span>
+    <div class="px-3 px-md-4 py-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-3 p-md-4">
+                <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between">
+                    <div class="mb-3 mb-md-0">
+                        <h1 class="text-primary mb-2 fw-bold">
+                            <i class="bi bi-people-fill"></i> Members Directory
+                        </h1>
+                        <div class="d-flex flex-wrap align-items-center gap-2 gap-md-3">
+                            <span class="text-muted">Manage church members and their information</span>
+                            <span class="badge bg-light text-dark"><?php echo $stats['total']; ?> Total Members</span>
+                        </div>
                     </div>
-                </div>
-                <div class="col-lg-4 text-end">
-                    <a href="add.php" class="btn btn-outline-primary me-2">
-                        <i class="bi bi-person-plus"></i> Add Member
-                    </a>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="bi bi-download"></i> Export
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-excel me-2"></i>Excel</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-pdf me-2"></i>PDF</a></li>
-                        </ul>
+                    <div class="d-flex flex-column flex-sm-row gap-2">
+                        <a href="add.php" class="btn btn-outline-primary">
+                            <i class="bi bi-person-plus"></i> Add Member
+                        </a>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="bi bi-download"></i> Export
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-file-excel me-2"></i>Excel</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-file-pdf me-2"></i>PDF</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -215,8 +226,9 @@ include '../../includes/header.php';
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row g-3 g-lg-4 mb-4">
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+    <div class="px-3 px-md-4 mb-4">
+        <div class="row g-2 g-md-3 g-lg-4">
+        <div class="col-6 col-md-3 mb-3 mb-md-0">
             <div class="card border-0 shadow-sm h-100 members-card">
                 <div class="card-body text-white p-4">
                     <div class="d-flex align-items-center justify-content-between">
@@ -300,14 +312,14 @@ include '../../includes/header.php';
                 <i class="bi bi-funnel"></i> Search & Filters
             </h5>
             <form method="GET" class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label fw-semibold">Search Members</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
                         <input type="text" name="search" class="form-control" placeholder="Name, email, or phone" value="<?php echo htmlspecialchars($search ?? ''); ?>">
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-1 col-sm-6">
                     <label class="form-label fw-semibold">Status</label>
                     <select name="status" class="form-select">
                         <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
@@ -315,7 +327,7 @@ include '../../includes/header.php';
                         <option value="" <?php echo $status_filter === '' ? 'selected' : ''; ?>>All</option>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 col-sm-6">
                     <label class="form-label fw-semibold">Department</label>
                     <select name="department" class="form-select">
                         <option value="">All Departments</option>
@@ -326,7 +338,15 @@ include '../../includes/header.php';
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-1 col-sm-6">
+                    <label class="form-label fw-semibold">Gender</label>
+                    <select name="gender" class="form-select">
+                        <option value="">All</option>
+                        <option value="male" <?php echo $gender_filter === 'male' ? 'selected' : ''; ?>>Male</option>
+                        <option value="female" <?php echo $gender_filter === 'female' ? 'selected' : ''; ?>>Female</option>
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-6">
                     <label class="form-label fw-semibold">Baptism</label>
                     <select name="baptism" class="form-select">
                         <option value="">All</option>
@@ -334,10 +354,13 @@ include '../../includes/header.php';
                         <option value="no" <?php echo $baptism_filter === 'no' ? 'selected' : ''; ?>>Not Baptized</option>
                     </select>
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill">
                         <i class="bi bi-search"></i> Filter
                     </button>
+                    <a href="?status=active" class="btn btn-outline-secondary flex-fill">
+                        <i class="bi bi-arrow-clockwise"></i> Reset
+                    </a>
                 </div>
             </form>
         </div>
@@ -413,6 +436,9 @@ include '../../includes/header.php';
                                             <small class="text-muted">
                                                 <i class="bi bi-telephone me-1"></i>
                                                 <?php echo htmlspecialchars($member['phone'] ?? ''); ?>
+                                                <?php if ($member['phone2'] ?? ''): ?>
+                                                    <br><i class="bi bi-telephone-plus me-1"></i><?php echo htmlspecialchars($member['phone2']); ?>
+                                                <?php endif; ?>
                                             </small>
                                         </div>
                                     </td>
@@ -444,27 +470,30 @@ include '../../includes/header.php';
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-center">
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="view.php?id=<?php echo $member['id']; ?>" class="btn btn-outline-primary" title="View Details">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <!-- View Button -->
+                                            <a href="view.php?id=<?php echo $member['id']; ?>" class="btn btn-outline-info btn-xs" title="View Details">
                                                 <i class="bi bi-eye"></i>
                                             </a>
-                                            <a href="edit.php?id=<?php echo $member['id']; ?>" class="btn btn-outline-secondary" title="Edit">
+                                            <!-- Edit Button -->
+                                            <a href="edit.php?id=<?php echo $member['id']; ?>" class="btn btn-outline-primary btn-xs" title="Edit Member">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <div class="btn-group btn-group-sm">
-                                                <button type="button" class="btn btn-outline-danger dropdown-toggle" data-bs-toggle="dropdown" title="More Actions">
-                                                    <i class="bi bi-three-dots"></i>
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                    <li><a class="dropdown-item" href="update_status.php?id=<?php echo $member['id']; ?>&action=toggle">
-                                                        <i class="bi bi-arrow-repeat me-2"></i>Toggle Status
-                                                    </a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item text-danger" href="#" onclick="confirmDelete(<?php echo $member['id']; ?>)">
-                                                        <i class="bi bi-trash me-2"></i>Delete
-                                                    </a></li>
-                                                </ul>
-                                            </div>
+                                            <!-- Disable/Enable Button -->
+                                            <a href="update_status.php?id=<?php echo $member['id']; ?>&action=toggle&return=list" 
+                                               class="btn btn-outline-<?php echo $member['status'] === 'active' ? 'warning' : 'success'; ?> btn-xs" 
+                                               title="<?php echo $member['status'] === 'active' ? 'Disable Member' : 'Enable Member'; ?>"
+                                               onclick="return confirm('Are you sure you want to <?php echo $member['status'] === 'active' ? 'disable' : 'enable'; ?> this member?')">
+                                                <i class="bi <?php echo $member['status'] === 'active' ? 'bi-pause-circle' : 'bi-play-circle'; ?>"></i>
+                                            </a>
+                                            <!-- Delete Button -->
+                                            <button type="button" class="btn btn-outline-danger btn-xs" 
+                                                    title="Delete Member" 
+                                                    onclick="confirmDelete(<?php echo $member['id']; ?>, '<?php echo htmlspecialchars($member['name']); ?>')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
                                         </div>
                                     </td>
                                 </tr>
@@ -501,9 +530,9 @@ include '../../includes/header.php';
 </div>
 
 <script>
-function confirmDelete(memberId) {
-    if (confirm('Are you sure you want to delete this member? This action cannot be undone.')) {
-        window.location.href = 'delete.php?id=' + memberId;
+function confirmDelete(memberId, memberName) {
+    if (confirm('Are you sure you want to delete "' + memberName + '"? This action cannot be undone and will permanently remove all member data including attendance records.')) {
+        window.location.href = 'delete.php?id=' + memberId + '&return=list';
     }
 }
 
@@ -539,6 +568,37 @@ document.addEventListener('DOMContentLoaded', function() {
 .btn-group-sm .btn {
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
+}
+
+/* Action buttons styling */
+.table th:last-child,
+.table td:last-child {
+    width: 180px;
+    min-width: 180px;
+}
+
+.btn-xs {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.75rem;
+    line-height: 1;
+}
+
+.btn-group-sm .btn {
+    border-radius: 0;
+}
+
+.btn-group-sm .btn:first-child {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.btn-group-sm .btn:last-child {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.btn-group .btn:hover {
+    z-index: 2;
 }
 </style>
 

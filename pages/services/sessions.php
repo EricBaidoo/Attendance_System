@@ -89,12 +89,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Session not found");
             }
             
-            // Get all active members who are not marked present for this session
+            // Get all active members who don't have ANY attendance record for this session
             $unmarked_sql = "SELECT m.id FROM members m 
                            WHERE m.status = 'active' 
                            AND m.id NOT IN (
                                SELECT member_id FROM attendance 
-                               WHERE session_id = ? AND status = 'present'
+                               WHERE session_id = ?
                            )";
             $unmarked_stmt = $pdo->prepare($unmarked_sql);
             $unmarked_stmt->execute([$session_id]);
@@ -141,10 +141,52 @@ $templates_sql = "SELECT id, name, description FROM services WHERE template_stat
 $templates_stmt = $pdo->query($templates_sql);
 $service_templates = $templates_stmt->fetchAll();
 
-// Get today's sessions with service details and attendance counts
-$sessions_sql = "SELECT ss.*, s.name as service_name, s.description,
-                 COUNT(DISTINCT CASE WHEN a.status = 'present' THEN a.member_id END) as present_count,
-                 COUNT(DISTINCT CASE WHEN a.status = 'absent' THEN a.member_id END) as absent_count,
+// Get all services for filter dropdown
+$all_services_sql = "SELECT id, name FROM services ORDER BY name";
+$all_services_stmt = $pdo->query($all_services_sql);
+$all_services = $all_services_stmt->fetchAll();
+
+// Handle filters
+$filter_service = $_GET['service_filter'] ?? '';
+$filter_date = $_GET['date_filter'] ?? '';
+$filter_month = $_GET['month_filter'] ?? '';
+
+// Build WHERE conditions based on filters
+$where_conditions = [];
+$params = [];
+
+// Date/Month filter logic - improved to show past sessions by default
+if (!empty($filter_month)) {
+    // Show specific month
+    $where_conditions[] = "DATE_FORMAT(ss.session_date, '%Y-%m') = ?";
+    $params[] = $filter_month;
+} elseif (!empty($filter_date)) {
+    // Show specific date
+    $where_conditions[] = "ss.session_date = ?";
+    $params[] = $filter_date;
+} else {
+    // Default: Show last 30 days of sessions
+    $where_conditions[] = "ss.session_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+}
+
+// Service filter
+if (!empty($filter_service)) {
+    $where_conditions[] = "ss.service_id = ?";
+    $params[] = $filter_service;
+}
+
+$base_where = implode(' AND ', $where_conditions);
+
+// Get today's ACTIVE sessions (always show today's active sessions)
+$active_sessions_sql = "SELECT ss.*, s.name as service_name, s.description,
+                 COUNT(DISTINCT CASE WHEN a.status = 'present' THEN a.member_id END) as member_present_count,
+                 COUNT(DISTINCT CASE WHEN a.status = 'absent' THEN a.member_id END) as member_absent_count,
+                 (
+                     SELECT COUNT(DISTINCT v.id) 
+                     FROM visitors v 
+                     WHERE v.service_id = ss.service_id 
+                     AND v.date = ss.session_date
+                 ) as visitor_count,
                  (SELECT COUNT(*) FROM members WHERE status = 'active') as total_members,
                  u1.username as opened_by_user,
                  u2.username as closed_by_user
@@ -153,12 +195,37 @@ $sessions_sql = "SELECT ss.*, s.name as service_name, s.description,
                  LEFT JOIN attendance a ON ss.id = a.session_id
                  LEFT JOIN users u1 ON ss.opened_by = u1.id
                  LEFT JOIN users u2 ON ss.closed_by = u2.id
-                 WHERE ss.session_date = ?
+                 WHERE ss.session_date = ? AND ss.status = 'open'
                  GROUP BY ss.id
                  ORDER BY ss.opened_at DESC";
-$sessions_stmt = $pdo->prepare($sessions_sql);
-$sessions_stmt->execute([$today]);
-$today_sessions = $sessions_stmt->fetchAll();
+$active_sessions_stmt = $pdo->prepare($active_sessions_sql);
+$active_sessions_stmt->execute([$today]);
+$active_sessions = $active_sessions_stmt->fetchAll();
+
+// Get PAST sessions with filters
+$past_sessions_sql = "SELECT ss.*, s.name as service_name, s.description,
+                 COUNT(DISTINCT CASE WHEN a.status = 'present' THEN a.member_id END) as member_present_count,
+                 COUNT(DISTINCT CASE WHEN a.status = 'absent' THEN a.member_id END) as member_absent_count,
+                 (
+                     SELECT COUNT(DISTINCT v.id) 
+                     FROM visitors v 
+                     WHERE v.service_id = ss.service_id 
+                     AND v.date = ss.session_date
+                 ) as visitor_count,
+                 (SELECT COUNT(*) FROM members WHERE status = 'active') as total_members,
+                 u1.username as opened_by_user,
+                 u2.username as closed_by_user
+                 FROM service_sessions ss
+                 JOIN services s ON ss.service_id = s.id
+                 LEFT JOIN attendance a ON ss.id = a.session_id
+                 LEFT JOIN users u1 ON ss.opened_by = u1.id
+                 LEFT JOIN users u2 ON ss.closed_by = u2.id
+                 WHERE $base_where AND ss.status = 'closed'
+                 GROUP BY ss.id
+                 ORDER BY ss.closed_at DESC";
+$past_sessions_stmt = $pdo->prepare($past_sessions_sql);
+$past_sessions_stmt->execute($params);
+$past_sessions = $past_sessions_stmt->fetchAll();
 
 // Get sessions statistics
 $stats_sql = "SELECT 
@@ -273,6 +340,18 @@ include '../../includes/header.php';
 .bi-stars::before { content: "\F5CB"; }
 .bi-calendar-plus::before { content: "\F1E8"; }
 .bi-play-fill::before { content: "\F4DF"; }
+.bi-funnel::before { content: "\F2FB"; }
+.bi-arrow-clockwise::before { content: "\F13E"; }
+
+/* Fallback for filter buttons if icons don't load */
+.btn .bi-funnel:empty::before {
+    content: "🔽";
+    font-family: system-ui;
+}
+.btn .bi-arrow-clockwise:empty::before {
+    content: "↻";
+    font-family: system-ui;
+}
 </style>
 
 <!-- Professional Sessions Dashboard -->
@@ -283,14 +362,20 @@ include '../../includes/header.php';
             <div class="row align-items-center">
                 <div class="col-lg-8">
                     <h1 class="text-primary mb-2 fw-bold">
-                        <i class="bi bi-calendar-day"></i> Today's Service Sessions
+                        <i class="bi bi-calendar-day"></i> Service Sessions Dashboard
                     </h1>
                     <div class="d-flex flex-wrap align-items-center gap-3">
-                        <span class="text-muted">Manage active service sessions for <strong class="text-dark"><?php echo date('l, F j, Y'); ?></strong></span>
-                        <span class="badge bg-light text-dark"><?php echo count($today_sessions); ?> Sessions Today</span>
+                        <span class="text-muted">Active sessions for <strong class="text-dark"><?php echo date('l, F j, Y'); ?></strong></span>
+                        <?php if (!empty($filter_service) || !empty($filter_month) || $filter_date != $today): ?>
+                            <span class="badge bg-info text-white">Past Sessions Filtered</span>
+                        <?php endif; ?>
+                        <span class="badge bg-light text-dark"><?php echo count($active_sessions); ?> Active, <?php echo count($past_sessions); ?> Past</span>
                     </div>
                 </div>
                 <div class="col-lg-4 text-end">
+                    <a href="#past-sessions" class="btn btn-outline-secondary me-2" onclick="document.getElementById('past-sessions').scrollIntoView({behavior: 'smooth'});">
+                        <i class="bi bi-clock-fill"></i> Past Sessions
+                    </a>
                     <a href="list.php" class="btn btn-outline-primary me-2">
                         <i class="bi bi-list"></i> All Services
                     </a>
@@ -406,24 +491,26 @@ include '../../includes/header.php';
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
             <h3 class="text-primary mb-4 fw-bold">
-                <i class="bi bi-clock-history"></i> Active Sessions
+                <i class="bi bi-clock-history"></i> Active Sessions - Today
             </h3>
 
-            <?php if (empty($today_sessions)): ?>
+            <?php if (empty($active_sessions)): ?>
                 <div class="text-center py-5">
-                    <i class="bi bi-calendar-plus text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
-                    <h4 class="text-muted mt-3 mb-2">No Sessions Today</h4>
-                    <p class="text-muted mb-4">No service sessions have been started for today yet.</p>
+                    <i class="bi bi-calendar-plus text-muted empty-state-icon"></i>
+                    <h4 class="text-muted mt-3 mb-2">No Active Sessions</h4>
+                    <p class="text-muted mb-4">No service sessions are currently active today.</p>
                     <a href="#start-session" class="btn btn-primary" onclick="document.getElementById('start-session').scrollIntoView();">
-                        <i class="bi bi-plus"></i> Start First Session
+                        <i class="bi bi-plus"></i> Start New Session
                     </a>
                 </div>
             <?php else: ?>
                 <div class="row g-4">
-                    <?php foreach ($today_sessions as $session): ?>
+                    <?php foreach ($active_sessions as $session): ?>
                         <?php
+                        // Calculate total attendance including visitors
+                        $total_attendance = $session['member_present_count'] + $session['visitor_count'];
                         $attendance_percentage = $session['total_members'] > 0 
-                            ? round(($session['present_count'] / $session['total_members']) * 100) 
+                            ? round(($session['member_present_count'] / $session['total_members']) * 100) 
                             : 0;
                         
                         $status_color = $session['status'] === 'open' ? 'success' : 'secondary';
@@ -470,21 +557,27 @@ include '../../includes/header.php';
                                                 <!-- Attendance Statistics -->
                                                 <div class="text-center">
                                                     <div class="row g-2 mb-3">
-                                                        <div class="col-4">
-                                                            <div class="p-3 bg-success bg-opacity-10 rounded-3">
-                                                                <div class="fw-bold text-success fs-4"><?php echo $session['present_count']; ?></div>
-                                                                <small class="text-muted">Present</small>
+                                                        <div class="col-3">
+                                                            <div class="p-2 bg-success bg-opacity-10 rounded-3">
+                                                                <div class="fw-bold text-success fs-5"><?php echo $session['member_present_count']; ?></div>
+                                                                <small class="text-muted">Members</small>
                                                             </div>
                                                         </div>
-                                                        <div class="col-4">
-                                                            <div class="p-3 bg-danger bg-opacity-10 rounded-3">
-                                                                <div class="fw-bold text-danger fs-4"><?php echo $session['absent_count']; ?></div>
-                                                                <small class="text-muted">Absent</small>
+                                                        <div class="col-3">
+                                                            <div class="p-2 bg-info bg-opacity-10 rounded-3">
+                                                                <div class="fw-bold text-info fs-5"><?php echo $session['visitor_count']; ?></div>
+                                                                <small class="text-muted">Visitors</small>
                                                             </div>
                                                         </div>
-                                                        <div class="col-4">
-                                                            <div class="p-3 bg-primary bg-opacity-10 rounded-3">
-                                                                <div class="fw-bold text-primary fs-4"><?php echo $attendance_percentage; ?>%</div>
+                                                        <div class="col-3">
+                                                            <div class="p-2 bg-primary bg-opacity-10 rounded-3">
+                                                                <div class="fw-bold text-primary fs-5"><?php echo $total_attendance; ?></div>
+                                                                <small class="text-muted">Total</small>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            <div class="p-2 bg-warning bg-opacity-10 rounded-3">
+                                                                <div class="fw-bold text-warning fs-5"><?php echo $attendance_percentage; ?>%</div>
                                                                 <small class="text-muted">Rate</small>
                                                             </div>
                                                         </div>
@@ -492,7 +585,7 @@ include '../../includes/header.php';
                                                     
                                                     <a href="../attendance/view.php?session_id=<?php echo $session['id']; ?>" 
                                                        class="btn btn-primary btn-sm w-100">
-                                                        <i class="bi bi-eye"></i> View Detailed Report
+                                                        <i class="bi bi-eye"></i> Comprehensive Report
                                                     </a>
                                                 </div>
                                             <?php else: ?>
@@ -502,11 +595,11 @@ include '../../includes/header.php';
                                                         <i class="bi bi-broadcast"></i> <strong>LIVE SESSION</strong>
                                                     </div>
                                                     <div class="attendance-summary p-3 bg-light rounded-3 mb-3">
-                                                        <div class="fw-bold fs-3 text-primary"><?php echo $session['present_count']; ?> / <?php echo $session['total_members']; ?></div>
+                                                        <div class="fw-bold fs-3 text-primary"><?php echo $session['member_present_count']; ?> / <?php echo $session['total_members']; ?></div>
                                                         <small class="text-muted">Members Present</small>
                                                     </div>
                                                     
-                                                    <div class="d-flex gap-2">
+                                                    <div class="d-flex gap-2 mb-2">
                                                         <a href="../attendance/mark.php?session_id=<?php echo $session['id']; ?>" 
                                                            class="btn btn-success btn-sm flex-fill">
                                                             <i class="bi bi-check-square"></i> Mark
@@ -519,6 +612,10 @@ include '../../includes/header.php';
                                                             </button>
                                                         </form>
                                                     </div>
+                                                    <a href="../attendance/attendees.php?session_id=<?php echo $session['id']; ?>" 
+                                                       class="btn btn-info btn-sm w-100">
+                                                        <i class="bi bi-people"></i> View Attendee List
+                                                    </a>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
@@ -527,6 +624,109 @@ include '../../includes/header.php';
                             </div>
                         </div>
                     <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Past Sessions Section (Completed Today) -->
+    <div id="past-sessions" class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <!-- Past Sessions Filter -->
+            <div class="row align-items-center mb-4">
+                <div class="col-md-6">
+                    <h3 class="text-secondary mb-0 fw-bold">
+                        <i class="bi bi-clock-fill"></i> Past Sessions
+                        <?php if (!empty($filter_month)): ?>
+                            <small class="text-muted"> - <?php echo date('F Y', strtotime($filter_month . '-01')); ?></small>
+                        <?php elseif (!empty($filter_date)): ?>
+                            <small class="text-muted"> - <?php echo date('M j, Y', strtotime($filter_date)); ?></small>
+                        <?php else: ?>
+                            <small class="text-muted"> - Last 30 Days</small>
+                        <?php endif; ?>
+                    </h3>
+                </div>
+                <div class="col-md-6">
+                    <form method="GET" class="d-flex gap-2 align-items-end justify-content-md-end">
+                        <div class="flex-fill" style="max-width: 200px;">
+                            <select name="service_filter" class="form-select form-select-sm">
+                                <option value="">All Services</option>
+                                <?php foreach ($all_services as $service): ?>
+                                    <option value="<?php echo $service['id']; ?>" 
+                                            <?php echo ($filter_service == $service['id']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($service['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="flex-fill" style="max-width: 150px;">
+                            <input type="date" name="date_filter" class="form-control form-control-sm" 
+                                   value="<?php echo $filter_date; ?>" placeholder="Specific Date">
+                        </div>
+                        <div class="flex-fill" style="max-width: 150px;">
+                            <input type="month" name="month_filter" class="form-control form-control-sm" 
+                                   value="<?php echo $filter_month; ?>" placeholder="Month">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm px-3">
+                            <i class="bi bi-funnel me-1"></i> Filter
+                        </button>
+                        <a href="sessions.php" class="btn btn-outline-secondary btn-sm px-3">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Reset
+                        </a>
+                    </form>
+                </div>
+            </div>
+
+            <?php if (empty($past_sessions)): ?>
+                <div class="text-center py-4">
+                    <i class="bi bi-calendar-check text-muted fs-1"></i>
+                    <h5 class="text-muted mt-3 mb-2">No Completed Sessions</h5>
+                    <p class="text-muted">
+                        <?php if (!empty($filter_month)): ?>
+                            No sessions were completed in <?php echo date('F Y', strtotime($filter_month . '-01')); ?>.
+                        <?php elseif (!empty($filter_date)): ?>
+                            No sessions were completed on <?php echo date('M j, Y', strtotime($filter_date)); ?>.
+                        <?php else: ?>
+                            No sessions have been completed in the last 30 days.
+                        <?php endif; ?>
+                    </p>
+                </div>
+            <?php else: ?>
+                <div class="past-sessions-container" style="max-height: 500px; overflow-y: auto;">
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($past_sessions as $session): ?>
+                        <div class="list-group-item border-0 border-start border-4 border-secondary p-3 mb-2 rounded">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="bi bi-check-circle-fill text-secondary fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1 fw-bold text-dark"><?php echo htmlspecialchars($session['service_name']); ?></h5>
+                                        <p class="text-muted mb-0 small">
+                                            <i class="bi bi-clock me-1"></i>
+                                            <?php echo date('g:i A', strtotime($session['opened_at'])); ?>
+                                            <?php if ($session['closed_at']): ?>
+                                                - <?php echo date('g:i A', strtotime($session['closed_at'])); ?>
+                                            <?php endif; ?>
+                                            <?php if ($session['closed_by_user']): ?>
+                                                <span class="mx-2">•</span>
+                                                <i class="bi bi-person me-1"></i>
+                                                Closed by <?php echo htmlspecialchars($session['closed_by_user']); ?>
+                                            <?php endif; ?>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <a href="../attendance/view.php?session_id=<?php echo $session['id']; ?>" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-eye me-1"></i> View Report
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                    </div>
                 </div>
             <?php endif; ?>
         </div>
@@ -541,7 +741,7 @@ include '../../includes/header.php';
             
             <?php if (empty($service_templates)): ?>
                 <div class="text-center py-5">
-                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 4rem; opacity: 0.7;"></i>
+                    <i class="bi bi-exclamation-triangle text-warning warning-state-icon"></i>
                     <h4 class="text-muted mt-3 mb-2">No Service Templates</h4>
                     <p class="text-muted mb-4">Please create some services first before opening sessions.</p>
                     <a href="list.php" class="btn btn-primary">
@@ -579,9 +779,9 @@ include '../../includes/header.php';
                     }
                     ?>
                     <div class="col-lg-4 col-md-6">
-                        <div class="card border-0 shadow-sm h-100" style="transition: transform 0.3s ease;">
+                        <div class="card border-0 shadow-sm h-100 card-hover">
                             <div class="card-body p-4 text-center">
-                                <div class="template-icon mx-auto mb-3" style="width: 4rem; height: 4rem; background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%); border-radius: 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                                <div class="template-icon mx-auto mb-3">
                                     <i class="bi bi-<?php echo $service_icon; ?>"></i>
                                 </div>
                                 <h5 class="text-primary fw-bold mb-3"><?php echo htmlspecialchars($template['name']); ?></h5>
@@ -605,5 +805,32 @@ include '../../includes/header.php';
         </div>
     </div>
 </div>
+
+<script>
+// Filter form enhancements
+document.addEventListener('DOMContentLoaded', function() {
+    const dateFilter = document.getElementById('date_filter');
+    const monthFilter = document.getElementById('month_filter');
+    
+    // Clear month filter when date is selected
+    dateFilter.addEventListener('change', function() {
+        if (this.value) {
+            monthFilter.value = '';
+        }
+    });
+    
+    // Clear date filter when month is selected
+    monthFilter.addEventListener('change', function() {
+        if (this.value) {
+            dateFilter.value = '';
+        }
+    });
+    
+    // Auto-submit on filter change for better UX
+    document.getElementById('service_filter').addEventListener('change', function() {
+        this.form.submit();
+    });
+});
+</script>
 
 <?php include '../../includes/footer.php'; ?>

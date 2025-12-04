@@ -11,10 +11,20 @@ body {
     margin: 0;
     padding-left: 0;
     padding-right: 0;
+    width: 100%;
 }
 
 html {
     overflow-x: hidden;
+    width: 100%;
+}
+
+/* Container full width */
+.container-fluid {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 
 /* Navbar styling */
@@ -115,6 +125,11 @@ html {
         border-radius: 0.5rem;
         border: 0.0625rem solid rgba(255, 255, 255, 0.2);
         box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.3);
+        width: 100% !important;
+    }
+    
+    .navbar-nav {
+        width: 100% !important;
     }
     
     .navbar-nav .nav-link {
@@ -123,6 +138,8 @@ html {
         font-size: 1rem;
         background-color: rgba(255, 255, 255, 0.05);
         border: 0.0625rem solid rgba(255, 255, 255, 0.1);
+        width: 100% !important;
+        text-align: left !important;
     }
     
     .navbar-nav .nav-link:hover {
@@ -137,7 +154,17 @@ html {
     
     .navbar {
         min-height: 3.75rem;
-        padding: 0.5rem;
+        padding: 0.5rem 1rem !important;
+    }
+    
+    .navbar-brand {
+        font-size: 1.2rem !important;
+    }
+    
+    .navbar-logo {
+        height: 2rem !important;
+    }
+}
     }
     
     .navbar-brand {

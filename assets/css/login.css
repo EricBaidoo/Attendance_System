@@ -1,5 +1,21 @@
 /* Professional Login Page Design */
 
+/* Login Card Styles */
+.login-card {
+    max-width: 1200px; 
+    width: 100%;
+    height: auto;
+}
+
+/* Ensure proper flex layout on all screens */
+.login-card .row {
+    height: auto;
+}
+
+.login-card .col-lg-6 {
+    height: auto;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;

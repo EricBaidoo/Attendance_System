@@ -15,7 +15,7 @@ if ($is_hosted) {
     $host = 'localhost';
     $db   = 'attendance_system';
     $user = 'root';
-    $pass = 'root';
+    $pass = 'root'; // Your XAMPP has root password set
 }
 
 $charset = 'utf8mb4';

@@ -1,0 +1,14 @@
+{
+  "development": {
+    "host": "localhost",
+    "database": "attendance_system",
+    "username": "root",
+    "password": "root"
+  },
+  "production": {
+    "host": "localhost",
+    "database": "u145148023_attendance",
+    "username": "u145148023_Bmi_admin",
+    "password": "Bmi@2025_#"
+  }
+}

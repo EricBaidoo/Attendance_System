@@ -41,27 +41,8 @@ if ($levels_up == 0) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="<?php echo $relative_path; ?>assets/css/header.css" rel="stylesheet">
-    
-    <!-- Bootstrap Icons Fallback and Fixes -->
-    <style>
-    @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css');
-    
-    .bi {
-        font-family: "bootstrap-icons" !important;
-        font-style: normal;
-        font-variant: normal;
-        text-rendering: auto;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
-    
-    /* Ensure icons display properly */
-    .bi::before {
-        font-family: "bootstrap-icons" !important;
-        font-weight: normal !important;
-        font-style: normal !important;
-    }
-    </style>
+    <link href="<?php echo $relative_path; ?>assets/css/mobile-responsive.css" rel="stylesheet">
+    <link href="<?php echo $relative_path; ?>assets/css/icons.css" rel="stylesheet">
 
 </head>
 <body>

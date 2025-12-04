@@ -1597,3 +1597,58 @@ html {
         flex-direction: column;
     }
 }
+
+/* Past Sessions Scrollable Container */
+.past-sessions-container {
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.5rem;
+}
+
+/* Custom Scrollbar for Past Sessions */
+.past-sessions-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.past-sessions-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin: 4px 0;
+}
+
+.past-sessions-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+    border-radius: 10px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease;
+}
+
+.past-sessions-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(145deg, #2563eb, #1e40af);
+}
+
+.past-sessions-container::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(145deg, #1d4ed8, #1e3a8a);
+}
+
+/* Firefox scrollbar support */
+.past-sessions-container {
+    scrollbar-width: thin;
+    scrollbar-color: #3b82f6 rgba(255, 255, 255, 0.1);
+}
+
+/* Enhanced session items within scrollable container */
+.past-sessions-container .list-group-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.past-sessions-container .list-group-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(2px);
+}

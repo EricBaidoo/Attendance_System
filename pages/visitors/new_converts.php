@@ -305,7 +305,7 @@ include '../../includes/header.php';
 
             <?php if (empty($converts)): ?>
                 <div class="text-center py-5">
-                    <i class="bi bi-heart text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
+                    <i class="bi bi-heart text-muted empty-state-icon"></i>
                     <h4 class="text-muted mt-3 mb-2">No Converts Found</h4>
                     <p class="text-muted mb-4">No new converts match your search criteria.</p>
                     <a href="../visitors/list.php" class="btn btn-primary">

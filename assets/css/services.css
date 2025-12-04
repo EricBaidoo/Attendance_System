@@ -1,5 +1,33 @@
 /* assets/css/services.css */
 
+/* Template Icons */
+.template-icon {
+    width: 4rem; 
+    height: 4rem; 
+    background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%); 
+    border-radius: 1rem; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    color: white; 
+    font-size: 1.5rem;
+}
+
+/* Card Hover Effects */
+.card-hover {
+    transition: transform 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+}
+
+/* Warning State Icons */
+.warning-state-icon {
+    font-size: 4rem; 
+    opacity: 0.7;
+}
+
 /* Service metadata styling */
 .service-metadata {
     color: #64748b;

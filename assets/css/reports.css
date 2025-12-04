@@ -1,8 +1,31 @@
 /* Reports Page Styles */
 
 /* Progress bar styling */
+.progress.thick {
+    height: 20px;
+}
+
+.progress.thin {
+    height: 8px;
+}
+
 .progress-bar-custom {
     height: 8px;
+}
+
+/* Empty State Icons */
+.empty-state-icon {
+    font-size: 4rem; 
+    opacity: 0.5;
+}
+
+/* Report Header Gradients */
+.bg-gradient-header {
+    background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%);
+}
+
+.alert-info-gradient {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
 }
 
 .reports-container {

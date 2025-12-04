@@ -270,7 +270,7 @@ include '../../includes/header.php';
                     <?php foreach ($sessions as $session): ?>
                         <div class="col-lg-4 col-md-6">
                             <div class="card h-100 session-card <?php echo ($selected_session_id == $session['id']) ? 'border-primary' : 'border-secondary'; ?> border-2" 
-                                 style="cursor: pointer;" onclick="selectSession(<?php echo $session['id']; ?>)">
+                                 class="session-card" onclick="selectSession(<?php echo $session['id']; ?>)">
                                 <div class="card-body text-center p-4">
                                     <div class="feature-icon bg-gradient-primary text-white rounded-3 mx-auto mb-3">
                                         <i class="bi bi-calendar-event fs-3"></i>
@@ -372,7 +372,7 @@ include '../../includes/header.php';
                         <div class="card-body p-4">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="member-avatar rounded-circle bg-gradient-primary text-white d-flex align-items-center justify-content-center me-3" 
-                                     style="width: 50px; height: 50px; font-weight: bold;">
+                                     class="member-card">
                                     <?php echo $initials; ?>
                                 </div>
                                 <div class="flex-grow-1">
@@ -415,10 +415,10 @@ include '../../includes/header.php';
         <div class="card-body p-4">
             <div class="row align-items-center">
                 <div class="col-md-8">
-                    <div class="progress" style="height: 20px;">
+                    <div class="progress thick">
                         <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
                              id="progressBar" 
-                             style="width: <?php echo $attendance_summary['percentage']; ?>%">
+                             class="progress-bar bg-primary" style="width: <?php echo $attendance_summary['percentage']; ?>%">
                             <span class="fw-bold"><?php echo $attendance_summary['percentage']; ?>%</span>
                         </div>
                     </div>
@@ -438,7 +438,7 @@ include '../../includes/header.php';
     <?php if (!$selected_session || empty($members)): ?>
     <!-- No Active Session State -->
     <div class="text-center py-5">
-        <div class="feature-icon bg-gradient-secondary text-white rounded-3 mx-auto mb-4" style="width: 100px; height: 100px;">
+        <div class="feature-icon large bg-gradient-secondary text-white rounded-3 mx-auto mb-4">
             <i class="bi bi-calendar-x display-4"></i>
         </div>
         <h3 class="text-muted mb-3">No Active Sessions</h3>
