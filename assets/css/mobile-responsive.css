@@ -123,6 +123,33 @@
     .g-4 {
         gap: 1rem !important;
     }
+    
+    /* Consistent card grid layout */
+    .col-6.col-md-3 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+    
+    /* Enhanced card styling for mobile */
+    .card-body {
+        padding: 1rem !important;
+    }
+    
+    .card-icon .fs-1 {
+        font-size: 1.5rem !important;
+    }
+    
+    .card h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    .card h6 {
+        font-size: 0.9rem !important;
+    }
+    
+    .card small {
+        font-size: 0.75rem !important;
+    }
 }
 
 /* Small mobile devices */
@@ -148,6 +175,35 @@
     }
     
     h3, .h3 {
+        font-size: 1.1rem !important;
+    }
+    
+    /* Enhanced small mobile card styling */
+    .col-6.col-md-3 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem !important;
+    }
+    
+    .card h2 {
+        font-size: 1.25rem !important;
+    }
+    
+    .card h6 {
+        font-size: 0.8rem !important;
+    }
+    
+    .card small {
+        font-size: 0.7rem !important;
+    }
+    
+    .card-icon .fs-1 {
+        font-size: 1.25rem !important;
+    }
+}
         font-size: 1.1rem !important;
     }
     

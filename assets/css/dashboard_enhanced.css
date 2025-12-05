@@ -31,8 +31,29 @@ body {
     .fs-3 {
         font-size: 1.2rem !important;
     }
+    .fs-1 {
+        font-size: 1.5rem !important;
+    }
     .btn-lg {
         padding: 0.75rem 1rem !important;
+    }
+    
+    /* Consistent card grid layout */
+    .col-6.col-md-3 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+    
+    .card h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    .card h6 {
+        font-size: 0.9rem !important;
+    }
+    
+    .card small {
+        font-size: 0.75rem !important;
     }
 }
 
@@ -47,6 +68,27 @@ body {
     h3, .h3 {
         font-size: 1.2rem !important;
     }
+    
+    .card-body {
+        padding: 0.75rem !important;
+    }
+    
+    .card h2 {
+        font-size: 1.25rem !important;
+    }
+    
+    .card h6 {
+        font-size: 0.8rem !important;
+    }
+    
+    .card small {
+        font-size: 0.7rem !important;
+    }
+    
+    .fs-1 {
+        font-size: 1.25rem !important;
+    }
+    
     .badge {
         font-size: 0.7rem !important;
     }

@@ -188,6 +188,78 @@ include '../../includes/header.php';
 .bi-trash::before { content: "\f5a2"; }
 .bi-file-excel::before { content: "\f438"; }
 .bi-file-pdf::before { content: "\f43c"; }
+
+/* Enhanced card styling to match index page */
+.card-icon {
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.text-white-75 {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* Enhanced card hover effects to match dashboard */
+.members-card:hover,
+.visitors-card:hover,
+.converts-card:hover,
+.departments-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+}
+
+.members-card:hover .card-icon,
+.visitors-card:hover .card-icon,
+.converts-card:hover .card-icon,
+.departments-card:hover .card-icon {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Mobile responsiveness improvements */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem !important;
+    }
+    
+    .fs-1 {
+        font-size: 1.5rem !important;
+    }
+    
+    .fs-2 {
+        font-size: 1.25rem !important;
+    }
+    
+    h6 {
+        font-size: 0.9rem !important;
+    }
+    
+    h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    small {
+        font-size: 0.75rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-body {
+        padding: 0.75rem !important;
+    }
+    
+    h2 {
+        font-size: 1.25rem !important;
+    }
+    
+    .fs-1 {
+        font-size: 1.25rem !important;
+    }
+    
+    h6 {
+        font-size: 0.8rem !important;
+    }
+}
 </style>
 
 <!-- Professional Members Dashboard -->
@@ -229,80 +301,86 @@ include '../../includes/header.php';
     <div class="px-3 px-md-4 mb-4">
         <div class="row g-2 g-md-3 g-lg-4">
         <div class="col-6 col-md-3 mb-3 mb-md-0">
-            <div class="card border-0 shadow-sm h-100 members-card">
-                <div class="card-body text-white p-4">
-                    <div class="d-flex align-items-center justify-content-between">
+            <div class="card border-0 shadow-lg h-100 members-card">
+                <div class="card-body text-white position-relative">
+                    <div class="card-pattern"></div>
+                    <div class="d-flex align-items-center justify-content-between position-relative">
                         <div>
-                            <h6 class="text-white-50 mb-2 fw-semibold">Total Members</h6>
+                            <h6 class="text-white-75 mb-2 fw-semibold">Total Members</h6>
                             <h2 class="text-white mb-2 fw-bold"><?php echo $stats['total']; ?></h2>
-                            <small class="text-white-50">
-                                <i class="bi bi-people"></i> Active congregation
+                            <small class="text-white-75">
+                                <i class="bi bi-people me-1"></i> Active congregation
                             </small>
                         </div>
-                        <div class="rounded p-3">
-                            <i class="bi bi-people-fill text-white fs-2"></i>
+                        <div class="card-icon">
+                            <i class="bi bi-people-fill text-white fs-1"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
-            <div class="card border-0 shadow-sm h-100 visitors-card">
-                <div class="card-body text-white p-4">
-                    <div class="d-flex align-items-center justify-content-between">
+        <div class="col-6 col-md-3 mb-3 mb-md-0">
+            <div class="card border-0 shadow-lg h-100 visitors-card">
+                <div class="card-body text-white position-relative">
+                    <div class="card-pattern"></div>
+                    <div class="d-flex align-items-center justify-content-between position-relative">
                         <div>
-                            <h6 class="text-white-50 mb-2 fw-semibold">Baptized</h6>
+                            <h6 class="text-white-75 mb-2 fw-semibold">Baptized</h6>
                             <h2 class="text-white mb-2 fw-bold"><?php echo $stats['baptized']; ?></h2>
-                            <small class="text-white-50">
-                                <i class="bi bi-droplet"></i> <?php echo $stats['total'] > 0 ? round(($stats['baptized']/$stats['total'])*100) : 0; ?>% of members
+                            <small class="text-white-75">
+                                <i class="bi bi-droplet me-1"></i> <?php echo $stats['total'] > 0 ? round(($stats['baptized']/$stats['total'])*100) : 0; ?>% of members
                             </small>
                         </div>
-                        <div class="rounded p-3">
-                            <i class="bi bi-droplet-fill text-white fs-2"></i>
+                        <div class="card-icon">
+                            <i class="bi bi-droplet-fill text-white fs-1"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
-            <div class="card border-0 shadow-sm h-100 converts-card">
-                <div class="card-body text-white p-4">
-                    <div class="d-flex align-items-center justify-content-between">
+        <div class="col-6 col-md-3 mb-3 mb-md-0">
+            <div class="card border-0 shadow-lg h-100 converts-card">
+                <div class="card-body text-white position-relative">
+                    <div class="card-pattern"></div>
+                    <div class="d-flex align-items-center justify-content-between position-relative">
                         <div>
-                            <h6 class="text-white-50 mb-2 fw-semibold">Male Members</h6>
+                            <h6 class="text-white-75 mb-2 fw-semibold">Male Members</h6>
                             <h2 class="text-white mb-2 fw-bold"><?php echo $stats['male']; ?></h2>
-                            <small class="text-white-50">
-                                <i class="bi bi-person"></i> <?php echo $stats['total'] > 0 ? round(($stats['male']/$stats['total'])*100) : 0; ?>% of congregation
+                            <small class="text-white-75">
+                                <i class="bi bi-person me-1"></i> <?php echo $stats['total'] > 0 ? round(($stats['male']/$stats['total'])*100) : 0; ?>% of congregation
                             </small>
                         </div>
-                        <div class="rounded p-3">
-                            <i class="bi bi-person-fill text-white fs-2"></i>
+                        <div class="card-icon">
+                            <i class="bi bi-person-fill text-white fs-1"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
-            <div class="card border-0 shadow-sm h-100 departments-card">
-                <div class="card-body text-white p-4">
-                    <div class="d-flex align-items-center justify-content-between">
+        <div class="col-6 col-md-3 mb-3 mb-md-0">
+            <div class="card border-0 shadow-lg h-100 departments-card">
+                <div class="card-body text-white position-relative">
+                    <div class="card-pattern"></div>
+                    <div class="d-flex align-items-center justify-content-between position-relative">
                         <div>
-                            <h6 class="text-white-50 mb-2 fw-semibold">Female Members</h6>
+                            <h6 class="text-white-75 mb-2 fw-semibold">Female Members</h6>
                             <h2 class="text-white mb-2 fw-bold"><?php echo $stats['female']; ?></h2>
-                            <small class="text-white-50">
-                                <i class="bi bi-person-dress"></i> <?php echo $stats['total'] > 0 ? round(($stats['female']/$stats['total'])*100) : 0; ?>% of congregation
+                            <small class="text-white-75">
+                                <i class="bi bi-person-dress me-1"></i> <?php echo $stats['total'] > 0 ? round(($stats['female']/$stats['total'])*100) : 0; ?>% of congregation
                             </small>
                         </div>
-                        <div class="rounded p-3">
-                            <i class="bi bi-person-dress text-white fs-2"></i>
+                        <div class="card-icon">
+                            <i class="bi bi-person-dress text-white fs-1"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
     </div>
 
     <!-- Filters and Search -->

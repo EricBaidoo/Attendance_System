@@ -180,7 +180,7 @@ include 'includes/header.php';
     </div>
 
     <!-- Visitors Card -->
-    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+    <div class="col-6 col-md-3 mb-3 mb-md-0">
         <div class="card border-0 shadow-lg h-100 enhanced-visitors-card">
             <div class="card-body text-white position-relative">
                 <div class="card-pattern"></div>
@@ -206,7 +206,7 @@ include 'includes/header.php';
     </div>
 
     <!-- Male Members Card -->
-    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+    <div class="col-6 col-md-3 mb-3 mb-md-0">
         <div class="card border-0 shadow-lg h-100 enhanced-converts-card">
             <div class="card-body text-white position-relative">
                 <div class="card-pattern"></div>
@@ -232,7 +232,7 @@ include 'includes/header.php';
     </div>
 
     <!-- Female Members Card -->
-    <div class="col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+    <div class="col-6 col-md-3 mb-3 mb-md-0">
         <div class="card border-0 shadow-lg h-100 enhanced-services-card">
             <div class="card-body text-white position-relative">
                 <div class="card-pattern"></div>
