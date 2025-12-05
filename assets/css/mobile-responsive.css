@@ -150,6 +150,29 @@
     .card small {
         font-size: 0.75rem !important;
     }
+    
+    /* Action tiles responsive styling */
+    .action-tile .p-4 {
+        padding: 1rem !important;
+    }
+    
+    .action-tile h6 {
+        font-size: 0.9rem !important;
+    }
+    
+    .action-tile small {
+        font-size: 0.75rem !important;
+    }
+    
+    .action-icon .fs-4 {
+        font-size: 1.25rem !important;
+    }
+    
+    /* Consistent grid layout for action tiles */
+    .col-6.col-md-6.col-lg-3 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
 }
 
 /* Small mobile devices */
@@ -202,6 +225,31 @@
     
     .card-icon .fs-1 {
         font-size: 1.25rem !important;
+    }
+    
+    /* Action tiles small mobile styling */
+    .action-tile .p-4 {
+        padding: 0.75rem !important;
+    }
+    
+    .action-tile h6 {
+        font-size: 0.8rem !important;
+    }
+    
+    .action-tile small {
+        font-size: 0.7rem !important;
+        line-height: 1.2;
+    }
+    
+    .action-icon .fs-4 {
+        font-size: 1rem !important;
+    }
+    
+    /* Consistent grid layout for action tiles on small screens */
+    .col-6.col-md-6.col-lg-3 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        margin-bottom: 0.75rem !important;
     }
 }
         font-size: 1.1rem !important;

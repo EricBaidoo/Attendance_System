@@ -121,6 +121,29 @@ include 'includes/header.php';
     small {
         font-size: 0.75rem !important;
     }
+    
+    /* Action tiles mobile responsiveness */
+    .action-tile .p-4 {
+        padding: 0.75rem !important;
+    }
+    
+    .action-tile h6 {
+        font-size: 0.9rem !important;
+    }
+    
+    .action-tile small {
+        font-size: 0.7rem !important;
+    }
+    
+    .action-icon .fs-4 {
+        font-size: 1rem !important;
+    }
+    
+    /* Ensure consistent grid for action tiles */
+    .col-6.col-md-6.col-lg-3 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
 }
 </style>
 
@@ -302,7 +325,7 @@ include 'includes/header.php';
             </div>
             <!-- Secondary Actions Grid -->
             <div class="row g-2 g-md-3">
-                <div class="col-6 col-lg-3">
+                <div class="col-6 col-md-6 col-lg-3">
                 <a href="pages/checkin/index.php" class="action-tile text-decoration-none">
                     <div class="p-4 rounded-3 h-100 d-flex align-items-center hover-lift" style="background: linear-gradient(135deg, #9333ea 0%, #a855f7 100%); color: white; box-shadow: 0 8px 25px rgba(147, 51, 234, 0.25);">
                         <div class="action-icon me-3">
@@ -315,7 +338,7 @@ include 'includes/header.php';
                     </div>
                 </a>
             </div>
-            <div class="col-lg-3 col-md-6">
+            <div class="col-6 col-md-6 col-lg-3">
                 <a href="pages/services/list.php" class="action-tile text-decoration-none">
                     <div class="p-4 rounded-3 h-100 d-flex align-items-center hover-lift" style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); color: white; box-shadow: 0 8px 25px rgba(8, 145, 178, 0.25);">
                         <div class="action-icon me-3">
@@ -328,7 +351,7 @@ include 'includes/header.php';
                     </div>
                 </a>
             </div>
-            <div class="col-lg-3 col-md-6">
+            <div class="col-6 col-md-6 col-lg-3">
                 <a href="pages/attendance/attendance.php" class="action-tile text-decoration-none">
                     <div class="p-4 rounded-3 h-100 d-flex align-items-center hover-lift" style="background: linear-gradient(135deg, #e11d48 0%, #f43f5e 100%); color: white; box-shadow: 0 8px 25px rgba(225, 29, 72, 0.25);">
                         <div class="action-icon me-3">
@@ -341,7 +364,7 @@ include 'includes/header.php';
                     </div>
                 </a>
             </div>
-            <div class="col-lg-3 col-md-6">
+            <div class="col-6 col-md-6 col-lg-3">
                 <a href="pages/reports/report.php" class="action-tile text-decoration-none">
                     <div class="p-4 rounded-3 h-100 d-flex align-items-center hover-lift" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; box-shadow: 0 8px 25px rgba(5, 150, 105, 0.25);">
                         <div class="action-icon me-3">
