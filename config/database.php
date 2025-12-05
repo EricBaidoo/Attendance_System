@@ -2,7 +2,10 @@
 // config/database.php
 
 // Detect if we're on hosting server or local development
-$is_hosted = !($_SERVER['HTTP_HOST'] === 'localhost' || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false);
+$is_hosted = !(
+    (isset($_SERVER['HTTP_HOST']) && ($_SERVER['HTTP_HOST'] === 'localhost' || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false)) ||
+    !isset($_SERVER['HTTP_HOST']) // Command line execution
+);
 
 if ($is_hosted) {
     // HOSTING ENVIRONMENT - Your hosting database credentials
