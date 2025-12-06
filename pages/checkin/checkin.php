@@ -47,14 +47,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['find_person'])) {
             $member_sql = "SELECT m.*, d.name as department_name 
                           FROM members m 
                           LEFT JOIN departments d ON m.department_id = d.id 
-                          WHERE (
+                          WHERE m.status = 'active'
+                          AND (
+                              m.name LIKE ? OR
                               m.phone LIKE ? OR 
                               REPLACE(REPLACE(REPLACE(REPLACE(m.phone, '(', ''), ')', ''), '-', ''), ' ', '') LIKE ? OR
                               m.phone2 LIKE ? OR 
-                              REPLACE(REPLACE(REPLACE(REPLACE(m.phone2, '(', ''), ')', ''), '-', ''), ' ', '') LIKE ? OR
-                              m.name LIKE ?
+                              REPLACE(REPLACE(REPLACE(REPLACE(m.phone2, '(', ''), ')', ''), '-', ''), ' ', '') LIKE ?
                           )
-                          AND m.status = 'active'
+                          ORDER BY 
+                              CASE 
+                                  WHEN m.name = ? THEN 1
+                                  WHEN m.name LIKE ? THEN 2
+                                  ELSE 3
+                              END
                           LIMIT 1";
             
             $search_clean = preg_replace('/[^0-9]/', '', $search_term);
@@ -63,9 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['find_person'])) {
             
             $member_stmt = $pdo->prepare($member_sql);
             $member_stmt->execute([
-                $search_like, $search_clean_like,
-                $search_like, $search_clean_like,
-                $search_like
+                $search_like,           // name LIKE
+                $search_like,           // phone LIKE
+                $search_clean_like,     // phone cleaned LIKE
+                $search_like,           // phone2 LIKE
+                $search_clean_like,     // phone2 cleaned LIKE
+                $search_term,           // exact name match for ORDER BY
+                $search_like            // partial name match for ORDER BY
             ]);
             $member_data = $member_stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -141,6 +151,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
         
         if (empty($member_id) || empty($service_id)) {
             $error = "Please select a service to complete check-in.";
+            
+            // Reload member data to display on the form
+            if ($member_id) {
+                try {
+                    $member_sql = "SELECT m.*, d.name as department_name 
+                                  FROM members m 
+                                  LEFT JOIN departments d ON m.department_id = d.id 
+                                  WHERE m.id = ?";
+                    $member_stmt = $pdo->prepare($member_sql);
+                    $member_stmt->execute([$member_id]);
+                    $member_data = $member_stmt->fetch(PDO::FETCH_ASSOC);
+                } catch (Exception $e) {
+                    // Ignore reload errors
+                }
+            }
         } else {
             try {
                 $pdo->beginTransaction();
@@ -153,14 +178,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                 
                 if (!$session_id) {
                     $error = "Selected service session is no longer available.";
+                    
+                    // Reload member data
+                    try {
+                        $member_sql = "SELECT m.*, d.name as department_name 
+                                      FROM members m 
+                                      LEFT JOIN departments d ON m.department_id = d.id 
+                                      WHERE m.id = ?";
+                        $member_stmt = $pdo->prepare($member_sql);
+                        $member_stmt->execute([$member_id]);
+                        $member_data = $member_stmt->fetch(PDO::FETCH_ASSOC);
+                    } catch (Exception $e) {
+                        // Ignore reload errors
+                    }
                 } else {
-                    // Check if already checked in
-                    $check_sql = "SELECT id FROM attendance WHERE member_id = ? AND service_id = ? AND DATE(date) = CURDATE()";
+                    // Check if already checked in for this specific session
+                    $check_sql = "SELECT id FROM attendance WHERE member_id = ? AND session_id = ? AND DATE(date) = CURDATE()";
                     $check_stmt = $pdo->prepare($check_sql);
-                    $check_stmt->execute([$member_id, $service_id]);
+                    $check_stmt->execute([$member_id, $session_id]);
                     
                     if ($check_stmt->fetchColumn()) {
                         $error = "You have already checked in for this service today.";
+                        
+                        // Reload member data
+                        try {
+                            $member_sql = "SELECT m.*, d.name as department_name 
+                                          FROM members m 
+                                          LEFT JOIN departments d ON m.department_id = d.id 
+                                          WHERE m.id = ?";
+                            $member_stmt = $pdo->prepare($member_sql);
+                            $member_stmt->execute([$member_id]);
+                            $member_data = $member_stmt->fetch(PDO::FETCH_ASSOC);
+                        } catch (Exception $e) {
+                            // Ignore reload errors
+                        }
                     } else {
                         // Record attendance
                         $attendance_sql = "INSERT INTO attendance (member_id, service_id, session_id, date, status, method) 
@@ -185,6 +236,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
             } catch (Exception $e) {
                 $pdo->rollBack();
                 $error = "Error recording attendance: " . $e->getMessage();
+                
+                // Reload member data to display on the form
+                if ($member_id) {
+                    try {
+                        $member_sql = "SELECT m.*, d.name as department_name 
+                                      FROM members m 
+                                      LEFT JOIN departments d ON m.department_id = d.id 
+                                      WHERE m.id = ?";
+                        $member_stmt = $pdo->prepare($member_sql);
+                        $member_stmt->execute([$member_id]);
+                        $member_data = $member_stmt->fetch(PDO::FETCH_ASSOC);
+                    } catch (Exception $inner_e) {
+                        // Ignore reload errors
+                    }
+                }
             }
         }
     } elseif ($person_type === 'visitor') {
@@ -198,13 +264,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
             try {
                 $pdo->beginTransaction();
                 
-                // Check if already checked in today
-                $check_sql = "SELECT id FROM visitors WHERE (name = ? OR phone = ?) AND DATE(date) = CURDATE()";
+                // Check if already checked in for this specific service today
+                $check_sql = "SELECT id FROM visitors WHERE (name = ? OR phone = ?) AND service_id = ? AND DATE(date) = CURDATE()";
                 $check_stmt = $pdo->prepare($check_sql);
-                $check_stmt->execute([$name, $phone]);
+                $check_stmt->execute([$name, $phone, $service_id]);
                 
                 if ($check_stmt->fetchColumn()) {
-                    $error = "You have already checked in today. Welcome back!";
+                    $error = "You have already checked in for this service today. Welcome back!";
                 } else {
                     // Record visitor
                     $visitor_sql = "INSERT INTO visitors (name, phone, location, service_id, date, first_time, follow_up_needed, status, created_at) 
@@ -270,10 +336,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
     <style>
         body {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-height: 100vh;
+            height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            overflow-x: hidden;
+            overflow: hidden;
             position: relative;
+            margin: 0;
+            padding: 0;
         }
 
         body::before {
@@ -292,13 +360,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
         }
 
         .checkin-container {
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
+            padding: 0;
             position: relative;
             z-index: 2;
+            overflow: hidden;
         }
 
         .checkin-card {
@@ -307,16 +376,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
             border-radius: 20px;
             box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
-            max-width: 520px;
-            width: 100%;
+            max-width: 480px;
+            width: 90%;
+            max-height: 95vh;
             overflow: hidden;
-            margin: 1rem;
+            margin: 0;
         }
 
         .checkin-header {
             background: linear-gradient(135deg, #000032 0%, #1a1a5e 100%);
             color: white;
-            padding: 2.5rem 2rem 2rem;
+            padding: 1.5rem 1.5rem 1.25rem;
             text-align: center;
             position: relative;
         }
@@ -337,56 +407,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
         }
 
         .checkin-logo {
-            width: 64px;
-            height: 64px;
+            width: 48px;
+            height: 48px;
             background: rgba(255, 255, 255, 0.15);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1.5rem;
+            margin: 0 auto 1rem;
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .checkin-body {
-            padding: 2.5rem;
+            padding: 1.5rem;
             background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
         }
 
         .page-title {
-            font-size: 1.75rem;
+            font-size: 1.35rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
             letter-spacing: -0.025em;
         }
 
         .page-subtitle {
-            font-size: 1rem;
+            font-size: 0.9rem;
             opacity: 0.9;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.15rem;
             font-weight: 500;
         }
 
         .page-description {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             opacity: 0.75;
             font-weight: 400;
         }
 
         .search-section {
-            margin-bottom: 2.5rem;
+            margin-bottom: 1.5rem;
         }
 
         .search-input-group {
             position: relative;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0;
         }
 
         .search-input {
             border: 2px solid #e9ecef;
-            border-radius: 16px;
-            padding: 1.125rem 130px 1.125rem 1.5rem;
-            font-size: 1.1rem;
+            border-radius: 14px;
+            padding: 0.9rem 120px 0.9rem 1.25rem;
+            font-size: 1rem;
             font-weight: 500;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
@@ -403,16 +473,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
 
         .search-btn {
             position: absolute;
-            right: 6px;
+            right: 5px;
             top: 50%;
             transform: translateY(-50%);
             border: none;
             background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
             color: white;
-            border-radius: 12px;
-            padding: 0.875rem 1.5rem;
+            border-radius: 10px;
+            padding: 0.75rem 1.25rem;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
             box-shadow: 0 2px 8px rgba(13, 110, 253, 0.25);
         }
@@ -424,11 +494,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
         }
 
         .search-hint {
-            text-align: center;
-            padding: 0.75rem;
-            background: rgba(13, 110, 253, 0.05);
-            border-radius: 12px;
-            border: 1px solid rgba(13, 110, 253, 0.1);
+            display: none;
         }
 
         .autocomplete-suggestions {
@@ -469,66 +535,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
         .member-found {
             background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
             border: 2px solid #28a745;
-            border-radius: 18px;
-            padding: 2rem;
-            margin-bottom: 2rem;
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 0;
             box-shadow: 0 8px 32px rgba(40, 167, 69, 0.15);
         }
 
         .visitor-found {
             background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
             border: 2px solid #ffc107;
-            border-radius: 18px;
-            padding: 2rem;
-            margin-bottom: 2rem;
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 0;
             box-shadow: 0 8px 32px rgba(255, 193, 7, 0.15);
         }
 
         .visitor-form {
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
             border: 2px solid #2196f3;
-            border-radius: 18px;
-            padding: 2rem;
-            margin-bottom: 2rem;
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 0;
             box-shadow: 0 8px 32px rgba(33, 150, 243, 0.15);
         }
 
         .form-floating {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .form-floating .form-control {
-            border-radius: 14px;
+            border-radius: 12px;
             border: 2px solid #e9ecef;
-            padding: 1rem;
-            height: 58px;
+            padding: 0.875rem;
+            height: 52px;
             font-weight: 500;
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
             background: #ffffff;
         }
 
         .form-floating .form-control:focus {
             border-color: #0d6efd;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
             transform: translateY(-1px);
             outline: none;
         }
 
         .form-floating label {
-            padding: 1rem;
+            padding: 0.875rem;
             font-weight: 600;
             color: #6c757d;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         .service-select {
-            border-radius: 14px;
+            border-radius: 12px;
             border: 2px solid #e9ecef;
-            padding: 1rem;
-            font-size: 1rem;
+            padding: 0.875rem;
+            font-size: 0.95rem;
             font-weight: 500;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             background: #ffffff;
             transition: all 0.3s ease;
             width: 100%;
@@ -536,23 +602,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
 
         .service-select:focus {
             border-color: #0d6efd;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
             outline: none;
         }
 
         .form-label {
             font-weight: 600;
             color: #495057;
-            margin-bottom: 0.75rem;
-            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
         }
 
         .checkin-btn {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             border: none;
-            border-radius: 14px;
-            padding: 1.125rem 2rem;
-            font-size: 1.1rem;
+            border-radius: 12px;
+            padding: 0.95rem 1.5rem;
+            font-size: 1rem;
             font-weight: 600;
             color: white;
             width: 100%;
@@ -568,9 +634,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
 
         .alert-custom {
             border: none;
-            border-radius: 12px;
-            padding: 1rem;
+            border-radius: 10px;
+            padding: 0.75rem;
             margin-bottom: 1rem;
+            font-size: 0.9rem;
         }
 
         .success-message {
@@ -586,16 +653,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
         }
 
         .visitor-icon {
-            width: 56px;
-            height: 56px;
+            width: 42px;
+            height: 42px;
             background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1.5rem;
+            margin: 0 auto 1rem;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             box-shadow: 0 4px 16px rgba(33, 150, 243, 0.25);
         }
 
@@ -619,63 +686,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
             align-items: center;
             font-weight: 700;
             color: #2196f3;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.375rem;
             border-bottom: 2px solid rgba(33, 150, 243, 0.1);
+            font-size: 0.95rem;
         }
 
         .visitor-info-form {
             background: rgba(255, 255, 255, 0.7);
-            border-radius: 16px;
-            padding: 1.5rem;
+            border-radius: 14px;
+            padding: 1rem;
             border: 1px solid rgba(33, 150, 243, 0.1);
         }
 
         .form-actions {
             background: rgba(33, 150, 243, 0.05);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-top: 1rem;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 0.75rem;
         }
 
         .service-selection {
             background: rgba(255, 255, 255, 0.8);
-            border-radius: 12px;
-            padding: 1rem;
+            border-radius: 10px;
+            padding: 0.875rem;
             border: 1px solid rgba(33, 150, 243, 0.1);
         }
 
         .member-icon {
-            width: 56px;
-            height: 56px;
+            width: 42px;
+            height: 42px;
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             box-shadow: 0 4px 16px rgba(40, 167, 69, 0.25);
         }
 
         .member-checkin-form {
             background: rgba(255, 255, 255, 0.7);
-            border-radius: 16px;
-            padding: 1.5rem;
+            border-radius: 14px;
+            padding: 1rem;
             border: 1px solid rgba(40, 167, 69, 0.1);
         }
 
         .service-selection-member {
             background: rgba(255, 255, 255, 0.8);
-            border-radius: 12px;
-            padding: 1rem;
+            border-radius: 10px;
+            padding: 0.875rem;
             border: 1px solid rgba(40, 167, 69, 0.1);
         }
 
         .visitor-checkin-form {
             background: rgba(255, 255, 255, 0.7);
-            border-radius: 16px;
-            padding: 1.5rem;
+            border-radius: 14px;
+            padding: 1rem;
             border: 1px solid rgba(255, 193, 7, 0.1);
         }
 
@@ -871,15 +939,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                     <!-- Member Found -->
                     <?php if ($member_data): ?>
                     <div class="member-found">
-                        <div class="text-center mb-4">
-                            <div class="d-flex align-items-center justify-content-center mb-3">
-                                <div class="member-icon me-3">
+                        <div class="text-center mb-2">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <div class="member-icon me-2">
                                     <i class="bi bi-person-check-fill"></i>
                                 </div>
                                 <div class="text-start">
-                                    <h5 class="mb-1 text-success fw-bold">Welcome back!</h5>
-                                    <h6 class="mb-1 text-dark"><?php echo htmlspecialchars($member_data['name']); ?></h6>
-                                    <small class="text-muted">
+                                    <h6 class="mb-0 text-success fw-bold" style="font-size: 0.9rem;">Welcome back!</h6>
+                                    <div class="fw-bold" style="font-size: 1.05rem;"><?php echo htmlspecialchars($member_data['name']); ?></div>
+                                    <small class="text-muted" style="font-size: 0.8rem;">
                                         <i class="bi bi-building me-1"></i>
                                         <?php echo htmlspecialchars($member_data['department_name'] ?? 'Member'); ?>
                                     </small>
@@ -891,14 +959,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                             <input type="hidden" name="member_id" value="<?php echo $member_data['id']; ?>">
                             <input type="hidden" name="person_type" value="member">
                             
-                            <fieldset class="mb-4">
-                                <legend class="section-title h6 text-success mb-3">
+                            <fieldset class="mb-2">
+                                <legend class="section-title text-success mb-2" style="font-size: 0.9rem;">
                                     <i class="bi bi-calendar-event me-2"></i>Service Selection
                                 </legend>
                                 
                                 <div class="service-selection-member">
-                                    <label class="form-label fw-medium">
-                                        <i class="bi bi-clock me-2"></i>Select today's service *
+                                    <label class="form-label fw-medium" style="font-size: 0.85rem;">
+                                        <i class="bi bi-clock me-1"></i>Select today's service *
                                     </label>
                                     <select class="form-select service-select" name="service_id" required>
                                         <option value="">Choose a service to attend</option>
