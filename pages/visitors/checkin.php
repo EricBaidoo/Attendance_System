@@ -6,6 +6,16 @@ ini_set('display_errors', 1);
 $message = '';
 $error = '';
 
+// Display success messages from redirect
+if (isset($_GET['success'])) {
+    $visitor_name = $_GET['name'] ?? 'Guest';
+    if ($_GET['success'] === 'returning') {
+        $message = "👋 Welcome back, " . htmlspecialchars($visitor_name) . "! Thank you for visiting us again today.";
+    } else if ($_GET['success'] === 'new') {
+        $message = "🎉 Welcome to our church, " . htmlspecialchars($visitor_name) . "! We're so excited you're here. Someone from our team will follow up with you soon.";
+    }
+}
+
 // Database connection
 try {
     require '../../config/database.php';
@@ -124,21 +134,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin_visitor'])) {
                                      how_heard, invited_by, follow_up_needed, status, created_at) 
                                      VALUES (?, ?, ?, ?, CURDATE(), 'no', ?, ?, 'no', 'contacted', NOW())";
                     $pdo->prepare($new_visit_sql)->execute([$name, $phone, $email, $service_id, $how_heard, $invited_by]);
-                    
-                    $message = "👋 Welcome back, " . htmlspecialchars($name) . "! Thank you for visiting us again today.";
                 } else {
                     // Create new first-time visitor
                     $insert_sql = "INSERT INTO visitors (name, phone, email, service_id, date, first_time, how_heard, invited_by,
                                   follow_up_needed, status, created_at) 
                                   VALUES (?, ?, ?, ?, CURDATE(), ?, ?, ?, 'yes', 'pending', NOW())";
                     $pdo->prepare($insert_sql)->execute([$name, $phone, $email, $service_id, $is_first_time, $how_heard, $invited_by]);
-                    
-                    $message = "🎉 Welcome to our church, " . htmlspecialchars($name) . "! We're so excited you're here. Someone from our team will follow up with you soon.";
                 }
                 
                 $pdo->commit();
-                // Clear form data
-                $_POST = [];
+                
+                // PRG Pattern: Redirect to prevent form resubmission
+                $message_type = $existing_visitor ? 'returning' : 'new';
+                header('Location: checkin.php?success=' . $message_type . '&name=' . urlencode($name));
+                exit;
             }
             
         } catch (Exception $e) {

@@ -12,6 +12,13 @@ if (!isset($_SESSION['user_id'])) {
 $success = '';
 $error = '';
 
+// Display success message from redirect
+if (isset($_GET['success']) && $_GET['success'] === 'created') {
+    $count = $_GET['count'] ?? 0;
+    $service_name = $_GET['name'] ?? 'services';
+    $success = "Created {$count} " . htmlspecialchars($service_name) . " services!";
+}
+
 // Handle quick service creation from templates
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_from_template'])) {
     $template = $_POST['template'];
@@ -73,7 +80,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_from_template'
                 }
                 
                 $pdo->commit();
-                $success = "Created {$created_count} {$tmpl['name']} services!";
+                
+                // PRG Pattern: Redirect to prevent form resubmission
+                header('Location: templates.php?success=created&count=' . $created_count . '&name=' . urlencode($tmpl['name']));
+                exit;
             }
         } catch (PDOException $e) {
             $pdo->rollback();

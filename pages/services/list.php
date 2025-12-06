@@ -12,6 +12,26 @@ if (!isset($_SESSION['user_id'])) {
 $success = '';
 $error = '';
 
+// Display success messages from redirect
+if (isset($_GET['success'])) {
+    switch ($_GET['success']) {
+        case 'updated':
+            $service_name = $_GET['name'] ?? 'Service';
+            $success = 'Service template "' . htmlspecialchars($service_name) . '" updated successfully!';
+            break;
+        case 'deactivated':
+            $success = 'Service template has been deactivated (has existing sessions).';
+            break;
+        case 'deleted':
+            $success = 'Service template deleted successfully!';
+            break;
+        case 'status_changed':
+            $status = $_GET['status'] ?? 'unknown';
+            $success = 'Service status updated to ' . htmlspecialchars($status) . ' successfully!';
+            break;
+    }
+}
+
 // Handle service template CRUD operations
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['edit_service'])) {
@@ -33,7 +53,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $update_sql = "UPDATE services SET name = ?, description = ? WHERE id = ?";
                     $update_stmt = $pdo->prepare($update_sql);
                     $update_stmt->execute([$name, $description, $service_id]);
-                    $success = 'Service template updated successfully!';
+                    
+                    // PRG Pattern: Redirect to prevent form resubmission
+                    header('Location: list.php?success=updated&name=' . urlencode($name));
+                    exit;
                 }
             } catch (PDOException $e) {
                 $error = 'Error updating service: ' . $e->getMessage();
@@ -59,13 +82,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $deactivate_sql = "UPDATE services SET template_status = 'inactive' WHERE id = ?";
                     $deactivate_stmt = $pdo->prepare($deactivate_sql);
                     $deactivate_stmt->execute([$service_id]);
-                    $success = 'Service template has been deactivated (has existing sessions).';
+                    
+                    // PRG Pattern: Redirect to prevent form resubmission
+                    header('Location: list.php?success=deactivated');
+                    exit;
                 } else {
                     // Safe to delete
                     $delete_sql = "DELETE FROM services WHERE id = ?";
                     $delete_stmt = $pdo->prepare($delete_sql);
                     $delete_stmt->execute([$service_id]);
-                    $success = 'Service template deleted successfully!';
+                    
+                    // PRG Pattern: Redirect to prevent form resubmission
+                    header('Location: list.php?success=deleted');
+                    exit;
                 }
             } catch (PDOException $e) {
                 $error = 'Error deleting service: ' . $e->getMessage();
@@ -84,7 +113,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $update_status_sql = "UPDATE services SET template_status = ? WHERE id = ?";
                 $update_status_stmt = $pdo->prepare($update_status_sql);
                 $update_status_stmt->execute([$new_status, $service_id]);
-                $success = 'Service status updated successfully!';
+                
+                // PRG Pattern: Redirect to prevent form resubmission
+                header('Location: list.php?success=status_changed&status=' . $new_status);
+                exit;
             } catch (PDOException $e) {
                 $error = 'Error updating service status: ' . $e->getMessage();
             }

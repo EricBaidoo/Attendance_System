@@ -12,6 +12,22 @@ $member_data = null;
 $visitor_data = null;
 $show_visitor_form = false;
 
+// Handle success messages from redirect
+if (isset($_GET['success']) && isset($_GET['name'])) {
+    $name = htmlspecialchars($_GET['name']);
+    switch ($_GET['success']) {
+        case 'checkin':
+            $message = "Welcome, $name! Check-in successful.";
+            break;
+        case 'visitor':
+            $message = "Welcome, $name, enjoy the service!";
+            break;
+        case 'returning':
+            $message = "Welcome back, $name! Thanks for visiting us again.";
+            break;
+    }
+}
+
 // Test database connection
 try {
     $test_count = $pdo->query("SELECT COUNT(*) FROM members WHERE status = 'active'")->fetchColumn();
@@ -225,9 +241,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                         
                         $message = "Welcome, " . htmlspecialchars($name) . "! Check-in successful.";
                         
-                        // Clear form data
-                        $_POST = [];
-                        $member_data = null;
+                        // Clear form data and redirect to prevent resubmission
+                        $pdo->commit();
+                        header('Location: checkin.php?success=checkin&name=' . urlencode($name));
+                        exit;
                     }
                 }
                 
@@ -279,9 +296,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                     
                     $message = "Welcome, " . htmlspecialchars($name) . ", enjoy the service!";
                     
-                    // Clear form data
-                    $_POST = [];
-                    $show_visitor_form = false;
+                    // Clear form data and redirect
+                    $pdo->commit();
+                    header('Location: checkin.php?success=visitor&name=' . urlencode($name));
+                    exit;
                 }
                 
                 $pdo->commit();
@@ -309,11 +327,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                 
                 $message = "Welcome back, " . htmlspecialchars($name) . "! Thanks for visiting us again.";
                 
-                // Clear form data
-                $_POST = [];
-                $visitor_data = null;
-                
+                // Clear form data and redirect
                 $pdo->commit();
+                header('Location: checkin.php?success=returning&name=' . urlencode($name));
+                exit;
                 
             } catch (Exception $e) {
                 $pdo->rollBack();

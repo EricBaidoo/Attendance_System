@@ -13,6 +13,20 @@ $success = '';
 $error = '';
 $today = date('Y-m-d');
 
+// Display success messages from redirect
+if (isset($_GET['success'])) {
+    switch ($_GET['success']) {
+        case 'opened':
+            $service_name = $_GET['name'] ?? 'Service';
+            $success = 'Service session "' . htmlspecialchars($service_name) . '" opened successfully!';
+            break;
+        case 'closed':
+            $count = $_GET['count'] ?? 0;
+            $success = 'Session closed successfully! ' . $count . ' members were marked as absent (not marked as present).';
+            break;
+    }
+}
+
 // Handle session management
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     error_log("POST data: " . print_r($_POST, true));
@@ -44,8 +58,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if ($result) {
                     $session_id = $pdo->lastInsertId();
-                    $success = 'Service session opened successfully!';
                     error_log("New session created: ID = $session_id");
+                    
+                    // Get service name for success message
+                    $service_name_sql = "SELECT name FROM services WHERE id = ?";
+                    $service_name_stmt = $pdo->prepare($service_name_sql);
+                    $service_name_stmt->execute([$service_id]);
+                    $service_name = $service_name_stmt->fetchColumn() ?: 'Service';
+                    
+                    $pdo->commit();
+                    
+                    // PRG Pattern: Redirect to prevent form resubmission
+                    header('Location: sessions.php?success=opened&name=' . urlencode($service_name));
+                    exit;
                 } else {
                     throw new Exception('Failed to create session.');
                 }
@@ -57,8 +82,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if ($result) {
                     $session_id = $pdo->lastInsertId();
-                    $success = 'Service session opened successfully!';
                     error_log("New session created: ID = $session_id");
+                    
+                    // Get service name for success message
+                    $service_name_sql = "SELECT name FROM services WHERE id = ?";
+                    $service_name_stmt = $pdo->prepare($service_name_sql);
+                    $service_name_stmt->execute([$service_id]);
+                    $service_name = $service_name_stmt->fetchColumn() ?: 'Service';
+                    
+                    $pdo->commit();
+                    
+                    // PRG Pattern: Redirect to prevent form resubmission
+                    header('Location: sessions.php?success=opened&name=' . urlencode($service_name));
+                    exit;
                 } else {
                     throw new Exception('Failed to create session.');
                 }
@@ -126,8 +162,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             $pdo->commit();
-            $success = 'Session closed successfully! ' . count($unmarked_members) . ' members were marked as absent (not marked as present).';
             error_log("Session $session_id closed successfully");
+            
+            // PRG Pattern: Redirect to prevent form resubmission
+            header('Location: sessions.php?success=closed&count=' . count($unmarked_members));
+            exit;
         } catch (Exception $e) {
             $pdo->rollback();
             $error = 'Error closing session: ' . $e->getMessage();

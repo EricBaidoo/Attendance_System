@@ -12,6 +12,12 @@ if (!isset($_SESSION['user_id'])) {
 $success = '';
 $error = '';
 
+// Display success message from redirect
+if (isset($_GET['success']) && $_GET['success'] === 'created') {
+    $service_name = $_GET['name'] ?? 'Service';
+    $success = 'Service template "' . htmlspecialchars($service_name) . '" created successfully! You can now start sessions for this service.';
+}
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
@@ -38,10 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $sql = "INSERT INTO services (name, description, status, template_status, created_at) VALUES (?, ?, 'scheduled', 'active', NOW())";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([$name, $description ?: $type]);
-                $success = 'Service template created successfully! You can now start sessions for this service.';
                 
-                // Clear form data
-                $name = $description = $type = '';
+                // PRG Pattern: Redirect to prevent form resubmission
+                header('Location: add.php?success=created&name=' . urlencode($name));
+                exit;
             }
         } catch (PDOException $e) {
             $error = 'Error adding service: ' . $e->getMessage();
