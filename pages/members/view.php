@@ -171,6 +171,27 @@ include '../../includes/header.php';
                                 <i class="bi bi-droplet me-1"></i>Baptized
                             </span>
                         <?php endif; ?>
+                        <?php
+                        $ms = $member['ministerial_status'] ?? '';
+                        $msLabel = $ms ?: 'Not Set';
+                        $msClass = 'bg-secondary';
+                        if ($ms === 'General Overseer') {
+                            $msClass = 'bg-dark text-white';
+                        } elseif ($ms === 'Senior Pastor') {
+                            $msClass = 'bg-primary';
+                        } elseif ($ms === 'Junior Pastor') {
+                            $msClass = 'bg-info text-dark';
+                        } elseif ($ms === 'Minister') {
+                            $msClass = 'bg-success';
+                        } elseif ($ms === 'Shepherd') {
+                            $msClass = 'bg-warning text-dark';
+                        } elseif ($ms === 'Levite') {
+                            $msClass = 'bg-light text-dark';
+                        }
+                        ?>
+                        <span class="badge <?php echo $msClass; ?>">
+                            <i class="bi bi-award me-1"></i><?php echo htmlspecialchars($msLabel); ?>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -226,6 +247,32 @@ include '../../includes/header.php';
                             <div class="info-value">
                                 <i class="bi bi-geo-alt me-2 text-primary"></i>
                                 <?php echo htmlspecialchars($member['location'] ?? 'Not provided'); ?>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="info-label">Ministerial Status</div>
+                            <div class="info-value">
+                                <?php
+                                $ms = $member['ministerial_status'] ?? '';
+                                $msLabel = $ms ?: 'Not Set';
+                                $msClass = 'bg-secondary';
+                                if ($ms === 'General Overseer') {
+                                    $msClass = 'bg-dark text-white';
+                                } elseif ($ms === 'Senior Pastor') {
+                                    $msClass = 'bg-primary';
+                                } elseif ($ms === 'Junior Pastor') {
+                                    $msClass = 'bg-info text-dark';
+                                } elseif ($ms === 'Minister') {
+                                    $msClass = 'bg-success';
+                                } elseif ($ms === 'Shepherd') {
+                                    $msClass = 'bg-warning text-dark';
+                                } elseif ($ms === 'Levite') {
+                                    $msClass = 'bg-light text-dark';
+                                }
+                                ?>
+                                <span class="badge <?php echo $msClass; ?>">
+                                    <i class="bi bi-award me-1"></i><?php echo htmlspecialchars($msLabel); ?>
+                                </span>
                             </div>
                         </div>
                     </div>

@@ -30,6 +30,7 @@ $status_filter = $_GET['status'] ?? 'active';
 $baptism_filter = $_GET['baptism'] ?? '';
 $group_filter = $_GET['group'] ?? '';
 $gender_filter = $_GET['gender'] ?? '';
+$ministerial_filter = $_GET['ministerial'] ?? '';
 
 // Build query filters
 $where_conditions = [];
@@ -71,6 +72,15 @@ if ($group_filter) {
     $params[] = $group_filter;
 }
 
+if ($ministerial_filter) {
+    if ($ministerial_filter === 'none') {
+        $where_conditions[] = "(m.ministerial_status IS NULL OR m.ministerial_status = '')";
+    } else {
+        $where_conditions[] = "m.ministerial_status = ?";
+        $params[] = $ministerial_filter;
+    }
+}
+
 $where_clause = '';
 if (!empty($where_conditions)) {
     $where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
@@ -78,36 +88,55 @@ if (!empty($where_conditions)) {
 
 // Get member statistics
 try {
-    // Check if congregation_group column exists
+    // Check if congregation_group and ministerial_status columns exist
     $table_check = $pdo->query("SHOW COLUMNS FROM members LIKE 'congregation_group'");
     $has_congregation_group = $table_check->rowCount() > 0;
+    $ms_check = $pdo->query("SHOW COLUMNS FROM members LIKE 'ministerial_status'");
+    $has_ministerial_status = $ms_check->rowCount() > 0;
     
     if ($has_congregation_group) {
         $stats_sql = "SELECT 
             COUNT(*) as total,
             COUNT(CASE WHEN gender = 'male' THEN 1 END) as male,
             COUNT(CASE WHEN gender = 'female' THEN 1 END) as female,
-            COUNT(CASE WHEN baptized = 'yes' THEN 1 END) as baptized,
-            COUNT(CASE WHEN congregation_group = 'Adult' OR congregation_group IS NULL THEN 1 END) as adults,
+            COUNT(CASE WHEN baptized = 1 OR baptized = 'yes' THEN 1 END) as baptized,
+            COUNT(CASE WHEN congregation_group = 'Adult' THEN 1 END) as adults,
             COUNT(CASE WHEN congregation_group = 'Youth' THEN 1 END) as youths,
             COUNT(CASE WHEN congregation_group = 'Teen' THEN 1 END) as teens,
-            COUNT(CASE WHEN congregation_group = 'Children' THEN 1 END) as children
-            FROM members m $where_clause";
+            COUNT(CASE WHEN congregation_group = 'Children' THEN 1 END) as children";
     } else {
         $stats_sql = "SELECT 
             COUNT(*) as total,
             COUNT(CASE WHEN gender = 'male' THEN 1 END) as male,
             COUNT(CASE WHEN gender = 'female' THEN 1 END) as female,
-            COUNT(CASE WHEN baptized = 'yes' THEN 1 END) as baptized,
-            COUNT(*) as adults, 0 as youths, 0 as teens, 0 as children
-            FROM members m $where_clause";
+            COUNT(CASE WHEN baptized = 1 OR baptized = 'yes' THEN 1 END) as baptized,
+            0 as adults, 0 as youths, 0 as teens, 0 as children";
     }
+
+    if ($has_ministerial_status) {
+        $stats_sql .= ",
+            COUNT(CASE WHEN ministerial_status = 'Levite' THEN 1 END) as ms_levite,
+            COUNT(CASE WHEN ministerial_status = 'Shepherd' THEN 1 END) as ms_shepherd,
+            COUNT(CASE WHEN ministerial_status = 'Minister' THEN 1 END) as ms_minister,
+            COUNT(CASE WHEN ministerial_status = 'Junior Pastor' THEN 1 END) as ms_jp,
+            COUNT(CASE WHEN ministerial_status = 'Senior Pastor' THEN 1 END) as ms_sp,
+            COUNT(CASE WHEN ministerial_status = 'General Overseer' THEN 1 END) as ms_go,
+            COUNT(CASE WHEN ministerial_status IS NULL OR ministerial_status = '' THEN 1 END) as ms_none";
+    } else {
+        $stats_sql .= ", 0 as ms_levite, 0 as ms_shepherd, 0 as ms_minister, 0 as ms_jp, 0 as ms_sp, 0 as ms_go, 0 as ms_none";
+    }
+
+    $stats_sql .= " FROM members m $where_clause";
     
     $stmt = $pdo->prepare($stats_sql);
     $stmt->execute($params);
     $stats = $stmt->fetch();
 } catch (Exception $e) {
-    $stats = ['total' => 0, 'male' => 0, 'female' => 0, 'baptized' => 0, 'adults' => 0, 'youths' => 0, 'teens' => 0, 'children' => 0];
+    $stats = [
+        'total' => 0, 'male' => 0, 'female' => 0, 'baptized' => 0,
+        'adults' => 0, 'youths' => 0, 'teens' => 0, 'children' => 0,
+        'ms_levite' => 0, 'ms_shepherd' => 0, 'ms_minister' => 0, 'ms_jp' => 0, 'ms_sp' => 0, 'ms_go' => 0, 'ms_none' => 0
+    ];
 }
 
 // Get departments for filter dropdown
@@ -299,88 +328,188 @@ include '../../includes/header.php';
 
     <!-- Statistics Cards -->
     <div class="px-3 px-md-4 mb-4">
+        <!-- Overview: Total & Baptized -->
         <div class="row g-2 g-md-3 g-lg-4">
-        <div class="col-6 col-md-3 mb-3 mb-md-0">
-            <div class="card border-0 shadow-lg h-100 members-card">
-                <div class="card-body text-white position-relative">
-                    <div class="card-pattern"></div>
-                    <div class="d-flex align-items-center justify-content-between position-relative">
-                        <div>
-                            <h6 class="text-white-75 mb-2 fw-semibold">Total Members</h6>
-                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['total']; ?></h2>
-                            <small class="text-white-75">
-                                <i class="bi bi-people me-1"></i> Active congregation
-                            </small>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card border-0 shadow-lg h-100 members-card">
+                    <div class="card-body text-white position-relative">
+                        <div class="card-pattern"></div>
+                        <div class="d-flex align-items-center justify-content-between position-relative">
+                            <div>
+                                <h6 class="text-white-75 mb-2 fw-semibold">Total Members</h6>
+                                <h2 class="text-white mb-2 fw-bold"><?php echo $stats['total']; ?></h2>
+                                <small class="text-white-75">
+                                    <i class="bi bi-people me-1"></i> Active congregation
+                                </small>
+                            </div>
+                            <div class="card-icon">
+                                <i class="bi bi-people-fill text-white fs-1"></i>
+                            </div>
                         </div>
-                        <div class="card-icon">
-                            <i class="bi bi-people-fill text-white fs-1"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card border-0 shadow-lg h-100 visitors-card">
+                    <div class="card-body text-white position-relative">
+                        <div class="card-pattern"></div>
+                        <div class="d-flex align-items-center justify-content-between position-relative">
+                            <div>
+                                <h6 class="text-white-75 mb-2 fw-semibold">Baptized</h6>
+                                <h2 class="text-white mb-2 fw-bold"><?php echo $stats['baptized']; ?></h2>
+                                <small class="text-white-75">
+                                    <i class="bi bi-droplet me-1"></i> <?php echo $stats['total'] > 0 ? round(($stats['baptized']/$stats['total'])*100) : 0; ?>% of members
+                                </small>
+                            </div>
+                            <div class="card-icon">
+                                <i class="bi bi-droplet-fill text-white fs-1"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div class="col-6 col-md-3 mb-3 mb-md-0">
-            <div class="card border-0 shadow-lg h-100 visitors-card">
-                <div class="card-body text-white position-relative">
-                    <div class="card-pattern"></div>
-                    <div class="d-flex align-items-center justify-content-between position-relative">
-                        <div>
-                            <h6 class="text-white-75 mb-2 fw-semibold">Baptized</h6>
-                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['baptized']; ?></h2>
-                            <small class="text-white-75">
-                                <i class="bi bi-droplet me-1"></i> <?php echo $stats['total'] > 0 ? round(($stats['baptized']/$stats['total'])*100) : 0; ?>% of members
-                            </small>
+
+        <!-- Demography Cards -->
+        <div class="mt-4">
+            <div class="d-flex align-items-center mb-2 ps-1">
+                <h6 class="text-muted fw-semibold mb-0">
+                    <i class="bi bi-people me-1"></i> Demography
+                </h6>
+            </div>
+            <div class="row g-2 g-md-3 g-lg-4">
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100 converts-card">
+                        <div class="card-body text-white position-relative">
+                            <div class="card-pattern"></div>
+                            <div class="d-flex align-items-center justify-content-between position-relative">
+                                <div>
+                                    <h6 class="text-white-75 mb-2 fw-semibold small">Male</h6>
+                                    <h3 class="text-white mb-1 fw-bold"><?php echo $stats['male']; ?></h3>
+                                </div>
+                                <div class="card-icon text-white">
+                                    <i class="bi bi-person-fill fs-3"></i>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-icon">
-                            <i class="bi bi-droplet-fill text-white fs-1"></i>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100 departments-card">
+                        <div class="card-body text-white position-relative">
+                            <div class="card-pattern"></div>
+                            <div class="d-flex align-items-center justify-content-between position-relative">
+                                <div>
+                                    <h6 class="text-white-75 mb-2 fw-semibold small">Female</h6>
+                                    <h3 class="text-white mb-1 fw-bold"><?php echo $stats['female']; ?></h3>
+                                </div>
+                                <div class="card-icon text-white">
+                                    <i class="bi bi-person-dress fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
+                        <div class="card-body text-white position-relative">
+                            <div class="d-flex align-items-center justify-content-between position-relative">
+                                <div>
+                                    <h6 class="text-white-75 mb-2 fw-semibold small">Adults</h6>
+                                    <h3 class="text-white mb-1 fw-bold"><?php echo $stats['adults']; ?></h3>
+                                </div>
+                                <div class="card-icon text-white">
+                                    <i class="bi bi-person-badge fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                        <div class="card-body text-white position-relative">
+                            <div class="d-flex align-items-center justify-content-between position-relative">
+                                <div>
+                                    <h6 class="text-white-75 mb-2 fw-semibold small">Youths</h6>
+                                    <h3 class="text-white mb-1 fw-bold"><?php echo $stats['youths']; ?></h3>
+                                </div>
+                                <div class="card-icon text-white">
+                                    <i class="bi bi-person-arms-up fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">
+                        <div class="card-body text-white position-relative">
+                            <div class="d-flex align-items-center justify-content-between position-relative">
+                                <div>
+                                    <h6 class="text-white-75 mb-2 fw-semibold small">Teens</h6>
+                                    <h3 class="text-white mb-1 fw-bold"><?php echo $stats['teens']; ?></h3>
+                                </div>
+                                <div class="card-icon text-white">
+                                    <i class="bi bi-emoji-smile fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                        <div class="card-body text-white position-relative">
+                            <div class="d-flex align-items-center justify-content-between position-relative">
+                                <div>
+                                    <h6 class="text-white-75 mb-2 fw-semibold small">Children</h6>
+                                    <h3 class="text-white mb-1 fw-bold"><?php echo $stats['children']; ?></h3>
+                                </div>
+                                <div class="card-icon text-white">
+                                    <i class="bi bi-heart-fill fs-3"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div class="col-6 col-md-3 mb-3 mb-md-0">
-            <div class="card border-0 shadow-lg h-100 converts-card">
-                <div class="card-body text-white position-relative">
-                    <div class="card-pattern"></div>
-                    <div class="d-flex align-items-center justify-content-between position-relative">
-                        <div>
-                            <h6 class="text-white-75 mb-2 fw-semibold">Male Members</h6>
-                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['male']; ?></h2>
-                            <small class="text-white-75">
-                                <i class="bi bi-person me-1"></i> <?php echo $stats['total'] > 0 ? round(($stats['male']/$stats['total'])*100) : 0; ?>% of congregation
-                            </small>
-                        </div>
-                        <div class="card-icon">
-                            <i class="bi bi-person-fill text-white fs-1"></i>
+
+        <!-- Ministerial Status Cards -->
+        <div class="mt-4">
+            <div class="d-flex align-items-center mb-2 ps-1">
+                <h6 class="text-muted fw-semibold mb-0">
+                    <i class="bi bi-award me-1"></i> Ministerial Status
+                </h6>
+            </div>
+            <div class="row g-2 g-md-3 g-lg-4">
+                <?php
+                $ms_cards = [
+                    ['label' => 'General Overseer', 'value' => $stats['ms_go'], 'class' => 'ms-card-go', 'icon' => 'bi-award'],
+                    ['label' => 'Senior Pastor', 'value' => $stats['ms_sp'], 'class' => 'ms-card-sp', 'icon' => 'bi-stars'],
+                    ['label' => 'Junior Pastor', 'value' => $stats['ms_jp'], 'class' => 'ms-card-jp', 'icon' => 'bi-lightning'],
+                    ['label' => 'Minister', 'value' => $stats['ms_minister'], 'class' => 'ms-card-min', 'icon' => 'bi-briefcase'],
+                    ['label' => 'Shepherd', 'value' => $stats['ms_shepherd'], 'class' => 'ms-card-shep', 'icon' => 'bi-heart'],
+                    ['label' => 'Levite', 'value' => $stats['ms_levite'], 'class' => 'ms-card-levite', 'icon' => 'bi-music-note-beamed'],
+                    ['label' => 'Not Set', 'value' => $stats['ms_none'], 'class' => 'ms-card-none', 'icon' => 'bi-dash-circle']
+                ];
+                foreach ($ms_cards as $card): ?>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100 ms-card <?php echo $card['class']; ?>" >
+                        <div class="card-body text-white position-relative">
+                            <div class="d-flex align-items-center justify-content-between position-relative">
+                                <div>
+                                    <h6 class="text-white-75 mb-2 fw-semibold small"><?php echo $card['label']; ?></h6>
+                                    <h3 class="text-white mb-1 fw-bold"><?php echo $card['value']; ?></h3>
+                                </div>
+                                <div class="card-icon text-white">
+                                    <i class="bi <?php echo $card['icon']; ?> fs-3"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <?php endforeach; ?>
             </div>
         </div>
-        
-        <div class="col-6 col-md-3 mb-3 mb-md-0">
-            <div class="card border-0 shadow-lg h-100 departments-card">
-                <div class="card-body text-white position-relative">
-                    <div class="card-pattern"></div>
-                    <div class="d-flex align-items-center justify-content-between position-relative">
-                        <div>
-                            <h6 class="text-white-75 mb-2 fw-semibold">Female Members</h6>
-                            <h2 class="text-white mb-2 fw-bold"><?php echo $stats['female']; ?></h2>
-                            <small class="text-white-75">
-                                <i class="bi bi-person-dress me-1"></i> <?php echo $stats['total'] > 0 ? round(($stats['female']/$stats['total'])*100) : 0; ?>% of congregation
-                            </small>
-                        </div>
-                        <div class="card-icon">
-                            <i class="bi bi-person-dress text-white fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
     </div>
 
     <!-- Filters and Search -->
@@ -390,33 +519,14 @@ include '../../includes/header.php';
                 <i class="bi bi-funnel"></i> Search & Filters
             </h5>
             <form method="GET" class="row g-3">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="form-label fw-semibold">Search Members</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
                         <input type="text" name="search" class="form-control" placeholder="Name, email, or phone" value="<?php echo htmlspecialchars($search ?? ''); ?>">
                     </div>
                 </div>
-                <div class="col-md-1 col-sm-6">
-                    <label class="form-label fw-semibold">Status</label>
-                    <select name="status" class="form-select">
-                        <option value="active" <?php echo $status_filter === 'active' ? 'selected' : ''; ?>>Active</option>
-                        <option value="inactive" <?php echo $status_filter === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
-                        <option value="" <?php echo $status_filter === '' ? 'selected' : ''; ?>>All</option>
-                    </select>
-                </div>
                 <div class="col-md-2 col-sm-6">
-                    <label class="form-label fw-semibold">Department</label>
-                    <select name="department" class="form-select">
-                        <option value="">All Departments</option>
-                        <?php foreach ($departments as $dept): ?>
-                        <option value="<?php echo $dept['id']; ?>" <?php echo $department_filter == $dept['id'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($dept['name']); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="col-md-1 col-sm-6">
                     <label class="form-label fw-semibold">Gender</label>
                     <select name="gender" class="form-select">
                         <option value="">All</option>
@@ -425,19 +535,34 @@ include '../../includes/header.php';
                     </select>
                 </div>
                 <div class="col-md-2 col-sm-6">
-                    <label class="form-label fw-semibold">Baptism</label>
-                    <select name="baptism" class="form-select">
+                    <label class="form-label fw-semibold">Congregation</label>
+                    <select name="group" class="form-select">
                         <option value="">All</option>
-                        <option value="yes" <?php echo $baptism_filter === 'yes' ? 'selected' : ''; ?>>Baptized</option>
-                        <option value="no" <?php echo $baptism_filter === 'no' ? 'selected' : ''; ?>>Not Baptized</option>
+                        <option value="Adult" <?php echo $group_filter === 'Adult' ? 'selected' : ''; ?>>Adults</option>
+                        <option value="Youth" <?php echo $group_filter === 'Youth' ? 'selected' : ''; ?>>Youths</option>
+                        <option value="Teen" <?php echo $group_filter === 'Teen' ? 'selected' : ''; ?>>Teens</option>
+                        <option value="Children" <?php echo $group_filter === 'Children' ? 'selected' : ''; ?>>Children</option>
                     </select>
                 </div>
-                <div class="col-md-3 d-flex align-items-end gap-2">
+                <div class="col-md-2 col-sm-6">
+                    <label class="form-label fw-semibold">Ministerial Status</label>
+                    <select name="ministerial" class="form-select">
+                        <option value="">All</option>
+                        <option value="General Overseer" <?php echo $ministerial_filter === 'General Overseer' ? 'selected' : ''; ?>>General Overseer</option>
+                        <option value="Senior Pastor" <?php echo $ministerial_filter === 'Senior Pastor' ? 'selected' : ''; ?>>Senior Pastor</option>
+                        <option value="Junior Pastor" <?php echo $ministerial_filter === 'Junior Pastor' ? 'selected' : ''; ?>>Junior Pastor</option>
+                        <option value="Minister" <?php echo $ministerial_filter === 'Minister' ? 'selected' : ''; ?>>Minister</option>
+                        <option value="Shepherd" <?php echo $ministerial_filter === 'Shepherd' ? 'selected' : ''; ?>>Shepherd</option>
+                        <option value="Levite" <?php echo $ministerial_filter === 'Levite' ? 'selected' : ''; ?>>Levite</option>
+                        <option value="none" <?php echo $ministerial_filter === 'none' ? 'selected' : ''; ?>>Not Set</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-2">
                     <button type="submit" class="btn btn-primary flex-fill">
                         <i class="bi bi-search"></i> Filter
                     </button>
-                    <a href="?status=active" class="btn btn-outline-secondary flex-fill">
-                        <i class="bi bi-arrow-clockwise"></i> Reset
+                    <a href="?status=active" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-clockwise"></i>
                     </a>
                 </div>
             </form>
@@ -482,6 +607,9 @@ include '../../includes/header.php';
                                 </th>
                                 <th class="fw-semibold">
                                     <i class="bi bi-activity me-1"></i>Status
+                                </th>
+                                <th class="fw-semibold">
+                                    <i class="bi bi-award me-1"></i>Ministerial Status
                                 </th>
                                 <th class="fw-semibold text-center">
                                     <i class="bi bi-gear me-1"></i>Actions
@@ -547,6 +675,29 @@ include '../../includes/header.php';
                                             </span>
                                         <?php endif; ?>
                                     </td>
+                                    <td>
+                                        <?php
+                                        $ms = $member['ministerial_status'] ?? '';
+                                        $msLabel = $ms ?: 'Not Set';
+                                        $msClass = 'bg-secondary';
+                                        if ($ms === 'General Overseer') {
+                                            $msClass = 'bg-dark text-white';
+                                        } elseif ($ms === 'Senior Pastor') {
+                                            $msClass = 'bg-primary';
+                                        } elseif ($ms === 'Junior Pastor') {
+                                            $msClass = 'bg-info text-dark';
+                                        } elseif ($ms === 'Minister') {
+                                            $msClass = 'bg-success';
+                                        } elseif ($ms === 'Shepherd') {
+                                            $msClass = 'bg-warning text-dark';
+                                        } elseif ($ms === 'Levite') {
+                                            $msClass = 'bg-light text-dark';
+                                        }
+                                        ?>
+                                        <span class="badge <?php echo $msClass; ?>">
+                                            <i class="bi bi-award me-1"></i><?php echo htmlspecialchars($msLabel); ?>
+                                        </span>
+                                    </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
                                             <!-- View Button -->
@@ -564,14 +715,10 @@ include '../../includes/header.php';
                                                onclick="return confirm('Are you sure you want to <?php echo $member['status'] === 'active' ? 'disable' : 'enable'; ?> this member?')">
                                                 <i class="bi <?php echo $member['status'] === 'active' ? 'bi-pause-circle' : 'bi-play-circle'; ?>"></i>
                                             </a>
-                                            <!-- Delete Button -->
-                                            <button type="button" class="btn btn-outline-danger btn-xs" 
-                                                    title="Delete Member" 
-                                                    onclick="confirmDelete(<?php echo $member['id']; ?>, '<?php echo htmlspecialchars($member['name']); ?>')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
+                                            <!-- Delete Button - More Prominent -->
+                                            <a href="javascript:void(0)" class="btn btn-danger btn-xs delete-btn" title="Permanently Delete Member" onclick="deleteMember(<?php echo $member['id']; ?>, '<?php echo addslashes($member['name']); ?>')">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -608,9 +755,21 @@ include '../../includes/header.php';
 </div>
 
 <script>
-function confirmDelete(memberId, memberName) {
+function deleteMember(memberId, memberName) {
     if (confirm('Are you sure you want to delete "' + memberName + '"? This action cannot be undone and will permanently remove all member data including attendance records.')) {
-        window.location.href = 'delete.php?id=' + memberId + '&return=list';
+        // Create a hidden form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'delete.php';
+        
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'id';
+        idInput.value = memberId;
+        
+        form.appendChild(idInput);
+        document.body.appendChild(form);
+        form.submit();
     }
 }
 
@@ -651,14 +810,54 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Action buttons styling */
 .table th:last-child,
 .table td:last-child {
-    width: 180px;
-    min-width: 180px;
+    width: 200px;
+    min-width: 200px;
 }
 
 .btn-xs {
     padding: 0.2rem 0.4rem;
     font-size: 0.75rem;
     line-height: 1;
+}
+
+/* Ministerial status cards */
+.ms-card {
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.ms-card-go { background: linear-gradient(135deg, #111827 0%, #1f2937 100%); }
+.ms-card-sp { background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); }
+.ms-card-jp { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); }
+.ms-card-min { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); }
+.ms-card-shep { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.ms-card-levite { background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%); color: #111827; }
+.ms-card-none { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
+
+/* Delete button styling - make it more obvious */
+.delete-btn {
+    font-weight: 600;
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.85rem !important;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+    white-space: nowrap;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+}
+
+.delete-btn:hover {
+    background-color: #dc3545 !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.5);
+}
+
+.delete-btn i {
+    margin-right: 0;
 }
 
 .btn-group-sm .btn {

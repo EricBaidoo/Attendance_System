@@ -33,25 +33,27 @@ try {
         $phone = trim($_POST['phone']);
         $phone2 = !empty(trim($_POST['phone2'])) ? trim($_POST['phone2']) : null;
         $gender = $_POST['gender'];
+        $gender = $gender ? strtolower($gender) : null;
         $dob = $_POST['dob'] ?: null;
         $location = trim($_POST['location']);
         $department_id = $_POST['department_id'] ?: null;
         $congregation_group = $_POST['congregation_group'];
         $baptized = $_POST['baptized'];
         $status = $_POST['status'];
+        $ministerial_status = $_POST['ministerial_status'] ?: null;
         
         $update_stmt = $pdo->prepare(
             "UPDATE members SET 
              name = ?, email = ?, phone = ?, phone2 = ?, gender = ?, dob = ?, 
              location = ?, department_id = ?, congregation_group = ?, 
-             baptized = ?, status = ?
+             baptized = ?, status = ?, ministerial_status = ?
              WHERE id = ?"
         );
         
         if ($update_stmt->execute([
             $name, $email, $phone, $phone2, $gender, $dob, 
             $location, $department_id, $congregation_group, 
-            $baptized, $status, $member_id
+            $baptized, $status, $ministerial_status, $member_id
         ])) {
             header('Location: view.php?id=' . $member_id . '&success=Member updated successfully');
             exit;
@@ -281,8 +283,9 @@ include '../../includes/header.php';
                                         <label class="form-label">Gender</label>
                                         <select name="gender" class="form-select">
                                             <option value="">Select Gender</option>
-                                            <option value="Male" <?php echo ($member['gender'] == 'Male') ? 'selected' : ''; ?>>Male</option>
-                                            <option value="Female" <?php echo ($member['gender'] == 'Female') ? 'selected' : ''; ?>>Female</option>
+                                            <option value="male" <?php echo ($member['gender'] && strtolower($member['gender']) == 'male') ? 'selected' : ''; ?>>Male</option>
+                                            <option value="female" <?php echo ($member['gender'] && strtolower($member['gender']) == 'female') ? 'selected' : ''; ?>>Female</option>
+                                            <option value="other" <?php echo ($member['gender'] && strtolower($member['gender']) == 'other') ? 'selected' : ''; ?>>Other</option>
                                         </select>
                                     </div>
                                 </div>
@@ -385,6 +388,29 @@ include '../../includes/header.php';
                                         <select name="status" class="form-select">
                                             <option value="active" <?php echo ($member['status'] == 'active') ? 'selected' : ''; ?>>Active</option>
                                             <option value="inactive" <?php echo ($member['status'] == 'inactive') ? 'selected' : ''; ?>>Inactive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Ministerial Status</label>
+                                        <select name="ministerial_status" class="form-select">
+                                            <option value="">Not Set</option>
+                                            <?php
+                                            $ms_options = [
+                                                'Levite',
+                                                'Shepherd',
+                                                'Minister',
+                                                'Junior Pastor',
+                                                'Senior Pastor',
+                                                'General Overseer'
+                                            ];
+                                            foreach ($ms_options as $opt):
+                                            ?>
+                                            <option value="<?php echo $opt; ?>" <?php echo ($member['ministerial_status'] === $opt) ? 'selected' : ''; ?>>
+                                                <?php echo $opt; ?>
+                                            </option>
+                                            <?php endforeach; ?>
                                         </select>
                                     </div>
                                 </div>

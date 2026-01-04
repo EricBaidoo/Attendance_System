@@ -25,13 +25,14 @@ try {
         $email = !empty(trim($_POST['email'])) ? trim($_POST['email']) : null;
         $phone = trim($_POST['phone']);
         $phone2 = !empty(trim($_POST['phone2'])) ? trim($_POST['phone2']) : null;
-        $gender = !empty($_POST['gender']) ? $_POST['gender'] : null;
+        $gender = !empty($_POST['gender']) ? strtolower($_POST['gender']) : null;
         $dob = !empty($_POST['dob']) ? $_POST['dob'] : null;
         $location = !empty(trim($_POST['location'])) ? trim($_POST['location']) : null;
         $occupation = !empty(trim($_POST['occupation'])) ? trim($_POST['occupation']) : null;
         $department_id = !empty($_POST['department_id']) ? $_POST['department_id'] : null;
         $congregation_group = !empty($_POST['congregation_group']) ? $_POST['congregation_group'] : 'Adult';
         $baptized = !empty($_POST['baptized']) ? $_POST['baptized'] : 'no';
+        $ministerial_status = !empty($_POST['ministerial_status']) ? $_POST['ministerial_status'] : null;
         
         // Only require name and phone
         if ($name && $phone) {
@@ -39,13 +40,13 @@ try {
                 $stmt = $pdo->prepare(
                     "INSERT INTO members 
                      (name, email, phone, phone2, gender, dob, location, occupation, 
-                      department_id, congregation_group, baptized, status, date_joined) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW())"
+                     department_id, congregation_group, baptized, ministerial_status, status, date_joined) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW())"
                 );
                 
                 if ($stmt->execute([
                     $name, $email, $phone, $phone2, $gender, $dob, $location, $occupation,
-                    $department_id, $congregation_group, $baptized
+                    $department_id, $congregation_group, $baptized, $ministerial_status
                 ])) {
                     $member_id = $pdo->lastInsertId();
                     header('Location: view.php?id=' . $member_id . '&success=Member added successfully');
@@ -586,6 +587,21 @@ try {
                                                 <option value="Youth">Youth</option>
                                                 <option value="Teen">Teen</option>
                                                 <option value="Children">Children</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label class="form-label">
+                                                <i class="bi bi-award me-1"></i>Ministerial Status
+                                            </label>
+                                            <select class="form-select" name="ministerial_status">
+                                                <option value="">Not Set</option>
+                                                <option value="Levite">Levite</option>
+                                                <option value="Shepherd">Shepherd</option>
+                                                <option value="Minister">Minister</option>
+                                                <option value="Junior Pastor">Junior Pastor</option>
+                                                <option value="Senior Pastor">Senior Pastor</option>
+                                                <option value="General Overseer">General Overseer</option>
                                             </select>
                                         </div>
                                         
