@@ -176,121 +176,6 @@ include '../../includes/header.php';
 <link href="../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">
 <link href="../../assets/css/members.css?v=<?php echo time(); ?>" rel="stylesheet">
 
-<!-- Bootstrap Icons Fix -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
-<style>
-@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css');
-
-.bi {
-    font-family: "bootstrap-icons" !important;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-.bi::before {
-    font-family: "bootstrap-icons" !important;
-    font-weight: normal !important;
-    font-style: normal !important;
-}
-
-/* Member page specific icons */
-.bi-people-fill::before { content: "\f47a"; }
-.bi-person-plus::before { content: "\f472"; }
-.bi-download::before { content: "\f426"; }
-.bi-printer::before { content: "\f486"; }
-.bi-search::before { content: "\f52a"; }
-.bi-funnel::before { content: "\f445"; }
-.bi-person::before { content: "\f465"; }
-.bi-person-dress::before { content: "\f473"; }
-.bi-envelope::before { content: "\f42f"; }
-.bi-telephone::before { content: "\f57c"; }
-.bi-eye::before { content: "\f434"; }
-.bi-pencil::before { content: "\f4ca"; }
-.bi-three-dots-vertical::before { content: "\f5aa"; }
-.bi-check-circle::before { content: "\f41a"; }
-.bi-x-circle::before { content: "\f5e8"; }
-.bi-trash::before { content: "\f5a2"; }
-.bi-file-excel::before { content: "\f438"; }
-.bi-file-pdf::before { content: "\f43c"; }
-
-/* Enhanced card styling to match index page */
-.card-icon {
-    opacity: 0.7;
-    transition: all 0.3s ease;
-}
-
-.text-white-75 {
-    color: rgba(255, 255, 255, 0.75) !important;
-}
-
-/* Enhanced card hover effects to match dashboard */
-.members-card:hover,
-.visitors-card:hover,
-.converts-card:hover,
-.departments-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
-}
-
-.members-card:hover .card-icon,
-.visitors-card:hover .card-icon,
-.converts-card:hover .card-icon,
-.departments-card:hover .card-icon {
-    opacity: 1;
-    transform: scale(1.1);
-}
-
-/* Mobile responsiveness improvements */
-@media (max-width: 768px) {
-    .card-body {
-        padding: 1rem !important;
-    }
-    
-    .fs-1 {
-        font-size: 1.5rem !important;
-    }
-    
-    .fs-2 {
-        font-size: 1.25rem !important;
-    }
-    
-    h6 {
-        font-size: 0.9rem !important;
-    }
-    
-    h2 {
-        font-size: 1.5rem !important;
-    }
-    
-    small {
-        font-size: 0.75rem !important;
-    }
-}
-
-@media (max-width: 576px) {
-    .card-body {
-        padding: 0.75rem !important;
-    }
-    
-    h2 {
-        font-size: 1.25rem !important;
-    }
-    
-    .fs-1 {
-        font-size: 1.25rem !important;
-    }
-    
-    h6 {
-        font-size: 0.8rem !important;
-    }
-}
-</style>
-
 <!-- Professional Members Dashboard -->
 <div class="container-fluid px-0">
     <!-- Dashboard Header -->
@@ -411,7 +296,7 @@ include '../../includes/header.php';
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 col-lg-4">
-                    <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
+                    <div class="card border-0 shadow-sm h-100 demography-adults">
                         <div class="card-body text-white position-relative">
                             <div class="d-flex align-items-center justify-content-between position-relative">
                                 <div>
@@ -426,7 +311,7 @@ include '../../includes/header.php';
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 col-lg-4">
-                    <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                    <div class="card border-0 shadow-sm h-100 demography-youths">
                         <div class="card-body text-white position-relative">
                             <div class="d-flex align-items-center justify-content-between position-relative">
                                 <div>
@@ -441,7 +326,7 @@ include '../../includes/header.php';
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 col-lg-4">
-                    <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">
+                    <div class="card border-0 shadow-sm h-100 demography-teens">
                         <div class="card-body text-white position-relative">
                             <div class="d-flex align-items-center justify-content-between position-relative">
                                 <div>
@@ -456,7 +341,7 @@ include '../../includes/header.php';
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 col-lg-4">
-                    <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <div class="card border-0 shadow-sm h-100 demography-children">
                         <div class="card-body text-white position-relative">
                             <div class="d-flex align-items-center justify-content-between position-relative">
                                 <div>
@@ -484,11 +369,11 @@ include '../../includes/header.php';
                 <?php
                 $ms_cards = [
                     ['label' => 'General Overseer', 'value' => $stats['ms_go'], 'class' => 'ms-card-go', 'icon' => 'bi-award'],
-                    ['label' => 'Senior Pastor', 'value' => $stats['ms_sp'], 'class' => 'ms-card-sp', 'icon' => 'bi-stars'],
-                    ['label' => 'Junior Pastor', 'value' => $stats['ms_jp'], 'class' => 'ms-card-jp', 'icon' => 'bi-lightning'],
-                    ['label' => 'Minister', 'value' => $stats['ms_minister'], 'class' => 'ms-card-min', 'icon' => 'bi-briefcase'],
-                    ['label' => 'Shepherd', 'value' => $stats['ms_shepherd'], 'class' => 'ms-card-shep', 'icon' => 'bi-heart'],
-                    ['label' => 'Levite', 'value' => $stats['ms_levite'], 'class' => 'ms-card-levite', 'icon' => 'bi-music-note-beamed'],
+                    ['label' => 'Senior Pastors', 'value' => $stats['ms_sp'], 'class' => 'ms-card-sp', 'icon' => 'bi-stars'],
+                    ['label' => 'Junior Pastors', 'value' => $stats['ms_jp'], 'class' => 'ms-card-jp', 'icon' => 'bi-lightning'],
+                    ['label' => 'Ministers', 'value' => $stats['ms_minister'], 'class' => 'ms-card-min', 'icon' => 'bi-briefcase'],
+                    ['label' => 'Shepherds', 'value' => $stats['ms_shepherd'], 'class' => 'ms-card-shep', 'icon' => 'bi-heart'],
+                    ['label' => 'Levites', 'value' => $stats['ms_levite'], 'class' => 'ms-card-levite', 'icon' => 'bi-music-note-beamed'],
                     ['label' => 'Not Set', 'value' => $stats['ms_none'], 'class' => 'ms-card-none', 'icon' => 'bi-dash-circle']
                 ];
                 foreach ($ms_cards as $card): ?>
@@ -581,7 +466,7 @@ include '../../includes/header.php';
 
             <?php if (empty($members)): ?>
                 <div class="text-center py-5">
-                    <i class="bi bi-person-x text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
+                    <i class="bi bi-person-x text-muted empty-state-icon"></i>
                     <h4 class="text-muted mt-3 mb-2">No Members Found</h4>
                     <p class="text-muted mb-4">Try adjusting your search criteria or add new members.</p>
                     <a href="add.php" class="btn btn-primary">
