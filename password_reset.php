@@ -58,7 +58,7 @@ try {
         
     } else if ($_POST && isset($_POST['custom_reset'])) {
         $username = trim($_POST['username']);
-        $new_password = $_POST['new_password'];
+        $new_password = $_POST['new_password']; // Don't trim password
         
         if ($username && $new_password) {
             $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);

@@ -56,7 +56,12 @@ function validateCSRFToken($token) {
 }
 
 // Input sanitization
-function sanitizeInput($input) {
+// $is_password: set to true to skip trimming and HTML escaping for password fields
+function sanitizeInput($input, $is_password = false) {
+    if ($is_password) {
+        // Don't trim or escape passwords - they can contain special characters including spaces
+        return $input;
+    }
     return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
 }
 
@@ -68,8 +73,13 @@ function validateAndSanitize($data, $rules = []) {
     foreach ($rules as $field => $rule) {
         $value = $data[$field] ?? '';
         
-        // Basic sanitization
-        $value = sanitizeInput($value);
+        // Check if this field is a password (skip trimming/escaping)
+        $is_password = isset($rule['password']) && $rule['password'];
+        
+        // Basic sanitization (skip for passwords)
+        if (!$is_password) {
+            $value = sanitizeInput($value);
+        }
         
         // Required field check
         if (isset($rule['required']) && $rule['required'] && empty($value)) {

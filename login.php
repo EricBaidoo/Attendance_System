@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Input validation and sanitization
         $validation_rules = [
             'username' => ['required' => true, 'max_length' => 50],
-            'password' => ['required' => true, 'min_length' => 1]
+            'password' => ['required' => true, 'min_length' => 1, 'password' => true]
         ];
         
         $validation_result = validateAndSanitize($_POST, $validation_rules);
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Please check your input and try again.';
         } else {
             $username = $validation_result['data']['username'];
-            $password = $_POST['password']; // Don't sanitize password
+            $password = $validation_result['data']['password']; // Use the validated password
             
             $sql = "SELECT id, username, password, role FROM users WHERE username = ?";
             $stmt = $pdo->prepare($sql);
