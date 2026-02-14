@@ -1,29 +1,27 @@
 <?php
 // config/database.php
 
-// Detect if we're on hosting server or local development
-$is_hosted = !(
-    (isset($_SERVER['HTTP_HOST']) && ($_SERVER['HTTP_HOST'] === 'localhost' || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false)) ||
-    !isset($_SERVER['HTTP_HOST']) // Command line execution
-);
+// Improved detection: Check if the server is running locally
+$local_ips = ['127.0.0.1', '::1'];
+$is_local = in_array($_SERVER['REMOTE_ADDR'] ?? '', $local_ips) || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost';
 
-if ($is_hosted) {
-    // HOSTING ENVIRONMENT - Your hosting database credentials
+if (!$is_local) {
+    // HOSTING ENVIRONMENT - Your online database credentials
     $host = 'localhost';
     $db   = 'u145148023_attendance';
     $user = 'u145148023_Bmi_admin';
     $pass = 'Bmi@2025_#';
 } else {
-    // LOCAL DEVELOPMENT ENVIRONMENT
+    // LOCAL DEVELOPMENT ENVIRONMENT - Your local XAMPP/WAMP credentials
     $host = 'localhost';
     $db   = 'attendance_system';
     $user = 'root';
-    $pass = 'root'; // Your XAMPP has root password set
+    $pass = ''; // Default XAMPP password is empty
 }
 
 $charset = 'utf8mb4';
-
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -32,7 +30,8 @@ $options = [
 
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
+    // Success! The connection is established.
 } catch (\PDOException $e) {
-    throw new \PDOException($e->getMessage(), (int)$e->getCode());
+    // If it fails, it will tell us exactly why
+    die("Database Connection Error: " . $e->getMessage());
 }
-?>

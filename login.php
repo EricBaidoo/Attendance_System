@@ -16,20 +16,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'username' => ['required' => true, 'max_length' => 50],
             'password' => ['required' => true, 'min_length' => 1, 'password' => true]
         ];
-        
+
         $validation_result = validateAndSanitize($_POST, $validation_rules);
-        
+
         if (!empty($validation_result['errors'])) {
             $error = 'Please check your input and try again.';
         } else {
             $username = $validation_result['data']['username'];
             $password = $validation_result['data']['password']; // Use the validated password
-            
+
             $sql = "SELECT id, username, password, role FROM users WHERE username = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$username]);
             $user = $stmt->fetch();
-            
+
+
+            // --- ADD THIS TEMPORARY DEBUG CODE ---
+            if (!$user) {
+                die("Debug: Username not found in the database. Check your 'users' table.");
+            }
+
+            if (!password_verify($password, $user['password'])) {
+                echo "Debug: Password verification failed!<br>";
+                echo "Input Password: " . $password . "<br>";
+                echo "DB Hash: " . $user['password'] . "<br>";
+                exit;
+            }
             if ($user && password_verify($password, $user['password'])) {
                 // Regenerate session ID for security
                 session_regenerate_id(true);
@@ -38,10 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['last_activity'] = time();
                 $_SESSION['regenerated'] = time();
-                
+
                 // Log successful login
                 error_log("Successful login: " . $user['username'] . " from " . $_SERVER['REMOTE_ADDR']);
-                
+
                 header('Location: index.php');
                 exit;
             } else {
@@ -55,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -64,22 +77,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="assets/css/login.css?v=<?php echo time(); ?>" rel="stylesheet">
     <style>
         .login-card {
-            max-width: 1200px !important; 
+            max-width: 1200px !important;
             width: 100% !important;
             height: auto !important;
         }
+
         body {
             height: 100vh;
             overflow: hidden;
         }
+
         .container-fluid {
             height: 100vh;
             padding: 1rem;
         }
+
         @media (max-height: 600px) {
             .container-fluid {
                 padding: 0.5rem;
             }
+
             .login-card .p-5 {
                 padding: 1.5rem !important;
             }
@@ -87,6 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 
 </head>
+
 <body>
     <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center">
         <div class="login-card">
@@ -99,72 +117,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <p class="lead mb-0 fs-5">Attendance Management System</p>
                     </div>
                 </div>
-                
+
                 <!-- Right Panel - Login Form -->
                 <div class="col-lg-6 d-flex align-items-center justify-content-center bg-light-section">
                     <div class="w-100 p-5" style="max-width: 450px;">
-                    <div class="text-center mb-5">
-                        <h2 class="h3 fw-bold text-primary mb-3">Welcome Back</h2>
-                    </div>
-
-                    <?php if ($error): ?>
-                        <div class="alert alert-danger border-0 rounded-3 mb-4" role="alert">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                            <?php echo htmlspecialchars($error); ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <form method="post" class="login-form">
-                        <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
-                        <div class="form-floating mb-4">
-                            <input type="text" 
-                                   class="form-control form-control-lg rounded-3" 
-                                   id="username" 
-                                   name="username" 
-                                   placeholder="Username"
-                                   required 
-                                   autocomplete="username">
-                            <label for="username">
-                                <i class="bi bi-person me-2"></i>Username
-                            </label>
+                        <div class="text-center mb-5">
+                            <h2 class="h3 fw-bold text-primary mb-3">Welcome Back</h2>
                         </div>
 
-                        <div class="form-floating mb-5">
-                            <input type="password" 
-                                   class="form-control form-control-lg rounded-3" 
-                                   id="password" 
-                                   name="password" 
-                                   placeholder="Password"
-                                   required 
-                                   autocomplete="current-password">
-                            <label for="password">
-                                <i class="bi bi-lock me-2"></i>Password
-                            </label>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 mb-3">
-                            Sign In
-                        </button>
-                    </form>
+                        <?php if ($error): ?>
+                            <div class="alert alert-danger border-0 rounded-3 mb-4" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <?php echo htmlspecialchars($error); ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <form method="post" class="login-form">
+                            <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
+                            <div class="form-floating mb-4">
+                                <input type="text"
+                                    class="form-control form-control-lg rounded-3"
+                                    id="username"
+                                    name="username"
+                                    placeholder="Username"
+                                    required
+                                    autocomplete="username">
+                                <label for="username">
+                                    <i class="bi bi-person me-2"></i>Username
+                                </label>
+                            </div>
+
+                            <div class="form-floating mb-5">
+                                <input type="password"
+                                    class="form-control form-control-lg rounded-3"
+                                    id="password"
+                                    name="password"
+                                    placeholder="Password"
+                                    required
+                                    autocomplete="current-password">
+                                <label for="password">
+                                    <i class="bi bi-lock me-2"></i>Password
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 mb-3">
+                                Sign In
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Auto-focus username field
             document.getElementById('username').focus();
-            
+
             // Add form validation
             const form = document.querySelector('form');
             form.addEventListener('submit', function(e) {
                 const username = document.getElementById('username').value;
                 const password = document.getElementById('password').value;
-                
+
                 if (!username || !password) {
                     e.preventDefault();
                     alert('Please fill in both username and password.');
@@ -173,4 +191,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
     </script>
 </body>
+
 </html>
