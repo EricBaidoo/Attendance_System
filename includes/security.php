@@ -18,6 +18,221 @@ if (session_status() === PHP_SESSION_NONE) {
 // Session timeout (30 minutes)
 $timeout_duration = 1800;
 
+function normalizeRole($role) {
+    $role = strtolower(trim((string)$role));
+
+    $role_map = [
+        'general_admin' => 'admin',
+        'admin' => 'admin',
+        'data_staff' => 'staff',
+        'data staff' => 'staff',
+        'staff' => 'staff',
+        'accountant' => 'accountant',
+        'communication_team' => 'communication_team',
+        'communication team' => 'communication_team',
+        'communication' => 'communication_team',
+    ];
+
+    return $role_map[$role] ?? ($role !== '' ? $role : 'guest');
+}
+
+function canAccessModule($module, $role = null) {
+    $role = normalizeRole($role ?? getUserRole());
+
+    if ($role === 'admin') {
+        return true;
+    }
+
+    $module = strtolower(trim((string)$module));
+
+    if ($module === 'people_attendance') {
+        return $role === 'staff';
+    }
+
+    if ($module === 'finance') {
+        return $role === 'accountant';
+    }
+
+    if ($module === 'communication') {
+        return $role === 'communication_team';
+    }
+
+    if ($module === 'administration') {
+        return false;
+    }
+
+    return true;
+}
+
+function getAssignableRoles() {
+    return [
+        'data_staff' => 'Data Staff',
+        'accountant' => 'Accountant',
+        'communication_team' => 'Communication Team',
+        'general_admin' => 'General Admin',
+    ];
+}
+
+function getRoleLabel($role) {
+    $role = strtolower(trim((string)$role));
+
+    $labels = [
+        'staff' => 'Data Staff',
+        'data_staff' => 'Data Staff',
+        'accountant' => 'Accountant',
+        'communication_team' => 'Communication Team',
+        'communication team' => 'Communication Team',
+        'admin' => 'General Admin',
+        'general_admin' => 'General Admin',
+    ];
+
+    return $labels[$role] ?? ucwords(str_replace('_', ' ', $role));
+}
+
+function getModuleLabel($module) {
+    $module = strtolower(trim((string)$module));
+
+    $labels = [
+        'people_attendance' => 'People & Attendance',
+        'finance' => 'Finance',
+        'communication' => 'Communication',
+        'administration' => 'Administration',
+    ];
+
+    return $labels[$module] ?? ucwords(str_replace('_', ' ', $module));
+}
+
+function setSystemNotice($type, $message) {
+    $_SESSION['system_notice'] = [
+        'type' => $type,
+        'message' => $message,
+    ];
+}
+
+function pullSystemNotice() {
+    if (!isset($_SESSION['system_notice']) || !is_array($_SESSION['system_notice'])) {
+        return null;
+    }
+
+    $notice = $_SESSION['system_notice'];
+    unset($_SESSION['system_notice']);
+
+    return $notice;
+}
+
+function detectCurrentModule($path = null) {
+    $path = strtolower((string)($path ?? parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH)));
+
+    if (strpos($path, '/pages/finance/') !== false) {
+        return 'finance';
+    }
+
+    if (strpos($path, '/pages/communication/') !== false) {
+        return 'communication';
+    }
+
+    if (strpos($path, '/pages/admin/') !== false) {
+        return 'administration';
+    }
+
+    $people_paths = [
+        '/pages/people_attendance/',
+        '/pages/members/',
+        '/pages/visitors/',
+        '/pages/services/',
+        '/pages/attendance/',
+        '/pages/checkin/',
+        '/pages/reports/',
+    ];
+
+    foreach ($people_paths as $people_path) {
+        if (strpos($path, $people_path) !== false) {
+            return 'people_attendance';
+        }
+    }
+
+    return null;
+}
+
+function getAppBasePath() {
+    $script_name = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
+    $pages_pos = strpos($script_name, '/pages/');
+
+    if ($pages_pos === false) {
+        return '';
+    }
+
+    return rtrim(substr($script_name, 0, $pages_pos), '/');
+}
+
+function moduleScopedPageUrl($module, $target, $query = []) {
+    $module = strtolower(trim((string)$module));
+    $target = strtolower(trim((string)$target));
+
+    $route_map = [
+        'finance' => [
+            'reports' => '/pages/finance/reports.php',
+            'statement_export' => '/pages/finance/export_statement.php',
+        ],
+        'people_attendance' => [
+            'reports' => '/pages/people_attendance/reports/report.php',
+            'export' => '/pages/people_attendance/reports/export.php',
+        ],
+    ];
+
+    if (!isset($route_map[$module][$target])) {
+        return '#';
+    }
+
+    $base_path = getAppBasePath();
+    $url = $base_path . $route_map[$module][$target];
+
+    if (!empty($query)) {
+        $url .= '?' . http_build_query($query);
+    }
+
+    return $url;
+}
+
+function enforceCurrentModuleAccess() {
+    $module = detectCurrentModule();
+    if ($module === null) {
+        return;
+    }
+
+    if (!canAccessModule($module)) {
+        $request_path = strtolower((string)parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH));
+        if (strpos($request_path, '/pages/people_attendance/') !== false) {
+            $home = '../../../index.php';
+        } elseif (strpos($request_path, '/pages/') !== false) {
+            $home = '../../index.php';
+        } else {
+            $home = 'index.php';
+        }
+        $role = getUserRole();
+        $module_label = getModuleLabel($module);
+        $role_label = getRoleLabel($role);
+
+        $allowed_modules = [];
+        foreach (['people_attendance', 'finance', 'communication', 'administration'] as $candidate_module) {
+            if (canAccessModule($candidate_module, $role)) {
+                $allowed_modules[] = getModuleLabel($candidate_module);
+            }
+        }
+
+        $allowed_text = empty($allowed_modules)
+            ? 'no modules currently'
+            : implode(', ', $allowed_modules);
+
+        setSystemNotice(
+            'warning',
+            "Access denied: You tried to open {$module_label}. Your role ({$role_label}) currently allows: {$allowed_text}."
+        );
+        header("Location: $home?access_denied=1");
+        exit;
+    }
+}
+
 // Check if user is logged in
 function requireLogin($redirect_to = 'login.php') {
     if (!isset($_SESSION['user_id'])) {
@@ -41,6 +256,8 @@ function requireLogin($redirect_to = 'login.php') {
         session_regenerate_id(true);
         $_SESSION['regenerated'] = time();
     }
+
+    enforceCurrentModuleAccess();
 }
 
 // CSRF Protection
@@ -114,7 +331,7 @@ function validateAndSanitize($data, $rules = []) {
 
 // Get user role safely
 function getUserRole() {
-    return $_SESSION['role'] ?? 'guest';
+    return normalizeRole($_SESSION['role'] ?? 'guest');
 }
 
 // Check if user has required role
@@ -129,6 +346,8 @@ function hasRole($required_roles) {
 // Require specific role
 function requireRole($required_roles, $redirect_to = 'index.php') {
     if (!hasRole($required_roles)) {
+        $role_label = getRoleLabel(getUserRole());
+        setSystemNotice('warning', "Access denied: Your role ({$role_label}) is not allowed to open this page.");
         header("Location: $redirect_to?access_denied=1");
         exit;
     }

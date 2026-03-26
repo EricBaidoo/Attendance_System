@@ -93,12 +93,6 @@ body {
         font-size: 0.7rem !important;
     }
 }
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    margin: 20px;
-    padding: 30px;
-    box-shadow: 0 8px 32px rgba(0, 0, 50, 0.1);
-}
 
 /* Dashboard Header Card */
 .dashboard-header-card {
@@ -171,12 +165,12 @@ body {
 }
 
 .enhanced-converts-card {
-    background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%);
+    background: linear-gradient(135deg, #c2410c 0%, #f97316 100%);
     border-radius: 16px;
     overflow: hidden;
     transition: all 0.3s ease;
     position: relative;
-    box-shadow: 0 12px 35px rgba(153, 27, 27, 0.15);
+    box-shadow: 0 12px 35px rgba(194, 65, 12, 0.18);
 }
 
 .enhanced-converts-card::before {
@@ -196,12 +190,12 @@ body {
 }
 
 .enhanced-services-card {
-    background: linear-gradient(135deg, #374151 0%, #6b7280 100%);
+    background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
     border-radius: 16px;
     overflow: hidden;
     transition: all 0.3s ease;
     position: relative;
-    box-shadow: 0 12px 35px rgba(55, 65, 81, 0.15);
+    box-shadow: 0 12px 35px rgba(67, 56, 202, 0.18);
 }
 
 .enhanced-services-card::before {
@@ -298,13 +292,42 @@ body {
 }
 
 /* Action Tiles */
+.action-tile-card {
+    color: #fff;
+}
+
+.action-tile-checkin {
+    background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+    box-shadow: 0 8px 25px rgba(67, 56, 202, 0.25);
+}
+
+.action-tile-services {
+    background: linear-gradient(135deg, #0e7490 0%, #06b6d4 100%);
+    box-shadow: 0 8px 25px rgba(14, 116, 144, 0.25);
+}
+
+.action-tile-attendance {
+    background: linear-gradient(135deg, #be123c 0%, #f43f5e 100%);
+    box-shadow: 0 8px 25px rgba(190, 18, 60, 0.25);
+}
+
+.action-tile-reports {
+    background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+    box-shadow: 0 8px 25px rgba(4, 120, 87, 0.25);
+}
+
+.action-tile-settings {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    box-shadow: 0 8px 25px rgba(30, 64, 175, 0.25);
+}
+
 .action-tile .hover-lift {
     transition: all 0.3s ease;
 }
 
 .action-tile:hover .hover-lift {
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.16);
 }
 
 .action-icon {
@@ -314,6 +337,17 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 8px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.action-icon i {
+    color: #fff;
+}
+
+.dashboard-birthdays-list {
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 /* Enhanced Card Styling */
@@ -329,6 +363,22 @@ body {
 .card:hover {
     box-shadow: 0 12px 35px rgba(0, 0, 50, 0.12);
     transform: translateY(-2px);
+}
+
+.card.enhanced-members-card {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+}
+
+.card.enhanced-visitors-card {
+    background: linear-gradient(135deg, #047857 0%, #059669 100%);
+}
+
+.card.enhanced-converts-card {
+    background: linear-gradient(135deg, #c2410c 0%, #f97316 100%);
+}
+
+.card.enhanced-services-card {
+    background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
 }
 
 /* Attendance Trend Bars */

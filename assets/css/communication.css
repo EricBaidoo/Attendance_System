@@ -1,0 +1,316 @@
+.communication-page {
+    --comm-primary: #1d4ed8;
+    --comm-surface: #ffffff;
+    --comm-border: #dbe4f0;
+    --comm-text: #0f172a;
+    --comm-muted: #64748b;
+    max-width: 1680px;
+    margin: 0 auto;
+}
+
+.communication-page .alert {
+    border-radius: 12px;
+}
+
+.communication-subnav {
+    gap: .5rem;
+    margin-top: .25rem;
+}
+
+.communication-subnav .nav-link {
+    border: 1px solid #dbe4f0;
+    border-radius: 10px;
+    color: #1e293b;
+    font-weight: 600;
+    padding: .45rem .8rem;
+}
+
+.communication-subnav .nav-link:hover {
+    border-color: var(--comm-primary);
+    color: var(--comm-primary);
+    background: #fff;
+}
+
+.communication-subnav .nav-link.active {
+    background: var(--comm-primary);
+    border-color: var(--comm-primary);
+    color: #fff;
+}
+
+.communication-stats {
+    margin-top: .35rem;
+}
+
+.communication-stat-card {
+    background: var(--comm-surface);
+    border: 1px solid #dde6f2;
+    border-radius: 16px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.045);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.communication-stat-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 3px;
+    background: var(--comm-primary);
+}
+
+.communication-stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 1.1rem;
+}
+
+.communication-stat-icon.icon-blue {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.communication-stat-icon.icon-green {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.communication-stat-icon.icon-orange {
+    background: #ffedd5;
+    color: #c2410c;
+}
+
+.communication-stat-icon.icon-red {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.communication-stat-content {
+    min-width: 0;
+}
+
+.communication-stat-label {
+    display: block;
+    color: #64748b;
+    font-size: .8rem;
+    margin-bottom: .2rem;
+}
+
+.communication-stat-value {
+    margin: 0;
+    color: var(--comm-text);
+    font-size: 1.12rem;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.communication-panel {
+    background: var(--comm-surface);
+    border: 1px solid var(--comm-border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.045);
+}
+
+.communication-panel-head h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    color: var(--comm-text);
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.communication-panel-head p {
+    margin: .5rem 0 0;
+    color: var(--comm-muted);
+}
+
+.communication-form .form-label {
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: .35rem;
+}
+
+.communication-form .form-control,
+.communication-form .form-select,
+.communication-filter .form-control,
+.communication-filter .form-select {
+    border: 1px solid #d4dfef;
+    border-radius: 10px;
+    min-height: 42px;
+    font-size: .93rem;
+}
+
+.communication-form .form-control:focus,
+.communication-form .form-select:focus,
+.communication-filter .form-control:focus,
+.communication-filter .form-select:focus {
+    border-color: var(--comm-primary);
+    box-shadow: 0 0 0 .2rem rgba(29, 78, 216, .12);
+}
+
+.communication-quick-links {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .7rem;
+}
+
+.communication-quick-link {
+    border: 1px solid #dbe4f0;
+    border-radius: 12px;
+    padding: .9rem;
+    text-decoration: none;
+    color: #0f172a;
+    font-weight: 600;
+    background: #fbfdff;
+}
+
+.communication-quick-link i {
+    color: var(--comm-primary);
+    margin-right: .45rem;
+}
+
+.communication-quick-link:hover {
+    border-color: var(--comm-primary);
+    color: var(--comm-primary);
+    background: #fff;
+}
+
+.communication-table-wrap {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    background: #fff;
+}
+
+.communication-table {
+    margin: 0;
+    width: max-content;
+    min-width: 100%;
+}
+
+.communication-table thead th {
+    background: #f8fafc;
+    color: #334155;
+    font-size: .82rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.communication-table tbody td {
+    border-color: #edf2f7;
+    color: #1e293b;
+    font-size: .92rem;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.communication-col-date {
+    min-width: 120px;
+}
+
+.communication-col-title {
+    min-width: 220px;
+}
+
+.communication-col-content {
+    min-width: 260px;
+    max-width: 380px;
+    white-space: normal;
+    line-height: 1.35;
+}
+
+.communication-col-actions {
+    min-width: 145px;
+}
+
+.communication-badge {
+    display: inline-block;
+    border-radius: 999px;
+    padding: .2rem .55rem;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+}
+
+.communication-badge.status-draft {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.communication-badge.status-published,
+.communication-badge.status-sent,
+.communication-badge.status-delivered {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.communication-badge.status-scheduled,
+.communication-badge.status-queued {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.communication-badge.status-archived,
+.communication-badge.status-cancelled {
+    background: #f3e8ff;
+    color: #7e22ce;
+}
+
+.communication-badge.status-failed {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.communication-row-actions {
+    display: inline-flex;
+    gap: .4rem;
+    justify-content: flex-end;
+}
+
+@media (max-width: 991px) {
+    .communication-page {
+        padding-left: .4rem;
+        padding-right: .4rem;
+    }
+
+    .communication-panel,
+    .communication-stat-card {
+        border-radius: 13px;
+    }
+
+    .communication-quick-links {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .communication-panel {
+        padding: 1rem;
+    }
+
+    .communication-table thead th,
+    .communication-table tbody td {
+        font-size: .84rem;
+    }
+
+    .communication-col-content {
+        min-width: 180px;
+        max-width: 220px;
+    }
+}

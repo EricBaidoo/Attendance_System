@@ -1,8 +1,69 @@
-        </div> <!-- Close container from header -->
-    </div> <!-- Close content-wrapper from header -->
+    </main><!-- /.page-content -->
+</div><!-- /#mainContent -->
 
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Sidebar toggle logic -->
+    <script>
+    (function () {
+        var sidebar    = document.getElementById('sidebar');
+        var mainContent = document.getElementById('mainContent');
+        var overlay    = document.getElementById('sidebarOverlay');
+        var toggleBtn  = document.getElementById('sidebarToggle');
+        var MOBILE_BP  = 768;
+        var TABLET_BP  = 1200;
+
+        function isMobile()  { return window.innerWidth <= MOBILE_BP; }
+        function isTablet()  { return window.innerWidth > MOBILE_BP && window.innerWidth <= TABLET_BP; }
+
+        // ── Toggle handler ──
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function () {
+                if (isMobile()) {
+                    sidebar.classList.toggle('mobile-open');
+                    overlay.classList.toggle('active');
+                } else {
+                    // Desktop / tablet: toggle force-open / collapsed
+                    var isOpen = sidebar.classList.contains('force-open') ||
+                                 (!sidebar.classList.contains('collapsed') && window.innerWidth > TABLET_BP);
+                    if (isOpen) {
+                        sidebar.classList.remove('force-open');
+                        sidebar.classList.add('collapsed');
+                        mainContent.classList.remove('sidebar-force-open');
+                        mainContent.classList.add('sidebar-collapsed');
+                        document.cookie = 'sidebar_collapsed=1;path=/;max-age=604800';
+                    } else {
+                        sidebar.classList.add('force-open');
+                        sidebar.classList.remove('collapsed');
+                        mainContent.classList.add('sidebar-force-open');
+                        mainContent.classList.remove('sidebar-collapsed');
+                        document.cookie = 'sidebar_collapsed=0;path=/;max-age=604800';
+                    }
+                }
+            });
+        }
+
+        // Close mobile sidebar on overlay click
+        if (overlay) {
+            overlay.addEventListener('click', function () {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+            });
+        }
+
+        // On large screens restore saved state from cookie
+        if (window.innerWidth > TABLET_BP) {
+            var savedCollapsed = document.cookie.split(';').some(function (c) {
+                return c.trim().startsWith('sidebar_collapsed=1');
+            });
+            if (savedCollapsed) {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('sidebar-collapsed');
+            }
+        }
+    })();
+    </script>
     
     <!-- Modern JavaScript Enhancements -->
     <script>

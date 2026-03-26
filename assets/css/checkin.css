@@ -1,141 +1,492 @@
-/* Minimal Check-in Form Styles */
-.checkin-container {
-    max-width: 500px;
-    margin: 2rem auto;
+body.checkin-kiosk-page {
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Segoe UI', Inter, system-ui, -apple-system, sans-serif;
+    color: #0f172a;
+    background: #0b1b44;
 }
 
-.checkin-card {
+.checkin-app-shell {
+    min-height: 100vh;
+    padding: 2rem 1rem 1.15rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.checkin-layout {
+    width: 100%;
+    max-width: 1140px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 0;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: 0 28px 60px rgba(2, 6, 23, .6);
+    border: 1px solid rgba(148, 163, 184, .24);
+}
+
+.checkin-brand-panel {
+    position: relative;
+    padding: 2rem 1.55rem;
+    color: #fff;
+    background: #1e3a8a;
+}
+
+.checkin-brand-panel::before {
+    content: '';
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    right: -90px;
+    top: -80px;
+    background: rgba(255, 255, 255, .14);
+    filter: blur(5px);
+}
+
+.checkin-brand-panel::after {
+    content: '';
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    left: -90px;
+    bottom: -105px;
+    background: rgba(14, 165, 233, .2);
+    filter: blur(6px);
+}
+
+.checkin-brand-icon,
+.checkin-brand-panel h1,
+.checkin-brand-name,
+.checkin-brand-text,
+.checkin-brand-stats {
+    position: relative;
+    z-index: 1;
+}
+
+.checkin-brand-icon {
+    width: 3.35rem;
+    height: 3.35rem;
+    border-radius: .95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    background: rgba(255, 255, 255, .15);
+    border: 1px solid rgba(255, 255, 255, .35);
+}
+
+.checkin-brand-panel h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 760;
+    line-height: 1.05;
+    letter-spacing: -.3px;
+}
+
+.checkin-brand-name {
+    margin: .45rem 0 0;
+    color: rgba(219, 234, 254, .95);
+    font-size: .92rem;
+}
+
+.checkin-brand-text {
+    margin: 1rem 0 1.25rem;
+    color: rgba(219, 234, 254, .88);
+    font-size: .94rem;
+    line-height: 1.55;
+}
+
+.checkin-brand-stats {
+    display: grid;
+    gap: .65rem;
+}
+
+.checkin-stat-chip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 0;
+    padding: .75rem .85rem;
+    border: 1px solid rgba(148, 163, 184, .34);
+    background: rgba(15, 23, 42, .33);
+    backdrop-filter: blur(4px);
+}
+
+.checkin-stat-chip span {
+    color: rgba(226, 232, 240, .85);
+    font-size: .73rem;
+    text-transform: uppercase;
+    letter-spacing: .55px;
+}
+
+.checkin-stat-chip strong {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.checkin-main-card {
+    background: rgba(248, 251, 255, .96);
+    backdrop-filter: blur(10px);
+}
+
+.checkin-main-header {
+    padding: 1.5rem 1.7rem 1.2rem;
+    border-bottom: 1px solid #e7edf6;
+    background: #ffffff;
+}
+
+.checkin-main-header h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 740;
+    letter-spacing: -.2px;
+    color: #0f172a;
+}
+
+.checkin-main-header p {
+    margin: .35rem 0 0;
+    color: #64748b;
+    font-size: .92rem;
+}
+
+.checkin-main-body {
+    padding: 1.4rem 1.7rem 1.55rem;
+    background: #f3f8ff;
+}
+
+.checkin-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: .56rem;
+    border-radius: .86rem;
+    padding: .86rem .95rem;
+    margin-bottom: .95rem;
+    border: 1px solid transparent;
+    font-size: .91rem;
+    box-shadow: 0 10px 18px rgba(15, 23, 42, .05);
+}
+
+.checkin-alert i {
+    font-size: 1rem;
+    margin-top: .06rem;
+}
+
+.checkin-alert-success {
+    color: #065f46;
+    border-color: #a7f3d0;
+    background: #dcfce7;
+}
+
+.checkin-alert-danger {
+    color: #991b1b;
+    border-color: #fecaca;
+    background: #fee2e2;
+}
+
+.checkin-alert-warning {
+    color: #92400e;
+    border-color: #fde68a;
+    background: #fef3c7;
+}
+
+.checkin-search-card {
+    border-radius: 0;
+    border: 1px solid #dbe5f1;
     background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border: none;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 14px 22px rgba(15, 23, 42, .07);
 }
 
-.checkin-card .card-body {
-    padding: 2rem;
+.checkin-search-title {
+    margin: 0 0 .65rem;
+    color: #475569;
+    font-size: .9rem;
+    font-weight: 640;
 }
 
-/* Search Input */
-.input-group {
-    margin-bottom: 0.5rem;
+.checkin-search-group {
     position: relative;
 }
 
-.input-group .form-control {
-    border-radius: 8px 0 0 8px;
-    border-right: none;
+.checkin-search-input {
+    width: 100%;
+    height: 3.05rem;
+    border-radius: .84rem;
+    border: 1px solid #ccdaeb;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: .95rem;
+    padding: 0 8.9rem 0 .95rem;
+    outline: none;
+    transition: border-color .14s, box-shadow .14s, background .14s;
 }
 
-.input-group .btn {
-    border-radius: 0 8px 8px 0;
+.checkin-search-input::placeholder {
+    color: #94a3b8;
 }
 
-/* Autocomplete Suggestions */
+.checkin-search-input:focus {
+    border-color: #3b82f6;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .15);
+}
+
+.checkin-search-btn {
+    position: absolute;
+    top: .31rem;
+    right: .31rem;
+    height: calc(3.05rem - .62rem);
+    border-radius: .66rem;
+    border: 0;
+    padding: 0 1rem;
+    font-size: .86rem;
+    font-weight: 620;
+    color: #fff;
+    background: #2563eb;
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    box-shadow: 0 9px 16px rgba(37, 99, 235, .32);
+    transition: transform .14s, box-shadow .14s;
+}
+
+.checkin-search-btn:hover {
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 12px 20px rgba(37, 99, 235, .38);
+}
+
 .autocomplete-suggestions {
     position: absolute;
-    top: 100%;
+    top: calc(100% + .34rem);
     left: 0;
     right: 0;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    max-height: 200px;
+    max-height: 14rem;
     overflow-y: auto;
-    z-index: 1000;
+    border-radius: .78rem;
+    border: 1px solid #dbe4ef;
+    background: #fff;
+    z-index: 30;
     display: none;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 15px 28px rgba(2, 6, 23, .2);
 }
 
 .autocomplete-suggestion {
-    padding: 12px;
+    padding: .72rem .9rem;
+    font-size: .89rem;
+    border-bottom: 1px solid #f1f5f9;
     cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background-color 0.2s;
 }
 
 .autocomplete-suggestion:last-child {
-    border-bottom: none;
+    border-bottom: 0;
 }
 
 .autocomplete-suggestion:hover {
-    background-color: #f8f9fa;
+    background: #eff6ff;
 }
 
-/* Alerts */
-.alert {
-    border-radius: 8px;
-    border: none;
+.checkin-result-card {
+    border-radius: 0;
+    border: 1px solid #dbe5f0;
+    background: #fff;
     padding: 1rem;
+    box-shadow: 0 15px 25px rgba(15, 23, 42, .09);
 }
 
-.alert-success {
-    background-color: #d1edff;
-    border-left: 4px solid #0d6efd;
-    color: #0d6efd;
+.checkin-result-card.is-member {
+    border-left: 4px solid #10b981;
 }
 
-.alert-warning {
-    background-color: #fff3cd;
-    border-left: 4px solid #ffc107;
-    color: #856404;
+.checkin-result-card.is-returning {
+    border-left: 4px solid #f59e0b;
 }
 
-.alert-danger {
-    background-color: #f8d7da;
-    border-left: 4px solid #dc3545;
-    color: #721c24;
+.checkin-result-card.is-new-visitor {
+    border-left: 4px solid #3b82f6;
 }
 
-/* Form Controls */
-.form-control, .form-select {
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    padding: 0.75rem;
-    font-size: 1rem;
+.checkin-result-head {
+    display: flex;
+    align-items: center;
+    gap: .82rem;
+    margin-bottom: .86rem;
 }
 
-.form-control:focus, .form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+.checkin-result-icon {
+    width: 2.85rem;
+    height: 2.85rem;
+    border-radius: .82rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.22rem;
+    color: #fff;
+    box-shadow: 0 10px 16px rgba(2, 6, 23, .2);
 }
 
-/* Buttons */
-.btn {
-    border-radius: 8px;
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
+.is-member .checkin-result-icon {
+    background: #059669;
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, #0d6efd, #0056b3);
-    border: none;
+.is-returning .checkin-result-icon {
+    background: #d97706;
 }
 
-.btn-primary:hover {
-    background: linear-gradient(135deg, #0056b3, #004085);
+.is-new-visitor .checkin-result-icon {
+    background: #2563eb;
+}
+
+.checkin-result-title {
+    margin: 0;
+    font-size: 1.06rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.checkin-result-sub {
+    margin: .15rem 0 0;
+    font-size: .83rem;
+    color: #64748b;
+}
+
+.checkin-form-grid {
+    display: grid;
+    gap: .72rem;
+}
+
+.checkin-field-label {
+    margin: 0;
+    font-size: .78rem;
+    color: #64748b;
+    font-weight: 620;
+}
+
+.checkin-service-select,
+.checkin-form-grid .form-control {
+    width: 100%;
+    height: 2.9rem;
+    border-radius: .74rem;
+    border: 1px solid #ccdaeb;
+    background: #f8fafc;
+    color: #0f172a;
+    padding: 0 .82rem;
+    font-size: .9rem;
+    outline: none;
+    transition: border-color .14s, box-shadow .14s, background .14s;
+}
+
+.checkin-service-select:focus,
+.checkin-form-grid .form-control:focus {
+    border-color: #3b82f6;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .14);
+}
+
+.checkin-actions {
+    display: flex;
+    gap: .64rem;
+    margin-top: .2rem;
+}
+
+.checkin-submit-btn {
+    flex: 1;
+    border: 0;
+    border-radius: 0;
+    padding: .74rem 1rem;
+    font-size: .9rem;
+    font-weight: 620;
+    color: #fff;
+    background: #059669;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    box-shadow: 0 10px 16px rgba(5, 150, 105, .3);
+    transition: transform .14s, box-shadow .14s;
+}
+
+.checkin-submit-btn:hover {
+    color: #fff;
     transform: translateY(-1px);
+    box-shadow: 0 13px 20px rgba(5, 150, 105, .36);
 }
 
-.btn-success {
-    background: linear-gradient(135deg, #198754, #146c43);
-    border: none;
+.checkin-back-btn {
+    border-radius: .76rem;
+    border: 1px solid #d2dce8;
+    background: #fff;
+    color: #475569;
+    text-decoration: none;
+    font-size: .88rem;
+    font-weight: 530;
+    padding: .74rem .95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color .14s, color .14s, background .14s;
 }
 
-.btn-success:hover {
-    background: linear-gradient(135deg, #146c43, #0f5132);
-    transform: translateY(-1px);
+.checkin-back-btn:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+    color: #1e293b;
 }
 
-/* Responsive */
-@media (max-width: 576px) {
-    .checkin-container {
-        margin: 1rem;
-        max-width: none;
+.checkin-page-footer {
+    margin: .85rem 0 0;
+    text-align: center;
+    color: rgba(226, 232, 240, .78);
+    font-size: .79rem;
+    letter-spacing: .2px;
+}
+
+@media (max-width: 991.98px) {
+    .checkin-layout {
+        grid-template-columns: 1fr;
     }
-    
-    .checkin-card .card-body {
-        padding: 1.5rem;
+
+    .checkin-brand-panel {
+        padding: 1.25rem 1.2rem;
+    }
+
+    .checkin-brand-panel h1 {
+        font-size: 1.62rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .checkin-app-shell {
+        padding: .75rem .45rem 1rem;
+    }
+
+    .checkin-main-header,
+    .checkin-main-body {
+        padding-left: .95rem;
+        padding-right: .95rem;
+    }
+
+    .checkin-main-header h2 {
+        font-size: 1.35rem;
+    }
+
+    .checkin-search-input {
+        padding-right: 7.95rem;
+    }
+
+    .checkin-search-btn {
+        padding: 0 .75rem;
+        font-size: .8rem;
+    }
+
+    .checkin-actions {
+        flex-direction: column;
     }
 }

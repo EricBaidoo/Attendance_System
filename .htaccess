@@ -1,0 +1,13 @@
+# Deny direct web access to maintenance and test utilities.
+<IfModule mod_authz_core.c>
+    <FilesMatch "^(password_reset|check_sms_config|check_tither_phone|check_tither_phones|run_db_updates|test_bulksms|test_phone_norm)\.php$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    <FilesMatch "^(password_reset|check_sms_config|check_tither_phone|check_tither_phones|run_db_updates|test_bulksms|test_phone_norm)\.php$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>

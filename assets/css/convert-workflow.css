@@ -1,0 +1,69 @@
+/* Convert Workflow Page */
+.convert-workflow-page {
+    background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+}
+
+.convert-workflow-page .card {
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.convert-workflow-page .card-header {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.convert-workflow-page .conversion-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 12px;
+}
+
+.convert-workflow-page .person-circle-large {
+    font-size: 4rem;
+    color: #4f46e5;
+}
+
+.convert-workflow-page .btn-convert {
+    border: none;
+    color: #fff;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    box-shadow: 0 10px 18px rgba(16, 185, 129, 0.2);
+}
+
+.convert-workflow-page .btn-convert:hover {
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.convert-workflow-page .btn-member {
+    border: none;
+    color: #fff;
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    box-shadow: 0 10px 18px rgba(59, 130, 246, 0.2);
+}
+
+.convert-workflow-page .btn-member:hover {
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.convert-workflow-page .alert-light {
+    border: 1px solid #e2e8f0;
+}
+
+.convert-workflow-page .form-control,
+.convert-workflow-page .form-select {
+    border-radius: 10px;
+    border: 1px solid #dbe2ea;
+}
+
+.convert-workflow-page .form-control:focus,
+.convert-workflow-page .form-select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.15);
+}
+
+@media (max-width: 991.98px) {
+    .convert-workflow-page .card-body {
+        padding: 1rem !important;
+    }
+}

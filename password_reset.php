@@ -1,4 +1,7 @@
 <?php
+http_response_code(403);
+exit('This utility is disabled. Use the authenticated admin user-management page for password resets.');
+
 /**
  * Password Reset Script
  * Use this to reset passwords to known values

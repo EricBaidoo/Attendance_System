@@ -97,6 +97,50 @@ ATTENDANCE SYSTEM/
 - ✅ **Database Synchronized** - Update system in place
 - ✅ **Clean Structure** - Organized and professional
 
+## 🔒 **Production Go-Live Checklist**
+
+Before internet-facing deployment, confirm all items below:
+
+1. Secrets via environment variables only
+	- Set `BULKSMSGH_API_KEY`, `TWILIO_AUTH_TOKEN`, DB credentials, and session secrets outside source code.
+	- Do not keep real API keys in tracked files.
+2. Disable maintenance/test tools
+	- Keep `APP_ENABLE_MAINTENANCE_TOOLS` unset in production.
+	- Ensure root utility scripts are not publicly accessible.
+3. Error display and logs
+	- `display_errors` must be off in production.
+	- Log errors to files with restricted permissions.
+4. HTTPS and secure cookies
+	- Force HTTPS.
+	- Use secure, httponly, samesite session cookie settings.
+5. DB and least privilege
+	- Use a dedicated DB user with minimum required permissions.
+	- Disable remote root DB access.
+6. Backups and rollback
+	- Daily DB backup configured.
+	- Restore drill tested before launch.
+7. Smoke tests
+	- Verify login, attendance, visitors, finance, communication SMS queue/send, reports export.
+
+### One-Command Preflight (After Deploy)
+
+Run this from the project root:
+
+```bash
+php tools/production_preflight.php
+```
+
+### Optional Nginx Deny Snippet
+
+If you deploy on Nginx (instead of Apache), add:
+
+```nginx
+location ~ ^/(password_reset|check_sms_config|check_tither_phone|check_tither_phones|run_db_updates|test_bulksms|test_phone_norm)\.php$ {
+	deny all;
+	return 403;
+}
+```
+
 ## 🔧 **Development Workflow**
 
 1. **Local Changes** - Develop and test locally

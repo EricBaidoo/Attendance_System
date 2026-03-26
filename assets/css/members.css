@@ -1265,3 +1265,197 @@
         padding: 1rem;
     }
 }
+
+/* ============================================
+   Member View Page
+   ============================================ */
+
+.member-view-page {
+    background: #f8fafc;
+}
+
+.member-view-page .member-view-hero {
+    border-radius: 14px;
+}
+
+.member-view-page .member-view-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.55rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.member-view-page .member-view-badge {
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.45rem 0.75rem;
+}
+
+.member-view-page .member-view-card {
+    border-radius: 14px;
+}
+
+.member-view-page .member-view-card .card-header {
+    padding: 1.1rem 1.25rem 0;
+}
+
+.member-view-page .member-view-card .card-body {
+    padding: 1.25rem;
+}
+
+.member-view-page .member-view-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 1rem;
+}
+
+.member-view-page .member-view-item {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 0.8rem 0.9rem;
+}
+
+.member-view-page .member-view-item-full {
+    grid-column: 1 / -1;
+}
+
+.member-view-page .member-view-label {
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6c757d;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+}
+
+.member-view-page .member-view-value {
+    font-size: 0.98rem;
+    color: #212529;
+    font-weight: 600;
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+.member-view-page .member-view-actions .btn {
+    min-width: 140px;
+}
+
+@media (max-width: 991.98px) {
+    .member-view-page .member-view-actions .btn {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .member-view-page .member-view-avatar {
+        width: 60px;
+        height: 60px;
+        font-size: 1.3rem;
+    }
+
+    .member-view-page .member-view-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .member-view-page .member-view-item-full {
+        grid-column: 1;
+    }
+}
+
+/* ============================================
+   Member Add/Edit Form Pages
+   ============================================ */
+
+.member-form-page {
+    background: #f8fafc;
+}
+
+.member-form-page .member-form-shell {
+    border-radius: 14px;
+}
+
+.member-form-page .member-form-hero {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+.member-form-page .member-form-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.member-form-page .member-form-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1.1rem;
+}
+
+.member-form-page .member-form-title {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #0d6efd;
+    margin-bottom: 0.9rem;
+}
+
+.member-form-page .form-label {
+    font-size: 0.84rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #6c757d;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+.member-form-page .form-control,
+.member-form-page .form-select {
+    border: 1px solid #d7dce1;
+    border-radius: 10px;
+    padding: 0.62rem 0.8rem;
+    font-size: 0.95rem;
+}
+
+.member-form-page .form-control:focus,
+.member-form-page .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.member-form-page .member-dept-box {
+    max-height: 165px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #d7dce1;
+    border-radius: 10px;
+    padding: 0.5rem 0.65rem;
+}
+
+@media (max-width: 575.98px) {
+    .member-form-page .member-form-avatar {
+        width: 52px;
+        height: 52px;
+        font-size: 1.1rem;
+    }
+
+    .member-form-page .member-form-card {
+        padding: 0.9rem;
+    }
+}

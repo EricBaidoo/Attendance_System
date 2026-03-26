@@ -10,9 +10,9 @@ $is_hosted = !(
 if ($is_hosted) {
     // HOSTING ENVIRONMENT - Your hosting database credentials
     $host = 'localhost';
-    $db   = 'u145148023_attendance';
-    $user = 'u145148023_Bmi_admin';
-    $pass = 'Bmi@2025_#';
+    $db   = 'u420775839_bmi';
+    $user = 'u420775839_bmi';
+    $pass = 'Eric0056';
 } else {
     // LOCAL DEVELOPMENT ENVIRONMENT
     $host = 'localhost';

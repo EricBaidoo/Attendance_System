@@ -28,17 +28,17 @@ function getSessionAttendance($pdo, $session_id) {
         // Get member attendance
         $member_sql = "SELECT COUNT(DISTINCT CASE WHEN a.status = 'present' THEN a.member_id END) as present,
                              COUNT(DISTINCT CASE WHEN a.status = 'absent' THEN a.member_id END) as absent,
-                             (SELECT COUNT(*) FROM members WHERE status = 'active') as total_members
+                             (SELECT COUNT(*) FROM member_roles WHERE status = 'active') as total_members
                       FROM attendance a
                       WHERE a.session_id = ?";
         $member_stmt = $pdo->prepare($member_sql);
         $member_stmt->execute([$session_id]);
         $member_stats = $member_stmt->fetch();
         
-        // Get visitor attendance (visitors table already contains attendance data)
-        $visitor_sql = "SELECT COUNT(DISTINCT v.id) as visitor_count
-                       FROM visitors v 
-                       WHERE v.service_id = ? AND v.date = ?";
+        // Get visitor attendance (visitor_roles contains attendance data)
+        $visitor_sql = "SELECT COUNT(DISTINCT vr.id) as visitor_count
+                       FROM visitor_roles vr 
+                       WHERE vr.service_id = ? AND DATE(vr.created_at) = ?";
         $visitor_stmt = $pdo->prepare($visitor_sql);
         $visitor_stmt->execute([$session['service_id'], $session['session_date']]);
         $visitor_stats = $visitor_stmt->fetch();
@@ -157,19 +157,20 @@ function getSessionAttendeeList($pdo, $session_id) {
         // Get member attendees
         $member_sql = "SELECT 
                           'MEMBER' as attendee_type,
-                          m.id,
-                          m.name,
-                          m.phone as phone,
-                          m.email,
-                          m.department_id,
-                          m.congregation_group,
+                          mr.id,
+                          p.full_name AS name,
+                          p.phone as phone,
+                          p.email,
+                          mr.department_id,
+                          mr.congregation_group,
                           a.status,
                           a.method,
                           a.date as attendance_date
                        FROM attendance a 
-                       JOIN members m ON a.member_id = m.id 
+                       JOIN member_roles mr ON a.member_id = mr.id 
+                       JOIN people p ON mr.person_id = p.id 
                        WHERE a.session_id = ? 
-                       ORDER BY m.name";
+                       ORDER BY p.full_name";
         
         $member_stmt = $pdo->prepare($member_sql);
         $member_stmt->execute([$session_id]);
@@ -178,19 +179,20 @@ function getSessionAttendeeList($pdo, $session_id) {
         // Get visitor attendees
         $visitor_sql = "SELECT 
                            'VISITOR' as attendee_type,
-                           v.id,
-                           v.name,
-                           v.phone,
-                           v.email,
-                           v.gender,
-                           v.age_group,
+                           vr.id,
+                           p.full_name AS name,
+                           p.phone,
+                           p.email,
+                           NULL as gender,
+                           NULL as age_group,
                            'present' as status,
                            'visitor_checkin' as method,
-                           v.date as attendance_date
-                        FROM visitors v 
-                        JOIN service_sessions ss ON v.service_id = ss.service_id AND v.date = ss.session_date 
+                           vr.created_at as attendance_date
+                        FROM visitor_roles vr 
+                        JOIN people p ON vr.person_id = p.id 
+                        JOIN service_sessions ss ON vr.service_id = ss.service_id AND DATE(vr.created_at) = ss.session_date 
                         WHERE ss.id = ?
-                        ORDER BY v.name";
+                        ORDER BY p.full_name";
         
         $visitor_stmt = $pdo->prepare($visitor_sql);
         $visitor_stmt->execute([$session_id]);

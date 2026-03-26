@@ -60,6 +60,30 @@ ALTER TABLE members ADD COLUMN middle_name VARCHAR(50) AFTER name;
 -- DESCRIBE members; (should show new middle_name column)
 ```
 
+## ✅ Latest Data Fixes (2026-03-15)
+
+Use the latest blocks in [database/db_updates.sql](database/db_updates.sql):
+
+1. `[2026-03-15] Status-column compatibility hardening`
+2. `[2026-03-15] Unified people foundation (modular monolith)`
+
+What the unified people block adds:
+- Creates `people` as a single source-of-truth identity table
+- Creates `person_lifecycle_events` for journey timeline tracking
+- Adds nullable `person_id` links to `visitors`, `new_converts`, and `members`
+- Backfills `person_id` using email/phone/name matching
+- Seeds lifecycle events (`visitor_checked_in`, `became_new_convert`, `became_member`)
+
+Recommended run order:
+1. Backup database
+2. Run the full `database/db_updates.sql`
+3. Verify summary with:
+   - `SELECT COUNT(*) FROM people;`
+   - `SELECT COUNT(*) FROM person_lifecycle_events;`
+   - `SELECT COUNT(*) FROM visitors WHERE person_id IS NOT NULL;`
+   - `SELECT COUNT(*) FROM new_converts WHERE person_id IS NOT NULL;`
+   - `SELECT COUNT(*) FROM members WHERE person_id IS NOT NULL;`
+
 ## 🎯 **What This Prevents:**
 - ❌ Database inconsistencies between local/hosting
 - ❌ Lost data when updating hosting

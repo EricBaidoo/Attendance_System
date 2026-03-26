@@ -33,16 +33,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($user && password_verify($password, $user['password'])) {
                 // Regenerate session ID for security
                 session_regenerate_id(true);
+                $normalized_role = normalizeRole($user['role']);
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
-                $_SESSION['role'] = $user['role'];
+                $_SESSION['role_raw'] = $user['role'];
+                $_SESSION['role'] = $normalized_role;
                 $_SESSION['last_activity'] = time();
                 $_SESSION['regenerated'] = time();
                 
                 // Log successful login
                 error_log("Successful login: " . $user['username'] . " from " . $_SERVER['REMOTE_ADDR']);
                 
-                header('Location: index.php');
+                $redirect_to = 'index.php';
+                if ($normalized_role === 'staff') {
+                    $redirect_to = 'pages/people_attendance/attendance/dashboard.php';
+                } elseif ($normalized_role === 'accountant') {
+                    $redirect_to = 'pages/finance/dashboard.php';
+                } elseif ($normalized_role === 'communication_team') {
+                    $redirect_to = 'pages/communication/dashboard.php';
+                }
+
+                header('Location: ' . $redirect_to);
                 exit;
             } else {
                 $error = 'Invalid username or password.';
@@ -96,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="text-center text-white p-5 px-4">
                         <img src="assets/css/image/bmi logo.png" alt="BMI Logo" class="brand-logo mb-4">
                         <h1 class="display-5 fw-bold mb-3">Bridge Ministries International</h1>
-                        <p class="lead mb-0 fs-5">Attendance Management System</p>
+                        <p class="lead mb-0 fs-5">Church Management System</p>
                     </div>
                 </div>
                 
