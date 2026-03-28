@@ -52,6 +52,137 @@ try {
         }
     }
 
+    $resolvePersonCompat = function (string $fullName, ?string $email, ?string $phone, string $stage) use ($pdo, $hasColumn) {
+        if (!peopleSyncTableExists($pdo)) {
+            return null;
+        }
+
+        $fullName = trim($fullName);
+        $emailNorm = trim(strtolower((string)$email));
+        $emailNorm = $emailNorm === '' ? null : $emailNorm;
+
+        $phoneNorm = preg_replace('/[^0-9]/', '', trim((string)$phone));
+        $phoneNorm = $phoneNorm === '' ? null : $phoneNorm;
+
+        $hasEmailKey = $hasColumn('people', 'email_key');
+        $hasPhoneKey = $hasColumn('people', 'phone_key');
+
+        $findByEmail = function (?string $emailKey) use ($pdo, $hasEmailKey) {
+            if ($emailKey === null) {
+                return null;
+            }
+
+            if ($hasEmailKey) {
+                $stmt = $pdo->prepare('SELECT id FROM people WHERE email_key = ? ORDER BY id ASC LIMIT 1');
+                $stmt->execute([$emailKey]);
+            } else {
+                $stmt = $pdo->prepare('SELECT id FROM people WHERE LOWER(TRIM(email)) = ? ORDER BY id ASC LIMIT 1');
+                $stmt->execute([$emailKey]);
+            }
+
+            $id = $stmt->fetchColumn();
+            return $id === false ? null : (int)$id;
+        };
+
+        $findByPhone = function (?string $phoneKey) use ($pdo, $hasPhoneKey) {
+            if ($phoneKey === null) {
+                return null;
+            }
+
+            if ($hasPhoneKey) {
+                $stmt = $pdo->prepare('SELECT id FROM people WHERE phone_key = ? ORDER BY id ASC LIMIT 1');
+                $stmt->execute([$phoneKey]);
+            } else {
+                $stmt = $pdo->prepare("SELECT id FROM people WHERE REGEXP_REPLACE(TRIM(phone), '[^0-9]', '') = ? ORDER BY id ASC LIMIT 1");
+                $stmt->execute([$phoneKey]);
+            }
+
+            $id = $stmt->fetchColumn();
+            return $id === false ? null : (int)$id;
+        };
+
+        $emailMatchId = $findByEmail($emailNorm);
+        $phoneMatchId = $findByPhone($phoneNorm);
+
+        if ($emailMatchId !== null && $phoneMatchId !== null && $emailMatchId !== $phoneMatchId) {
+            throw new RuntimeException('Identity conflict: this email and phone are linked to different people records.');
+        }
+
+        $matchedId = $emailMatchId ?? $phoneMatchId;
+
+        if ($matchedId === null && $fullName !== '') {
+            $stmt = $pdo->prepare('SELECT id FROM people WHERE LOWER(TRIM(full_name)) = LOWER(?) ORDER BY id ASC LIMIT 1');
+            $stmt->execute([$fullName]);
+            $nameId = $stmt->fetchColumn();
+            $matchedId = $nameId === false ? null : (int)$nameId;
+        }
+
+        $stageRank = function (string $value) {
+            $rank = [
+                'visitor' => 1,
+                'new_convert' => 2,
+                'member' => 3,
+            ];
+            $k = strtolower(trim($value));
+            return $rank[$k] ?? 0;
+        };
+
+        if ($matchedId !== null) {
+            $currentStmt = $pdo->prepare('SELECT current_stage FROM people WHERE id = ? LIMIT 1');
+            $currentStmt->execute([$matchedId]);
+            $currentStage = (string)$currentStmt->fetchColumn();
+            $newStage = $stageRank($stage) > $stageRank($currentStage) ? $stage : ($currentStage !== '' ? $currentStage : $stage);
+
+            if ($hasEmailKey && $hasPhoneKey) {
+                $upd = $pdo->prepare('UPDATE people
+                    SET full_name = COALESCE(NULLIF(?, ""), full_name),
+                        email = COALESCE(email, ?),
+                        phone = COALESCE(phone, ?),
+                        email_key = COALESCE(email_key, ?),
+                        phone_key = COALESCE(phone_key, ?),
+                        current_stage = ?,
+                        last_seen_at = NOW()
+                    WHERE id = ?');
+                $upd->execute([$fullName, $emailNorm, $phoneNorm, $emailNorm, $phoneNorm, $newStage, $matchedId]);
+            } else {
+                $upd = $pdo->prepare('UPDATE people
+                    SET full_name = COALESCE(NULLIF(?, ""), full_name),
+                        email = COALESCE(email, ?),
+                        phone = COALESCE(phone, ?),
+                        current_stage = ?,
+                        last_seen_at = NOW()
+                    WHERE id = ?');
+                $upd->execute([$fullName, $emailNorm, $phoneNorm, $newStage, $matchedId]);
+            }
+
+            return $matchedId;
+        }
+
+        if ($hasEmailKey && $hasPhoneKey) {
+            $ins = $pdo->prepare('INSERT INTO people (full_name, email, phone, email_key, phone_key, current_stage, first_seen_at, last_seen_at)
+                VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())');
+            $ins->execute([$fullName, $emailNorm, $phoneNorm, $emailNorm, $phoneNorm, $stage]);
+        } else {
+            $ins = $pdo->prepare('INSERT INTO people (full_name, email, phone, current_stage, first_seen_at, last_seen_at)
+                VALUES (?, ?, ?, ?, NOW(), NOW())');
+            $ins->execute([$fullName, $emailNorm, $phoneNorm, $stage]);
+        }
+
+        return (int)$pdo->lastInsertId();
+    };
+
+    $resolvePersonForMember = function (string $fullName, ?string $email, ?string $phone, string $stage) use ($pdo, $resolvePersonCompat) {
+        try {
+            return peopleFindOrCreate($pdo, $fullName, $email, $phone, $stage);
+        } catch (Exception $e) {
+            $msg = (string)$e->getMessage();
+            if (stripos($msg, "Unknown column 'p.phone'") !== false) {
+                return $resolvePersonCompat($fullName, $email, $phone, $stage);
+            }
+            throw $e;
+        }
+    };
+
     if ($_POST) {
         $name = trim($_POST['name']);
         $email = !empty(trim($_POST['email'])) ? trim($_POST['email']) : null;
@@ -78,7 +209,7 @@ try {
             try {
                 $resolved_person_id = null;
                 if (peopleSyncTableExists($pdo)) {
-                    $resolved_person_id = peopleFindOrCreate($pdo, $name, $email ?? '', $phone, 'member');
+                    $resolved_person_id = $resolvePersonForMember($name, $email ?? '', $phone, 'member');
                     if ($resolved_person_id) {
                         $existing_member_stmt = $pdo->prepare("SELECT id FROM member_roles WHERE person_id = ? AND status = 'active' LIMIT 1");
                         $existing_member_stmt->execute([$resolved_person_id]);
@@ -90,7 +221,7 @@ try {
                     }
                 }
 
-                $pid_for_insert = $resolved_person_id ?: peopleFindOrCreate($pdo, $name, $email ?? '', $phone, 'member');
+                $pid_for_insert = $resolved_person_id ?: $resolvePersonForMember($name, $email ?? '', $phone, 'member');
                 if (!$pid_for_insert) {
                     throw new RuntimeException('Could not resolve person profile for this member.');
                 }
@@ -138,7 +269,7 @@ try {
                     }
 
                     // Unified people sync (enforced)
-                    $pid = $resolved_person_id ?: peopleFindOrCreate($pdo, $name, $email ?? '', $phone, 'member');
+                    $pid = $resolved_person_id ?: $resolvePersonForMember($name, $email ?? '', $phone, 'member');
                     if ($pid) {
                         peopleRelinkRecord($pdo, 'member_roles', $member_id, $pid);
                         if ($from_visitor_id > 0) {

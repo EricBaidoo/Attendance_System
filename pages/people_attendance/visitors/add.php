@@ -48,7 +48,7 @@ try {
             try {
                 $pdo->beginTransaction();
 
-                $visitor_person_id = peopleFindOrCreate($pdo, $name, $email, $phone, 'visitor');
+                $visitor_person_id = peopleFindOrCreateCompat($pdo, $name, $email, $phone, 'visitor');
                 if (!$visitor_person_id) {
                     throw new RuntimeException('Could not resolve person profile for this visitor.');
                 }

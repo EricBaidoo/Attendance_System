@@ -59,19 +59,22 @@ try {
     $source_visitor = null;
     $source_convert = null;
 
-    $source_conditions = [];
+    $source_conditions_people = [];
+    $source_conditions_joined = [];
     $source_params = [];
     if (!empty($member['phone'])) {
-        $source_conditions[] = "p.phone = ?";
+        $source_conditions_people[] = "phone = ?";
+        $source_conditions_joined[] = "p.phone = ?";
         $source_params[] = $member['phone'];
     }
     if (!empty($member['email'])) {
-        $source_conditions[] = "p.email = ?";
+        $source_conditions_people[] = "email = ?";
+        $source_conditions_joined[] = "p.email = ?";
         $source_params[] = $member['email'];
     }
 
-    if (!empty($source_conditions)) {
-        $source_convert_sql = "SELECT * FROM new_convert_roles WHERE person_id IN (SELECT id FROM people WHERE " . implode(' OR ', $source_conditions) . ") ORDER BY date_converted DESC, id DESC LIMIT 1";
+    if (!empty($source_conditions_people)) {
+        $source_convert_sql = "SELECT * FROM new_convert_roles WHERE person_id IN (SELECT id FROM people WHERE " . implode(' OR ', $source_conditions_people) . ") ORDER BY date_converted DESC, id DESC LIMIT 1";
         $source_convert_stmt = $pdo->prepare($source_convert_sql);
         $source_convert_stmt->execute($source_params);
         $source_convert = $source_convert_stmt->fetch();
@@ -81,7 +84,7 @@ try {
             $source_visitor_stmt->execute([$source_convert['visitor_id']]);
             $source_visitor = $source_visitor_stmt->fetch();
         } else {
-            $source_visitor_sql = "SELECT vr.id, p.full_name AS name, vr.created_at, vr.status FROM visitor_roles vr JOIN people p ON vr.person_id = p.id WHERE " . implode(' OR ', $source_conditions) . " ORDER BY vr.created_at DESC, vr.id DESC LIMIT 1";
+            $source_visitor_sql = "SELECT vr.id, p.full_name AS name, vr.created_at, vr.status FROM visitor_roles vr JOIN people p ON vr.person_id = p.id WHERE " . implode(' OR ', $source_conditions_joined) . " ORDER BY vr.created_at DESC, vr.id DESC LIMIT 1";
             $source_visitor_stmt = $pdo->prepare($source_visitor_sql);
             $source_visitor_stmt->execute($source_params);
             $source_visitor = $source_visitor_stmt->fetch();

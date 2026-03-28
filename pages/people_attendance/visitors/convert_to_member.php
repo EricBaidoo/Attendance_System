@@ -97,7 +97,7 @@ try {
 
     $person_id = !empty($visitor['person_id']) ? (int)$visitor['person_id'] : null;
     if (!$person_id) {
-        $person_id = peopleFindOrCreate(
+        $person_id = peopleFindOrCreateCompat(
             $pdo,
             (string)($visitor['name'] ?? ''),
             (string)($visitor['email'] ?? ''),

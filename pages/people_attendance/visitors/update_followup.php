@@ -53,7 +53,7 @@ try {
     if ($result) {
         $pid = !empty($visitor['person_id']) ? (int)$visitor['person_id'] : null;
         if (!$pid) {
-            $pid = peopleFindOrCreate(
+            $pid = peopleFindOrCreateCompat(
                 $pdo,
                 (string)($visitor['name'] ?? ''),
                 (string)($visitor['email'] ?? ''),

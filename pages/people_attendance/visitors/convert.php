@@ -200,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['convert_to_new_conver
                         $error = "Failed to update visitor status.";
                     } else {
                         $visitor_pid = !empty($visitor['person_id']) ? (int)$visitor['person_id'] : null;
-                        $pid = $visitor_pid ?: peopleFindOrCreate($pdo, $name, $email, $phone, 'new_convert');
+                        $pid = $visitor_pid ?: peopleFindOrCreateCompat($pdo, $name, $email, $phone, 'new_convert');
                         if ($pid && $new_convert_id) {
                             peopleRelinkRecord($pdo, 'visitors', (int)$visitor_id, $pid);
                             peopleRelinkRecord($pdo, 'new_converts', $new_convert_id, $pid);
@@ -344,7 +344,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['convert_to_member']))
                             }
 
                             $convert_pid = !empty($convert['person_id']) ? (int)$convert['person_id'] : null;
-                            $pid = $convert_pid ?: peopleFindOrCreate($pdo, $convert['name'], $convert['email'], $convert['phone'], 'member');
+                            $pid = $convert_pid ?: peopleFindOrCreateCompat($pdo, $convert['name'], $convert['email'], $convert['phone'], 'member');
                             if ($pid && $new_member_id) {
                                 peopleRelinkRecord($pdo, 'members', $new_member_id, $pid);
                                 peopleRelinkRecord($pdo, 'new_converts', (int)$convert_id, $pid);

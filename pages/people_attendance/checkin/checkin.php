@@ -301,7 +301,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                     $error = "You have already checked in for this service today. Welcome back!";
                 } else {
                     // Record visitor
-                    $person_id = peopleFindOrCreate($pdo, $name, null, $phone, 'visitor');
+                    $person_id = peopleFindOrCreateCompat($pdo, $name, null, $phone, 'visitor');
                     $visitor_sql = "INSERT INTO visitor_roles (person_id, location, service_id, date, first_time, follow_up_needed, status, created_at) 
                                    VALUES (?, ?, ?, NOW(), 'yes', 'yes', 'pending', NOW())";
                     $pdo->prepare($visitor_sql)->execute([$person_id, $location, $service_id]);
@@ -337,7 +337,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                 $pdo->beginTransaction();
                 
                 // Record returning visitor
-                $person_id = peopleFindOrCreate($pdo, $name, null, $phone, 'visitor');
+                $person_id = peopleFindOrCreateCompat($pdo, $name, null, $phone, 'visitor');
                 $visitor_sql = "INSERT INTO visitor_roles (person_id, service_id, date, first_time, follow_up_needed, status, created_at) 
                                VALUES (?, ?, NOW(), 'no', 'no', 'contacted', NOW())";
                 $pdo->prepare($visitor_sql)->execute([$person_id, $service_id]);

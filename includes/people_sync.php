@@ -188,6 +188,102 @@ if (!function_exists('peopleFindOrCreate')) {
     }
 }
 
+if (!function_exists('peopleFindOrCreateCompat')) {
+    function peopleFindOrCreateCompat(PDO $pdo, string $fullName, ?string $email, ?string $phone, string $stage): ?int {
+        try {
+            return peopleFindOrCreate($pdo, $fullName, $email, $phone, $stage);
+        } catch (Exception $e) {
+            $msg = (string)$e->getMessage();
+            if (stripos($msg, "Unknown column 'p.phone'") === false) {
+                throw $e;
+            }
+        }
+
+        if (!peopleSyncTableExists($pdo)) {
+            return null;
+        }
+
+        $fullName = trim($fullName);
+        $emailNorm = peopleNormalizeEmail($email);
+        $phoneNorm = peopleNormalizePhone($phone);
+
+        $emailMatchId = $emailNorm !== null ? peopleFindByEmailKey($pdo, $emailNorm) : null;
+        $phoneMatchId = $phoneNorm !== null ? peopleFindByPhoneKey($pdo, $phoneNorm) : null;
+
+        if ($emailMatchId !== null && $phoneMatchId !== null && $emailMatchId !== $phoneMatchId) {
+            throw new RuntimeException('Identity conflict: this email and phone are linked to different people records.');
+        }
+
+        $matchedId = $emailMatchId ?? $phoneMatchId;
+        if ($matchedId !== null) {
+            return $matchedId;
+        }
+
+        if ($emailNorm === null && $phoneNorm === null && $fullName !== '') {
+            $findByName = $pdo->prepare('SELECT id FROM people WHERE LOWER(TRIM(full_name)) = LOWER(?) ORDER BY id ASC LIMIT 1');
+            $findByName->execute([$fullName]);
+            $nameId = $findByName->fetchColumn();
+            if ($nameId !== false) {
+                return (int)$nameId;
+            }
+        }
+
+        $columns = [];
+        $values = [];
+
+        if (peopleHasColumn($pdo, 'people', 'full_name')) {
+            $columns[] = 'full_name';
+            $values[] = $fullName;
+        }
+
+        if (peopleHasColumn($pdo, 'people', 'email') && $emailNorm !== null) {
+            $columns[] = 'email';
+            $values[] = $emailNorm;
+        }
+
+        if (peopleHasColumn($pdo, 'people', 'phone') && $phoneNorm !== null) {
+            $columns[] = 'phone';
+            $values[] = $phoneNorm;
+        }
+
+        if (peopleHasColumn($pdo, 'people', 'email_key') && $emailNorm !== null) {
+            $columns[] = 'email_key';
+            $values[] = $emailNorm;
+        }
+
+        if (peopleHasColumn($pdo, 'people', 'phone_key') && $phoneNorm !== null) {
+            $columns[] = 'phone_key';
+            $values[] = $phoneNorm;
+        }
+
+        if (peopleHasColumn($pdo, 'people', 'current_stage')) {
+            $columns[] = 'current_stage';
+            $values[] = $stage;
+        }
+
+        if (peopleHasColumn($pdo, 'people', 'first_seen_at')) {
+            $columns[] = 'first_seen_at';
+            $values[] = date('Y-m-d H:i:s');
+        }
+
+        if (peopleHasColumn($pdo, 'people', 'last_seen_at')) {
+            $columns[] = 'last_seen_at';
+            $values[] = date('Y-m-d H:i:s');
+        }
+
+        if (empty($columns)) {
+            return null;
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($columns), '?'));
+        $sql = 'INSERT INTO people (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')';
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($values);
+
+        return (int)$pdo->lastInsertId();
+    }
+}
+
 if (!function_exists('peopleLinkRecord')) {
     function peopleLinkRecord(PDO $pdo, string $table, int $recordId, int $personId): void {
         if (!peopleSyncTableExists($pdo)) {
@@ -232,7 +328,7 @@ if (!function_exists('peopleSyncRecord')) {
             return null;
         }
 
-        $personId = peopleFindOrCreate($pdo, $fullName, $email, $phone, $targetStage);
+        $personId = peopleFindOrCreateCompat($pdo, $fullName, $email, $phone, $targetStage);
         if (!$personId) {
             return null;
         }
