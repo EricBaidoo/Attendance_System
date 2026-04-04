@@ -135,7 +135,7 @@ try {
 
             if ($hasEmailKey && $hasPhoneKey) {
                 $upd = $pdo->prepare('UPDATE people
-                    SET full_name = COALESCE(NULLIF(?, ""), full_name),
+                    SET full_name = CASE WHEN LENGTH(TRIM(?)) = 0 THEN full_name ELSE ? END,
                         email = COALESCE(email, ?),
                         phone = COALESCE(phone, ?),
                         email_key = COALESCE(email_key, ?),
@@ -143,16 +143,16 @@ try {
                         current_stage = ?,
                         last_seen_at = NOW()
                     WHERE id = ?');
-                $upd->execute([$fullName, $emailNorm, $phoneNorm, $emailNorm, $phoneNorm, $newStage, $matchedId]);
+                $upd->execute([$fullName, $fullName, $emailNorm, $phoneNorm, $emailNorm, $phoneNorm, $newStage, $matchedId]);
             } else {
                 $upd = $pdo->prepare('UPDATE people
-                    SET full_name = COALESCE(NULLIF(?, ""), full_name),
+                    SET full_name = CASE WHEN LENGTH(TRIM(?)) = 0 THEN full_name ELSE ? END,
                         email = COALESCE(email, ?),
                         phone = COALESCE(phone, ?),
                         current_stage = ?,
                         last_seen_at = NOW()
                     WHERE id = ?');
-                $upd->execute([$fullName, $emailNorm, $phoneNorm, $newStage, $matchedId]);
+                $upd->execute([$fullName, $fullName, $emailNorm, $phoneNorm, $newStage, $matchedId]);
             }
 
             return $matchedId;

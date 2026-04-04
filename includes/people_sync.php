@@ -155,7 +155,7 @@ if (!function_exists('peopleFindOrCreate')) {
 
             if (peopleHasColumn($pdo, 'people', 'email_key') && peopleHasColumn($pdo, 'people', 'phone_key')) {
                 $updateSql = 'UPDATE people
-                    SET full_name = COALESCE(NULLIF(?, ""), full_name),
+                    SET full_name = CASE WHEN LENGTH(TRIM(?)) = 0 THEN full_name ELSE ? END,
                         email = COALESCE(email, ?),
                         phone = COALESCE(phone, ?),
                         email_key = COALESCE(email_key, ?),
@@ -164,11 +164,11 @@ if (!function_exists('peopleFindOrCreate')) {
                         last_seen_at = NOW()
                     WHERE id = ?';
                 $updateStmt = $pdo->prepare($updateSql);
-                $updateStmt->execute([$fullName, $emailNorm, $phoneNorm, $emailNorm, $phoneNorm, $newStage, $matchedId]);
+                $updateStmt->execute([$fullName, $fullName, $emailNorm, $phoneNorm, $emailNorm, $phoneNorm, $newStage, $matchedId]);
             } else {
-                $updateSql = 'UPDATE people SET full_name = COALESCE(NULLIF(?, ""), full_name), email = COALESCE(email, ?), phone = COALESCE(phone, ?), current_stage = ?, last_seen_at = NOW() WHERE id = ?';
+                $updateSql = 'UPDATE people SET full_name = CASE WHEN LENGTH(TRIM(?)) = 0 THEN full_name ELSE ? END, email = COALESCE(email, ?), phone = COALESCE(phone, ?), current_stage = ?, last_seen_at = NOW() WHERE id = ?';
                 $updateStmt = $pdo->prepare($updateSql);
-                $updateStmt->execute([$fullName, $emailNorm, $phoneNorm, $newStage, $matchedId]);
+                $updateStmt->execute([$fullName, $fullName, $emailNorm, $phoneNorm, $newStage, $matchedId]);
             }
 
             return $matchedId;
