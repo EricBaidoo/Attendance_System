@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 require_once '../../includes/security.php';
-requireLogin('../../login.php');
+requireLogin('../../login');
 require_once '../../config/database.php';
 
 $page_title = 'Communication Dashboard - Bridge Ministries International';
@@ -62,10 +62,10 @@ include '../../includes/header.php';
     <?php endif; ?>
 
     <nav class="nav nav-pills communication-subnav mb-3">
-        <a class="nav-link active" href="dashboard.php">Overview</a>
-        <a class="nav-link" href="campaigns.php">Campaigns</a>
-        <a class="nav-link" href="sms.php">SMS Center</a>
-        <a class="nav-link" href="logs.php">Logs</a>
+        <a class="nav-link active" href="dashboard">Overview</a>
+        <a class="nav-link" href="campaigns">Campaigns</a>
+        <a class="nav-link" href="sms">SMS Center</a>
+        <a class="nav-link" href="logs">Logs</a>
     </nav>
 
     <section class="row g-3 communication-stats mb-1">
@@ -113,10 +113,11 @@ include '../../includes/header.php';
             <p>Go directly to communication operations.</p>
         </div>
         <div class="communication-quick-links mt-3">
-            <a class="communication-quick-link" href="sms.php"><i class="bi bi-chat-square-text-fill"></i> Open SMS Center</a>
-            <a class="communication-quick-link" href="campaigns.php"><i class="bi bi-broadcast-pin"></i> Manage Campaigns</a>
-            <a class="communication-quick-link" href="announcements.php"><i class="bi bi-megaphone-fill"></i> Manage Announcements</a>
-            <a class="communication-quick-link" href="logs.php"><i class="bi bi-clock-history"></i> View Delivery Logs</a>
+            <a class="communication-quick-link" href="sms"><i class="bi bi-chat-square-text-fill"></i> Open SMS Center</a>
+            <a class="communication-quick-link" href="campaigns"><i class="bi bi-broadcast-pin"></i> Manage Campaigns</a>
+            <a class="communication-quick-link" href="announcements"><i class="bi bi-megaphone-fill"></i> Manage Announcements</a>
+            <a class="communication-quick-link" href="logs"><i class="bi bi-clock-history"></i> View Delivery Logs</a>
+            <a class="communication-quick-link" href="system_logs"><i class="bi bi-journal-text"></i> View System Logs</a>
         </div>
     </div>
 
@@ -200,3 +201,4 @@ include '../../includes/header.php';
 </div>
 
 <?php include '../../includes/footer.php'; ?>
+

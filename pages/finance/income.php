@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 require_once '../../includes/security.php';
-requireLogin('../../login.php');
+requireLogin('../../login');
 require_once '../../config/database.php';
 
 $page_title = 'Finance Revenue - Bridge Ministries International';
@@ -432,7 +432,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), 
 
 if ($success !== '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['finance_flash_success'] = $success;
-    header('Location: dashboard.php');
+    header('Location: dashboard');
     exit;
 }
 
@@ -633,7 +633,7 @@ include '../../includes/header.php';
                         <i class="bi bi-save2-fill me-1"></i> <?php echo htmlspecialchars($submit_label); ?>
                     </button>
                     <?php if ($edit_row): ?>
-                        <a href="income.php" class="btn btn-outline-secondary w-100 mt-2">Cancel Update</a>
+                        <a href="income" class="btn btn-outline-secondary w-100 mt-2">Cancel Update</a>
                     <?php endif; ?>
                 </form>
             </div>
@@ -706,7 +706,7 @@ include '../../includes/header.php';
                                         <td class="text-end fw-semibold finance-col-amount"><?php echo number_format((float)$row['amount'], 2); ?></td>
                                         <td class="text-end finance-col-actions">
                                             <div class="finance-row-actions">
-                                                <a href="income.php?edit=<?php echo (int)$row['id']; ?>" class="btn btn-sm btn-outline-primary">Edit</a>
+                                                <a href="income?edit=<?php echo (int)$row['id']; ?>" class="btn btn-sm btn-outline-primary">Edit</a>
                                                 <form method="POST" class="d-inline" onsubmit="return confirm('Delete this revenue transaction?');">
                                                     <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                                                     <input type="hidden" name="action" value="delete_income">
@@ -784,3 +784,4 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

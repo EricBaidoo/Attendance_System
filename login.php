@@ -44,13 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Log successful login
                 error_log("Successful login: " . $user['username'] . " from " . $_SERVER['REMOTE_ADDR']);
                 
-                $redirect_to = 'index.php';
+                $redirect_to = 'index';
                 if ($normalized_role === 'staff') {
-                    $redirect_to = 'pages/people_attendance/attendance/dashboard.php';
+                    $redirect_to = 'pages/people_attendance/attendance/dashboard';
                 } elseif ($normalized_role === 'accountant') {
-                    $redirect_to = 'pages/finance/dashboard.php';
+                    $redirect_to = 'pages/finance/dashboard';
                 } elseif ($normalized_role === 'communication_team') {
-                    $redirect_to = 'pages/communication/dashboard.php';
+                    $redirect_to = 'pages/communication/dashboard';
                 }
 
                 header('Location: ' . $redirect_to);

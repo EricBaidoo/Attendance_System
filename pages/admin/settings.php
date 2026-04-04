@@ -1,8 +1,8 @@
-<?php
+﻿<?php
 require_once '../../includes/security.php';
 
-requireLogin('../../login.php');
-requireRole('admin', '../../index.php');
+requireLogin('../../login');
+requireRole('admin', '../../index');
 
 $success = '';
 $error = '';
@@ -152,7 +152,8 @@ $page_header = true;
 $page_icon = 'bi bi-gear-fill';
 $page_heading = 'System Settings';
 $page_description = 'Manage departments and cell centers used across the dashboard.';
-$page_actions = '<a href="../../index.php" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>';
+$page_actions = '<a href="logs" class="btn btn-outline-warning me-2"><i class="bi bi-journal-text"></i> Logs</a>
+                 <a href="../../index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>';
 
 include '../../includes/header.php';
 ?>

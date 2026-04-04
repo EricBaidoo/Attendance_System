@@ -1,13 +1,13 @@
-<?php
+﻿<?php
 require_once '../../../includes/security.php';
 
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 $user_role = getUserRole();
 
 // Get visitor ID
 $visitor_id = $_GET['id'] ?? null;
 if (!$visitor_id) {
-    header('Location: list.php');
+    header('Location: list');
     exit;
 }
 
@@ -25,7 +25,7 @@ try {
     $visitor = $stmt->fetch();
     
     if (!$visitor) {
-        header('Location: list.php?error=Visitor not found');
+        header('Location: list?error=Visitor not found');
         exit;
     }
 
@@ -67,7 +67,8 @@ try {
     }
     
 } catch (Exception $e) {
-    die("Database error: " . $e->getMessage());
+    error_log('Database error in visitors view: ' . $e->getMessage());
+    die('Database error. Please contact the administrator.');
 }
 
 // Page configuration
@@ -76,8 +77,8 @@ $page_header = true;
 $page_icon = "bi bi-person-badge";
 $page_heading = "Visitor Details";
 $page_description = "View visitor information and visit history";
-$page_actions = '<a href="edit.php?id=' . $visitor['id'] . '" class="btn btn-warning"><i class="bi bi-pencil"></i> Edit Visitor</a>
-                <a href="list.php" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to List</a>';
+$page_actions = '<a href="edit?id=' . $visitor['id'] . '" class="btn btn-warning"><i class="bi bi-pencil"></i> Edit Visitor</a>
+                <a href="list" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to List</a>';
 
 include '../../../includes/header.php';
 ?>
@@ -236,7 +237,7 @@ include '../../../includes/header.php';
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="edit.php?id=<?php echo $visitor['id']; ?>" class="btn btn-warning">
+                    <a href="edit?id=<?php echo $visitor['id']; ?>" class="btn btn-warning">
                         <i class="bi bi-pencil me-2"></i>Edit Details
                     </a>
                     
@@ -253,13 +254,13 @@ include '../../../includes/header.php';
                     <?php endif; ?>
 
                     <?php if (!empty($linked_convert) && empty($linked_member)): ?>
-                    <a href="convert.php?id=<?php echo $visitor['id']; ?>" class="btn btn-outline-primary">
+                    <a href="convert?id=<?php echo $visitor['id']; ?>" class="btn btn-outline-primary">
                         <i class="bi bi-arrow-up-circle me-2"></i>Continue Conversion
                     </a>
                     <?php endif; ?>
 
                     <?php if (!empty($linked_member)): ?>
-                    <a href="../members/view.php?id=<?php echo (int)$linked_member['id']; ?>" class="btn btn-outline-success">
+                    <a href="../members/view?id=<?php echo (int)$linked_member['id']; ?>" class="btn btn-outline-success">
                         <i class="bi bi-person-check me-2"></i>View Member Record
                     </a>
                     <?php endif; ?>
@@ -276,7 +277,7 @@ include '../../../includes/header.php';
 <script>
 function markFollowUpComplete(visitorId) {
     if (confirm('Mark follow-up as completed for this visitor?')) {
-        fetch('update_followup.php', {
+        fetch('update_followup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -302,13 +303,13 @@ function markFollowUpComplete(visitorId) {
 
 function startConvertJourney(visitorId, visitorName) {
     if (confirm('Start conversion journey for ' + visitorName + '? This will move the visitor to New Convert for doctrine training.')) {
-        window.location.href = 'convert.php?id=' + visitorId;
+        window.location.href = 'convert?id=' + visitorId;
     }
 }
 
 function deleteVisitor(visitorId, visitorName) {
     if (confirm('Are you sure you want to delete ' + visitorName + '? This action cannot be undone.')) {
-        fetch('delete.php', {
+        fetch('delete', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -318,7 +319,7 @@ function deleteVisitor(visitorId, visitorName) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                window.location.href = 'list.php';
+                window.location.href = 'list';
             } else {
                 alert('Error: ' + data.message);
             }

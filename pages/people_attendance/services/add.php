@@ -1,11 +1,11 @@
-<?php
+﻿<?php
 // pages/people_attendance/services/add.php - Add new service template
 session_start();
 require __DIR__ . '/../../../config/database.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../../login.php');
+    header('Location: ../../../login');
     exit;
 }
 
@@ -46,11 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$name, $description ?: $type]);
                 
                 // PRG Pattern: Redirect to prevent form resubmission
-                header('Location: add.php?success=created&name=' . urlencode($name));
+                header('Location: add?success=created&name=' . urlencode($name));
                 exit;
             }
         } catch (PDOException $e) {
-            $error = 'Error adding service: ' . $e->getMessage();
+            error_log('Database error adding service: ' . $e->getMessage());
+            $error = 'Unable to add service right now.';
         }
     }
 }
@@ -81,10 +82,10 @@ include '../../../includes/header.php';
                     </div>
                 </div>
                 <div class="col-lg-4 text-end">
-                    <a href="list.php" class="btn btn-outline-primary me-2">
+                    <a href="list" class="btn btn-outline-primary me-2">
                         <i class="bi bi-arrow-left"></i> Back to Services
                     </a>
-                    <a href="sessions.php" class="btn btn-primary">
+                    <a href="sessions" class="btn btn-primary">
                         <i class="bi bi-calendar-day"></i> Sessions
                     </a>
                 </div>
@@ -181,7 +182,7 @@ include '../../../includes/header.php';
                         <!-- Form Actions -->
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <a href="list.php" class="btn btn-outline-secondary btn-lg w-100">
+                                <a href="list" class="btn btn-outline-secondary btn-lg w-100">
                                     <i class="bi bi-x-circle me-2"></i>Cancel
                                 </a>
                             </div>
@@ -203,7 +204,7 @@ include '../../../includes/header.php';
                     </h5>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <a href="list.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center py-3">
+                            <a href="list" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center py-3">
                                 <div class="text-center">
                                     <i class="bi bi-list-ul fs-4 d-block mb-2"></i>
                                     <span>View All Services</span>
@@ -211,7 +212,7 @@ include '../../../includes/header.php';
                             </a>
                         </div>
                         <div class="col-md-6">
-                            <a href="sessions.php" class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center py-3">
+                            <a href="sessions" class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center py-3">
                                 <div class="text-center">
                                     <i class="bi bi-play-circle fs-4 d-block mb-2"></i>
                                     <span>Start Session</span>

@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 require_once '../../includes/security.php';
-requireLogin('../../login.php');
+requireLogin('../../login');
 require_once '../../config/database.php';
 require_once '../../includes/pdf_export.php';
 
@@ -204,3 +204,4 @@ fputcsv($output, [
 
 fclose($output);
 exit;
+

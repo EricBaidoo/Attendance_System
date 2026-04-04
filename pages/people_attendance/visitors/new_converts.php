@@ -1,7 +1,7 @@
-<?php
+﻿<?php
 require_once '../../../includes/security.php';
 
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 $user_role = getUserRole();
 
 try {
@@ -27,7 +27,7 @@ try {
     }
     $has_period_filter = (bool)($date_from || $date_to);
     if ($date_from && $date_to) {
-        $period_label = date('M j, Y', strtotime($date_from)) . ' – ' . date('M j, Y', strtotime($date_to));
+        $period_label = date('M j, Y', strtotime($date_from)) . ' â€“ ' . date('M j, Y', strtotime($date_to));
     } elseif ($date_from) {
         $period_label = 'From ' . date('M j, Y', strtotime($date_from));
     } elseif ($date_to) {
@@ -134,7 +134,8 @@ try {
     $total_pages = ceil($total_converts / $limit);
     
 } catch (Exception $e) {
-    die("Database error: " . $e->getMessage());
+    error_log('Database error loading new converts page: ' . $e->getMessage());
+    die('Database error. Please contact the administrator.');
 }
 
 $page_title = "New Converts - Bridge Ministries International";
@@ -163,10 +164,10 @@ include '../../../includes/header.php';
                     </div>
                 </div>
                 <div class="col-lg-4 text-end">
-                    <a href="../visitors/list.php" class="btn btn-outline-primary me-2">
+                    <a href="../visitors/list" class="btn btn-outline-primary me-2">
                         <i class="bi bi-person-badge"></i> Visitors
                     </a>
-                    <a href="../members/add.php" class="btn btn-primary">
+                    <a href="../members/add" class="btn btn-primary">
                         <i class="bi bi-person-plus"></i> Add Member
                     </a>
                 </div>
@@ -321,7 +322,7 @@ include '../../../includes/header.php';
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-search"></i> Search & Filter
                         </button>
-                        <a href="new_converts.php" class="btn btn-outline-secondary ms-2">
+                        <a href="new_converts" class="btn btn-outline-secondary ms-2">
                             <i class="bi bi-x-circle"></i> Clear
                         </a>
                 </div>
@@ -353,7 +354,7 @@ include '../../../includes/header.php';
                     <i class="bi bi-heart text-muted empty-state-icon"></i>
                     <h4 class="text-muted mt-3 mb-2">No Converts Found</h4>
                     <p class="text-muted mb-4">No new converts match your search criteria.</p>
-                    <a href="../visitors/list.php" class="btn btn-primary">
+                    <a href="../visitors/list" class="btn btn-primary">
                         <i class="bi bi-person-badge"></i> View Visitors
                     </a>
                 </div>
@@ -416,10 +417,10 @@ include '../../../includes/header.php';
                                     <td>
                                         <?php $converted_at = $convert['date_converted'] ?: $convert['created_at']; ?>
                                         <span class="d-block fw-semibold">
-                                            <?php echo $converted_at ? date('M j, Y', strtotime($converted_at)) : '—'; ?>
+                                            <?php echo $converted_at ? date('M j, Y', strtotime($converted_at)) : 'â€”'; ?>
                                         </span>
                                         <small class="text-muted">
-                                            <?php echo $converted_at ? date('g:i A', strtotime($converted_at)) : '—'; ?>
+                                            <?php echo $converted_at ? date('g:i A', strtotime($converted_at)) : 'â€”'; ?>
                                         </small>
                                     </td>
                                     <td>
@@ -428,7 +429,7 @@ include '../../../includes/header.php';
                                                     <i class="bi bi-person-badge me-1"></i>Visitor #<?php echo (int)$convert['origin_visitor_id']; ?>
                                                 </span>
                                                 <small class="text-muted">
-                                                    <?php echo $convert['origin_visit_date'] ? date('M j, Y', strtotime($convert['origin_visit_date'])) : '—'; ?>
+                                                    <?php echo $convert['origin_visit_date'] ? date('M j, Y', strtotime($convert['origin_visit_date'])) : 'â€”'; ?>
                                                 </small>
                                             <?php else: ?>
                                                 <small class="text-muted"><i class="bi bi-dash-circle me-1"></i>Direct add</small>
@@ -464,10 +465,10 @@ include '../../../includes/header.php';
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm">
                                             <?php if (!empty($convert['visitor_id'])): ?>
-                                            <a href="convert.php?id=<?php echo (int)$convert['visitor_id']; ?>" class="btn btn-outline-primary" title="Open Convert Workflow">
+                                            <a href="convert?id=<?php echo (int)$convert['visitor_id']; ?>" class="btn btn-outline-primary" title="Open Convert Workflow">
                                                 <i class="bi bi-eye"></i>
                                             </a>
-                                            <a href="convert.php?id=<?php echo (int)$convert['visitor_id']; ?>" class="btn btn-outline-secondary" title="Manage Convert">
+                                            <a href="convert?id=<?php echo (int)$convert['visitor_id']; ?>" class="btn btn-outline-secondary" title="Manage Convert">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                             <?php else: ?>
@@ -484,12 +485,12 @@ include '../../../includes/header.php';
                                                 </button>
                                                 <ul class="dropdown-menu">
                                                     <?php if ($convert['status'] !== 'converted_to_member' && !empty($convert['visitor_id'])): ?>
-                                                    <li><a class="dropdown-item" href="convert.php?id=<?php echo (int)$convert['visitor_id']; ?>">
+                                                    <li><a class="dropdown-item" href="convert?id=<?php echo (int)$convert['visitor_id']; ?>">
                                                         <i class="bi bi-person-check me-2"></i>Convert to Member
                                                     </a></li>
                                                     <?php endif; ?>
                                                     <?php if (!empty($convert['visitor_id'])): ?>
-                                                    <li><a class="dropdown-item" href="convert.php?id=<?php echo (int)$convert['visitor_id']; ?>">
+                                                    <li><a class="dropdown-item" href="convert?id=<?php echo (int)$convert['visitor_id']; ?>">
                                                         <i class="bi bi-droplet me-2"></i>Update Baptism Status
                                                     </a></li>
                                                     <?php endif; ?>

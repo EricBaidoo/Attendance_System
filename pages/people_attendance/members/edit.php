@@ -1,13 +1,13 @@
-<?php
+﻿<?php
 require_once '../../../includes/security.php';
 require_once '../../../includes/people_sync.php';
 
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 $user_role = getUserRole();
 
 $member_id = $_GET['id'] ?? null;
 if (!$member_id) {
-    header('Location: list.php');
+    header('Location: list');
     exit;
 }
 
@@ -78,14 +78,15 @@ try {
                     );
 
                     $pdo->commit();
-                    header('Location: view.php?id=' . $member_id . '&success=Member updated successfully');
+                    header('Location: view?id=' . $member_id . '&success=Member updated successfully');
                     exit;
                 }
             } catch (Exception $e) {
                 if ($pdo->inTransaction()) {
                     $pdo->rollBack();
                 }
-                $error = 'Database error: ' . $e->getMessage();
+                error_log('Database error updating member: ' . $e->getMessage());
+                $error = 'Database operation failed. Please try again later.';
             }
         }
     }
@@ -95,7 +96,7 @@ try {
     $member = $stmt->fetch();
 
     if (!$member) {
-        header('Location: list.php?error=Member not found');
+        header('Location: list?error=Member not found');
         exit;
     }
 
@@ -120,7 +121,8 @@ try {
         $cell_centers = [];
     }
 } catch (Exception $e) {
-    die('Database error: ' . $e->getMessage());
+    error_log('Database error loading member edit page: ' . $e->getMessage());
+    die('Database error. Please contact the administrator.');
 }
 
 $page_title = "Edit Member - {$member['name']}";
@@ -128,8 +130,8 @@ $page_header = true;
 $page_icon = 'bi bi-pencil';
 $page_heading = 'Edit Member';
 $page_description = 'Update member information and details';
-$page_actions = '<a href="view.php?id=' . $member['id'] . '" class="btn btn-secondary"><i class="bi bi-eye"></i> View Member</a>
-                <a href="list.php" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to List</a>';
+$page_actions = '<a href="view?id=' . $member['id'] . '" class="btn btn-secondary"><i class="bi bi-eye"></i> View Member</a>
+                <a href="list" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to List</a>';
 
 include '../../../includes/header.php';
 ?>
@@ -314,8 +316,8 @@ include '../../../includes/header.php';
                 </div>
 
                 <div class="d-flex flex-wrap gap-2 justify-content-end mt-4 pt-3 border-top">
-                    <a href="view.php?id=<?php echo $member['id']; ?>" class="btn btn-outline-secondary"><i class="bi bi-eye me-1"></i>View</a>
-                    <a href="list.php" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+                    <a href="view?id=<?php echo $member['id']; ?>" class="btn btn-outline-secondary"><i class="bi bi-eye me-1"></i>View</a>
+                    <a href="list" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
                     <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Update Member</button>
                 </div>
             </form>

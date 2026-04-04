@@ -1,11 +1,11 @@
-<?php
+﻿<?php
 // pages/people_attendance/services/list.php - Manage service templates
 session_start();
 require __DIR__ . '/../../../config/database.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../../login.php');
+    header('Location: ../../../login');
     exit;
 }
 
@@ -55,11 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $update_stmt->execute([$name, $description, $service_id]);
                     
                     // PRG Pattern: Redirect to prevent form resubmission
-                    header('Location: list.php?success=updated&name=' . urlencode($name));
+                    header('Location: list?success=updated&name=' . urlencode($name));
                     exit;
                 }
             } catch (PDOException $e) {
-                $error = 'Error updating service: ' . $e->getMessage();
+                error_log('Database error updating service: ' . $e->getMessage());
+                $error = 'Unable to update service right now.';
             }
         } else {
             $error = 'Service name is required.';
@@ -84,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $deactivate_stmt->execute([$service_id]);
                     
                     // PRG Pattern: Redirect to prevent form resubmission
-                    header('Location: list.php?success=deactivated');
+                    header('Location: list?success=deactivated');
                     exit;
                 } else {
                     // Safe to delete
@@ -93,11 +94,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $delete_stmt->execute([$service_id]);
                     
                     // PRG Pattern: Redirect to prevent form resubmission
-                    header('Location: list.php?success=deleted');
+                    header('Location: list?success=deleted');
                     exit;
                 }
             } catch (PDOException $e) {
-                $error = 'Error deleting service: ' . $e->getMessage();
+                error_log('Database error deleting service: ' . $e->getMessage());
+                $error = 'Unable to delete service right now.';
             }
         } else {
             $error = 'Service ID is required.';
@@ -115,10 +117,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $update_status_stmt->execute([$new_status, $service_id]);
                 
                 // PRG Pattern: Redirect to prevent form resubmission
-                header('Location: list.php?success=status_changed&status=' . $new_status);
+                header('Location: list?success=status_changed&status=' . $new_status);
                 exit;
             } catch (PDOException $e) {
-                $error = 'Error updating service status: ' . $e->getMessage();
+                error_log('Database error updating service status: ' . $e->getMessage());
+                $error = 'Unable to update service status right now.';
             }
         } else {
             $error = 'Invalid service status.';
@@ -178,10 +181,10 @@ include '../../../includes/header.php';
                     </div>
                 </div>
                 <div class="col-lg-4 text-end">
-                    <a href="sessions.php" class="btn btn-outline-primary me-2">
+                    <a href="sessions" class="btn btn-outline-primary me-2">
                         <i class="bi bi-calendar-day"></i> Today's Sessions
                     </a>
-                    <a href="add.php" class="btn btn-primary">
+                    <a href="add" class="btn btn-primary">
                         <i class="bi bi-plus-circle"></i> Add Service
                     </a>
                 </div>
@@ -301,7 +304,7 @@ include '../../../includes/header.php';
                     <i class="bi bi-plus-circle text-muted empty-state-icon"></i>
                     <h4 class="text-muted mt-3 mb-2">No Service Templates</h4>
                     <p class="text-muted mb-4">Create your first service template to get started with session management.</p>
-                    <a href="add.php" class="btn btn-primary">
+                    <a href="add" class="btn btn-primary">
                         <i class="bi bi-plus"></i> Add First Service
                     </a>
                 </div>
@@ -419,10 +422,10 @@ include '../../../includes/header.php';
                                     <!-- Action Buttons -->
                                     <?php if ($service['template_status'] === 'active'): ?>
                                         <div class="d-flex gap-2">
-                                            <a href="sessions.php" class="btn btn-primary btn-sm flex-fill">
+                                            <a href="sessions" class="btn btn-primary btn-sm flex-fill">
                                                 <i class="bi bi-play-fill"></i> Start Session
                                             </a>
-                                            <a href="history.php?service_id=<?php echo $service['id']; ?>" 
+                                            <a href="history?service_id=<?php echo $service['id']; ?>" 
                                                class="btn btn-outline-primary btn-sm flex-fill">
                                                 <i class="bi bi-clock-history"></i> View History
                                             </a>

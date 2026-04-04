@@ -1,5 +1,5 @@
-<?php
+﻿<?php
 // Redirect to visitors list
-header('Location: list.php');
+header('Location: list');
 exit;
 ?>

@@ -1,11 +1,11 @@
-<?php
+﻿<?php
 require_once '../../../includes/security.php';
 require_once '../../../includes/people_sync.php';
 
 if (empty($_SESSION['user_id'])) {
     http_response_code(401);
     if (isset($_GET['return'])) {
-        header('Location: list.php?error=' . urlencode('Unauthorized'));
+        header('Location: list?error=' . urlencode('Unauthorized'));
         exit;
     }
     header('Content-Type: application/json');
@@ -17,7 +17,7 @@ $user_role = getUserRole();
 if (!canAccessModule('people_attendance', $user_role)) {
     http_response_code(403);
     if (isset($_GET['return'])) {
-        header('Location: list.php?error=' . urlencode('Insufficient permissions'));
+        header('Location: list?error=' . urlencode('Insufficient permissions'));
         exit;
     }
     header('Content-Type: application/json');
@@ -44,7 +44,7 @@ if ($is_get_request) {
         
         if (!$current) {
             if (isset($_GET['return'])) {
-                header('Location: list.php?error=' . urlencode('Member not found'));
+                header('Location: list?error=' . urlencode('Member not found'));
                 exit;
             }
             header('Content-Type: application/json');
@@ -71,7 +71,7 @@ if ($is_get_request) {
 // Validate status
 if (!in_array($new_status, ['active', 'inactive'])) {
     if ($is_get_request && isset($_GET['return'])) {
-        header('Location: list.php?error=' . urlencode('Invalid status value'));
+        header('Location: list?error=' . urlencode('Invalid status value'));
         exit;
     }
     header('Content-Type: application/json');
@@ -91,7 +91,7 @@ try {
     
     if (!$member) {
         if ($is_get_request && isset($_GET['return'])) {
-            header('Location: list.php?error=' . urlencode('Member not found'));
+            header('Location: list?error=' . urlencode('Member not found'));
             exit;
         }
         header('Content-Type: application/json');
@@ -116,7 +116,7 @@ try {
 
         if ($is_get_request && isset($_GET['return'])) {
             $status_text = $new_status === 'active' ? 'activated' : 'deactivated';
-            header('Location: list.php?success=' . urlencode('Member "' . $member['name'] . '" ' . $status_text . ' successfully'));
+            header('Location: list?success=' . urlencode('Member "' . $member['name'] . '" ' . $status_text . ' successfully'));
             exit;
         }
         header('Content-Type: application/json');
@@ -128,7 +128,7 @@ try {
         ]);
     } else {
         if ($is_get_request && isset($_GET['return'])) {
-            header('Location: list.php?error=' . urlencode('Failed to update status'));
+            header('Location: list?error=' . urlencode('Failed to update status'));
             exit;
         }
         header('Content-Type: application/json');
@@ -137,10 +137,10 @@ try {
     
 } catch (Exception $e) {
     if ($is_get_request && isset($_GET['return'])) {
-        header('Location: list.php?error=' . urlencode('Database error: ' . $e->getMessage()));
+        header('Location: list?error=' . urlencode(reportDatabaseException($e)));
         exit;
     }
     header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => reportDatabaseException($e)]);
 }
 ?>

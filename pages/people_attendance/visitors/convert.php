@@ -1,8 +1,8 @@
-<?php
+﻿<?php
 require_once '../../../includes/security.php';
 require_once '../../../includes/people_sync.php';
 
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 $user_role = getUserRole();
 
 // Helper function to convert empty strings to null for database
@@ -13,7 +13,7 @@ function emptyToNull($value) {
 // Get visitor ID
 $visitor_id = $_GET['id'] ?? null;
 if (!$visitor_id) {
-    header('Location: list.php');
+    header('Location: list');
     exit;
 }
 
@@ -91,7 +91,7 @@ try {
     $visitor = $visitor_stmt->fetch();
     
     if (!$visitor) {
-        header('Location: list.php?error=' . urlencode('Visitor not found'));
+        header('Location: list?error=' . urlencode('Visitor not found'));
         exit;
     }
     
@@ -100,7 +100,8 @@ try {
     $departments = $departments_stmt->fetchAll();
     
 } catch (Exception $e) {
-    $error = "Database error: " . $e->getMessage();
+    error_log('Database error loading visitor conversion page: ' . $e->getMessage());
+    $error = 'Database operation failed. Please try again later.';
 }
 
 // Handle form submission - Convert to New Convert
@@ -213,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['convert_to_new_conver
                         $message = "Visitor successfully converted to New Convert!";
                         
                         // Redirect to new converts page after successful conversion
-                        header('Location: new_converts.php?message=' . urlencode($message));
+                        header('Location: new_converts?message=' . urlencode($message));
                         exit;
                     }
                 }
@@ -224,7 +225,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['convert_to_new_conver
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            $error = "Database error: " . $e->getMessage();
+            error_log('Database error converting visitor to new convert: ' . $e->getMessage());
+            $error = 'Database operation failed. Please try again later.';
         }
     }
 }
@@ -360,7 +362,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['convert_to_member']))
                             $message = "New Convert successfully converted to Full Member!";
                             
                             // Redirect to members list
-                            header('Location: ../members/list.php?message=' . urlencode($message));
+                            header('Location: ../members/list?message=' . urlencode($message));
                             exit;
                         }
                     }
@@ -371,7 +373,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['convert_to_member']))
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            $error = "Database error: " . $e->getMessage();
+            error_log('Database error converting new convert to member: ' . $e->getMessage());
+            $error = 'Database operation failed. Please try again later.';
         }
     }
 }
@@ -502,7 +505,7 @@ include '../../../includes/header.php';
                     </div>
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                        <a href="list.php" class="btn btn-outline-secondary">
+                        <a href="list" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Back to List
                         </a>
                         <button type="submit" name="convert_to_new_convert" class="btn btn-convert">

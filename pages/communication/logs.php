@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 require_once '../../includes/security.php';
-requireLogin('../../login.php');
+requireLogin('../../login');
 require_once '../../config/database.php';
 
 $page_title = 'Communication Logs - Bridge Ministries International';
@@ -97,10 +97,11 @@ include '../../includes/header.php';
     <?php endif; ?>
 
     <nav class="nav nav-pills communication-subnav mb-3">
-        <a class="nav-link" href="dashboard.php">Overview</a>
-        <a class="nav-link" href="campaigns.php">Campaigns</a>
-        <a class="nav-link" href="sms.php">SMS Center</a>
-        <a class="nav-link active" href="logs.php">Logs</a>
+        <a class="nav-link" href="dashboard">Overview</a>
+        <a class="nav-link" href="campaigns">Campaigns</a>
+        <a class="nav-link" href="sms">SMS Center</a>
+        <a class="nav-link active" href="logs">Logs</a>
+        <a class="nav-link" href="system_logs">System Logs</a>
     </nav>
 
     <section class="row g-3 communication-stats mb-1">
@@ -177,7 +178,7 @@ include '../../includes/header.php';
                 <button type="submit" class="btn btn-primary w-100">Apply</button>
             </div>
             <div class="col-12 col-md-2 d-flex align-items-end">
-                <a href="logs.php" class="btn btn-outline-secondary w-100">Reset</a>
+                <a href="logs" class="btn btn-outline-secondary w-100">Reset</a>
             </div>
         </form>
     </div>
@@ -229,3 +230,4 @@ include '../../includes/header.php';
 </div>
 
 <?php include '../../includes/footer.php'; ?>
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // pages/people_attendance/reports/export.php - Data Export Handler
 require_once '../../../includes/security.php';
 require_once '../../../config/database.php';
@@ -6,7 +6,7 @@ require_once '../../../includes/error_handler.php';
 require_once '../../../includes/pdf_export.php';
 
 // Require login and check permissions
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 
 // Validate export format
 $allowed_formats = ['csv', 'excel', 'pdf'];

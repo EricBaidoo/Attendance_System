@@ -1,8 +1,8 @@
-<?php
+﻿<?php
 require_once '../../../includes/security.php';
 require_once '../../../includes/people_sync.php';
 
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 $user_role = getUserRole();
 
 try {
@@ -280,7 +280,7 @@ try {
                     }
 
                     $pdo->commit();
-                    header('Location: view.php?id=' . $member_id . '&success=Member added successfully');
+                    header('Location: view?id=' . $member_id . '&success=Member added successfully');
                     exit;
                 }
 
@@ -290,12 +290,14 @@ try {
                 if ($pdo->inTransaction()) {
                     $pdo->rollBack();
                 }
-                $error = $e->getMessage();
+                error_log('Runtime error adding member: ' . $e->getMessage());
+                $error = 'Unable to add member right now.';
             } catch (Exception $e) {
                 if ($pdo->inTransaction()) {
                     $pdo->rollBack();
                 }
-                $error = 'Database error: ' . $e->getMessage();
+                error_log('Database error adding member: ' . $e->getMessage());
+                $error = 'Database operation failed. Please try again later.';
             }
         } else {
             $error = 'Please provide both name and phone number';
@@ -312,7 +314,8 @@ try {
         $cell_centers = [];
     }
 } catch (Exception $e) {
-    die('Database error: ' . $e->getMessage());
+    error_log('Database error loading member add page: ' . $e->getMessage());
+    die('Database error. Please contact the administrator.');
 }
 
 $page_title = 'Add Member - Bridge Ministries International';
@@ -320,7 +323,7 @@ $page_header = true;
 $page_icon = 'bi bi-person-plus';
 $page_heading = 'Add New Member';
 $page_description = 'Register a new church member';
-$page_actions = '<a href="list.php" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to List</a>';
+$page_actions = '<a href="list" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to List</a>';
 
 include '../../../includes/header.php';
 ?>
@@ -505,7 +508,7 @@ include '../../../includes/header.php';
                 </div>
 
                 <div class="d-flex flex-wrap gap-2 justify-content-end mt-4 pt-3 border-top">
-                    <a href="list.php" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+                    <a href="list" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
                     <button type="reset" class="btn btn-outline-warning"><i class="bi bi-arrow-clockwise me-1"></i>Reset</button>
                     <button type="submit" class="btn btn-success"><i class="bi bi-check-circle-fill me-1"></i>Add Member</button>
                 </div>

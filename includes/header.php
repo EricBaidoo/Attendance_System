@@ -69,17 +69,17 @@ $_isAttendance = strpos($_req, '/attendance') !== false && !$_isAttDash;
 $_isReports    = strpos($_req, '/reports')    !== false;
 $_isAdmin      = strpos($_req, '/admin')      !== false;
 $_isFinance    = strpos($_req, '/finance')    !== false;
-$_isFinanceDash = strpos($_req, '/finance/dashboard.php') !== false;
-$_isFinanceIncome = strpos($_req, '/finance/income.php') !== false;
-$_isFinanceExpenses = strpos($_req, '/finance/expenses.php') !== false;
-$_isFinanceReports = strpos($_req, '/finance/reports.php') !== false;
-$_isFinanceTithers = strpos($_req, '/finance/tithers.php') !== false;
+$_isFinanceDash = strpos($_req, '/finance/dashboard') !== false;
+$_isFinanceIncome = strpos($_req, '/finance/income') !== false;
+$_isFinanceExpenses = strpos($_req, '/finance/expenses') !== false;
+$_isFinanceReports = strpos($_req, '/finance/reports') !== false;
+$_isFinanceTithers = strpos($_req, '/finance/tithers') !== false;
 $_isCommunication = strpos($_req, '/communication') !== false;
-$_isCommDash = strpos($_req, '/communication/dashboard.php') !== false;
-$_isCommCampaigns = strpos($_req, '/communication/campaigns.php') !== false;
-$_isCommSms = strpos($_req, '/communication/sms.php') !== false;
-$_isCommLogs = strpos($_req, '/communication/logs.php') !== false;
-$_isUsers      = strpos($_req, '/admin/users.php') !== false;
+$_isCommDash = strpos($_req, '/communication/dashboard') !== false;
+$_isCommCampaigns = strpos($_req, '/communication/campaigns') !== false;
+$_isCommSms = strpos($_req, '/communication/sms') !== false;
+$_isCommLogs = strpos($_req, '/communication/logs') !== false;
+$_isUsers      = strpos($_req, '/admin/users') !== false;
 
 function _navClass(bool $a): string { return $a ? ' class="sidebar-link active"' : ' class="sidebar-link"'; }
 
@@ -104,7 +104,7 @@ $_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapse
 <!-- ═══════════════════════════ SIDEBAR ═══════════════════════════════════ -->
 <nav id="sidebar"<?php if ($_collapsed) echo ' class="collapsed"'; ?>>
 
-    <a class="sidebar-brand" href="<?php echo $relative_path; ?>index.php">
+    <a class="sidebar-brand" href="<?php echo $relative_path; ?>index">
         <img class="sidebar-brand-logo"
              src="<?php echo $relative_path; ?>assets/css/image/bmi logo.png" alt="BMI">
         <span class="sidebar-brand-text">
@@ -116,7 +116,7 @@ $_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapse
     <div class="sidebar-nav-wrap">
 
         <!-- Hub -->
-        <a href="<?php echo $relative_path; ?>index.php"
+        <a href="<?php echo $relative_path; ?>index"
            title="Home Dashboard"<?php echo _navClass($_isHub); ?>>
             <i class="bi bi-grid-1x2-fill"></i>
             <span class="sidebar-link-label">Home Dashboard</span>
@@ -127,42 +127,42 @@ $_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapse
         <div class="sidebar-section">People &amp; Attendance</div>
         <div class="sidebar-section-divider"></div>
 
-          <a href="<?php echo $relative_path; ?>pages/people_attendance/attendance/dashboard.php"
+          <a href="<?php echo $relative_path; ?>pages/people_attendance/attendance/dashboard"
            title="Attendance Overview"<?php echo _navClass($_isAttDash || $_isAttendance); ?>>
             <i class="bi bi-speedometer2"></i>
             <span class="sidebar-link-label">Overview</span>
         </a>
-          <a href="<?php echo $relative_path; ?>pages/people_attendance/members/list.php"
+          <a href="<?php echo $relative_path; ?>pages/people_attendance/members/list"
            title="Members"<?php echo _navClass($_isMembers); ?>>
             <i class="bi bi-people-fill"></i>
             <span class="sidebar-link-label">Members</span>
         </a>
-          <a href="<?php echo $relative_path; ?>pages/people_attendance/visitors/list.php"
+          <a href="<?php echo $relative_path; ?>pages/people_attendance/visitors/list"
            title="Visitors"<?php echo _navClass($_isVisitors); ?>>
             <i class="bi bi-person-badge"></i>
             <span class="sidebar-link-label">Visitors</span>
         </a>
-          <a href="<?php echo $relative_path; ?>pages/people_attendance/visitors/new_converts.php"
+          <a href="<?php echo $relative_path; ?>pages/people_attendance/visitors/new_converts"
            title="New Converts"<?php echo _navClass($_isConverts); ?>>
             <i class="bi bi-person-plus-fill"></i>
             <span class="sidebar-link-label">New Converts</span>
         </a>
-          <a href="<?php echo $relative_path; ?>pages/people_attendance/services/list.php"
+          <a href="<?php echo $relative_path; ?>pages/people_attendance/services/list"
            title="Services"<?php echo _navClass($_isServices); ?>>
             <i class="bi bi-calendar-event-fill"></i>
             <span class="sidebar-link-label">Services</span>
         </a>
-          <a href="<?php echo $relative_path; ?>pages/people_attendance/services/sessions.php"
+          <a href="<?php echo $relative_path; ?>pages/people_attendance/services/sessions"
            title="Sessions &amp; Attendance"<?php echo _navClass($_isSessions); ?>>
             <i class="bi bi-clipboard-check-fill"></i>
             <span class="sidebar-link-label">Sessions</span>
         </a>
-          <a href="<?php echo $relative_path; ?>pages/people_attendance/checkin/index.php"
+          <a href="<?php echo $relative_path; ?>pages/people_attendance/checkin/index"
            title="Check-in"<?php echo _navClass($_isCheckin); ?>>
             <i class="bi bi-qr-code-scan"></i>
             <span class="sidebar-link-label">Check-in</span>
         </a>
-          <a href="<?php echo $relative_path; ?>pages/people_attendance/reports/report.php"
+          <a href="<?php echo $relative_path; ?>pages/people_attendance/reports/report"
            title="Reports"<?php echo _navClass($_isReports); ?>>
             <i class="bi bi-graph-up-arrow"></i>
             <span class="sidebar-link-label">Reports</span>
@@ -173,27 +173,27 @@ $_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapse
         <!-- ── Finance ── -->
         <div class="sidebar-section">Finance</div>
         <div class="sidebar-section-divider"></div>
-        <a href="<?php echo $relative_path; ?>pages/finance/dashboard.php"
+          <a href="<?php echo $relative_path; ?>pages/finance/dashboard"
               title="Finance Overview"<?php echo _navClass($_isFinanceDash || ($_isFinance && !$_isFinanceIncome && !$_isFinanceExpenses && !$_isFinanceReports && !$_isFinanceTithers)); ?>>
             <i class="bi bi-cash-coin"></i>
             <span class="sidebar-link-label">Overview</span>
         </a>
-        <a href="<?php echo $relative_path; ?>pages/finance/income.php"
+        <a href="<?php echo $relative_path; ?>pages/finance/income"
            title="Finance Income"<?php echo _navClass($_isFinanceIncome); ?>>
             <i class="bi bi-wallet2"></i>
             <span class="sidebar-link-label">Income</span>
         </a>
-        <a href="<?php echo $relative_path; ?>pages/finance/expenses.php"
+        <a href="<?php echo $relative_path; ?>pages/finance/expenses"
            title="Finance Expenses"<?php echo _navClass($_isFinanceExpenses); ?>>
             <i class="bi bi-receipt-cutoff"></i>
             <span class="sidebar-link-label">Expenses</span>
         </a>
-        <a href="<?php echo $relative_path; ?>pages/finance/reports.php"
+        <a href="<?php echo $relative_path; ?>pages/finance/reports"
            title="Finance Reports"<?php echo _navClass($_isFinanceReports); ?>>
             <i class="bi bi-bar-chart-line-fill"></i>
             <span class="sidebar-link-label">Reports</span>
         </a>
-        <a href="<?php echo $relative_path; ?>pages/finance/tithers.php"
+        <a href="<?php echo $relative_path; ?>pages/finance/tithers"
            title="Tithers"<?php echo _navClass($_isFinanceTithers); ?>>
             <i class="bi bi-journal-bookmark-fill"></i>
             <span class="sidebar-link-label">Tithers</span>
@@ -204,22 +204,22 @@ $_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapse
         <!-- ── Communication ── -->
         <div class="sidebar-section">Communication</div>
         <div class="sidebar-section-divider"></div>
-        <a href="<?php echo $relative_path; ?>pages/communication/dashboard.php"
+        <a href="<?php echo $relative_path; ?>pages/communication/dashboard"
                             title="Communication Overview"<?php echo _navClass($_isCommDash || ($_isCommunication && !$_isCommCampaigns && !$_isCommSms && !$_isCommLogs)); ?>>
             <i class="bi bi-chat-dots-fill"></i>
             <span class="sidebar-link-label">Overview</span>
         </a>
-        <a href="<?php echo $relative_path; ?>pages/communication/campaigns.php"
+        <a href="<?php echo $relative_path; ?>pages/communication/campaigns"
            title="Campaigns"<?php echo _navClass($_isCommCampaigns); ?>>
             <i class="bi bi-broadcast-pin"></i>
             <span class="sidebar-link-label">Campaigns</span>
         </a>
-        <a href="<?php echo $relative_path; ?>pages/communication/sms.php"
+        <a href="<?php echo $relative_path; ?>pages/communication/sms"
            title="SMS Center"<?php echo _navClass($_isCommSms); ?>>
             <i class="bi bi-chat-square-text-fill"></i>
             <span class="sidebar-link-label">SMS Center</span>
         </a>
-        <a href="<?php echo $relative_path; ?>pages/communication/logs.php"
+        <a href="<?php echo $relative_path; ?>pages/communication/logs"
            title="Delivery Logs"<?php echo _navClass($_isCommLogs); ?>>
             <i class="bi bi-clock-history"></i>
             <span class="sidebar-link-label">Logs</span>
@@ -239,12 +239,12 @@ $_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapse
         <!-- ── Administration ── -->
         <div class="sidebar-section">Administration</div>
         <div class="sidebar-section-divider"></div>
-          <a href="<?php echo $relative_path; ?>pages/admin/users.php"
+          <a href="<?php echo $relative_path; ?>pages/admin/users"
               title="Users"<?php echo _navClass($_isUsers); ?>>
                 <i class="bi bi-person-gear"></i>
                 <span class="sidebar-link-label">Users</span>
           </a>
-        <a href="<?php echo $relative_path; ?>pages/admin/settings.php"
+        <a href="<?php echo $relative_path; ?>pages/admin/settings"
            title="Settings"<?php echo _navClass($_isAdmin); ?>>
             <i class="bi bi-gear-fill"></i>
             <span class="sidebar-link-label">Settings</span>
@@ -261,7 +261,7 @@ $_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapse
                 <span class="sidebar-user-role"><?php echo htmlspecialchars($user_role); ?></span>
             </div>
         </div>
-        <a href="<?php echo $relative_path; ?>logout.php" class="sidebar-logout" title="Logout">
+        <a href="<?php echo $relative_path; ?>logout" class="sidebar-logout" title="Logout">
             <i class="bi bi-box-arrow-right"></i>
             <span class="sidebar-logout-text">Logout</span>
         </a>

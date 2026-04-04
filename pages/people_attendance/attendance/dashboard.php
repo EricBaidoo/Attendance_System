@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 require_once '../../../includes/security.php';
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 
 $page_title   = "People & Attendance Overview - Bridge Ministries International";
 $page_heading = "People & Attendance";
@@ -83,7 +83,7 @@ include '../../../includes/header.php';
                         <div class="card-icon"><i class="bi bi-people-fill text-white fs-1"></i></div>
                     </div>
                     <div class="mt-3">
-                        <a href="../members/list.php" class="btn btn-light btn-sm w-100 fw-semibold">
+                        <a href="../members/list" class="btn btn-light btn-sm w-100 fw-semibold">
                             <i class="bi bi-arrow-right me-1"></i> Manage Members
                         </a>
                     </div>
@@ -104,7 +104,7 @@ include '../../../includes/header.php';
                         <div class="card-icon"><i class="bi bi-person-check-fill text-white fs-1"></i></div>
                     </div>
                     <div class="mt-3">
-                        <a href="../visitors/list.php" class="btn btn-light btn-sm w-100 fw-semibold">
+                        <a href="../visitors/list" class="btn btn-light btn-sm w-100 fw-semibold">
                             <i class="bi bi-arrow-right me-1"></i> View Visitors
                         </a>
                     </div>
@@ -125,7 +125,7 @@ include '../../../includes/header.php';
                         <div class="card-icon"><i class="bi bi-person-fill text-white fs-1"></i></div>
                     </div>
                     <div class="mt-3">
-                        <a href="../members/list.php?gender=male" class="btn btn-light btn-sm w-100 fw-semibold">
+                        <a href="../members/list?gender=male" class="btn btn-light btn-sm w-100 fw-semibold">
                             <i class="bi bi-arrow-right me-1"></i> View Male Members
                         </a>
                     </div>
@@ -146,7 +146,7 @@ include '../../../includes/header.php';
                         <div class="card-icon"><i class="bi bi-person-fill text-white fs-1"></i></div>
                     </div>
                     <div class="mt-3">
-                        <a href="../members/list.php?gender=female" class="btn btn-light btn-sm w-100 fw-semibold">
+                        <a href="../members/list?gender=female" class="btn btn-light btn-sm w-100 fw-semibold">
                             <i class="bi bi-arrow-right me-1"></i> View Female Members
                         </a>
                     </div>
@@ -170,7 +170,7 @@ include '../../../includes/header.php';
             <?php if (in_array($user_role, ['admin', 'staff'])): ?>
             <div class="row mb-3 mb-md-4">
                 <div class="col-12 col-lg-6 mb-3">
-                    <a href="../members/add.php" class="btn btn-primary btn-lg w-100 py-3 py-md-4 text-white">
+                    <a href="../members/add" class="btn btn-primary btn-lg w-100 py-3 py-md-4 text-white">
                         <div class="d-flex align-items-center justify-content-between">
                             <div class="text-start">
                                 <i class="bi bi-person-plus-fill fs-3 d-block mb-2 text-white"></i>
@@ -182,7 +182,7 @@ include '../../../includes/header.php';
                     </a>
                 </div>
                 <div class="col-12 col-lg-6 mb-3">
-                    <a href="../visitors/add.php" class="btn btn-success btn-lg w-100 py-3 py-md-4 text-white">
+                    <a href="../visitors/add" class="btn btn-success btn-lg w-100 py-3 py-md-4 text-white">
                         <div class="d-flex align-items-center justify-content-between">
                             <div class="text-start">
                                 <i class="bi bi-person-badge-fill fs-3 d-block mb-2 text-white"></i>
@@ -196,7 +196,7 @@ include '../../../includes/header.php';
             </div>
             <div class="row g-2 g-md-3">
                 <div class="col-6 col-md-6 col-lg-3">
-                    <a href="../checkin/index.php" class="action-tile text-decoration-none">
+                    <a href="../checkin/index" class="action-tile text-decoration-none">
                         <div class="action-tile-card action-tile-checkin p-4 rounded-3 h-100 d-flex align-items-center hover-lift">
                             <div class="action-icon me-3"><i class="bi bi-qr-code-scan text-white fs-4"></i></div>
                             <div>
@@ -207,7 +207,7 @@ include '../../../includes/header.php';
                     </a>
                 </div>
                 <div class="col-6 col-md-6 col-lg-3">
-                    <a href="../services/list.php" class="action-tile text-decoration-none">
+                    <a href="../services/list" class="action-tile text-decoration-none">
                         <div class="action-tile-card action-tile-services p-4 rounded-3 h-100 d-flex align-items-center hover-lift">
                             <div class="action-icon me-3"><i class="bi bi-gear-fill text-white fs-4"></i></div>
                             <div>
@@ -218,7 +218,7 @@ include '../../../includes/header.php';
                     </a>
                 </div>
                 <div class="col-6 col-md-6 col-lg-3">
-                    <a href="attendance.php" class="action-tile text-decoration-none">
+                    <a href="attendance" class="action-tile text-decoration-none">
                         <div class="action-tile-card action-tile-attendance p-4 rounded-3 h-100 d-flex align-items-center hover-lift">
                             <div class="action-icon me-3"><i class="bi bi-clipboard-check-fill text-white fs-4"></i></div>
                             <div>
@@ -229,7 +229,7 @@ include '../../../includes/header.php';
                     </a>
                 </div>
                 <div class="col-6 col-md-6 col-lg-3">
-                    <a href="../reports/report.php" class="action-tile text-decoration-none">
+                    <a href="../reports/report" class="action-tile text-decoration-none">
                         <div class="action-tile-card action-tile-reports p-4 rounded-3 h-100 d-flex align-items-center hover-lift">
                             <div class="action-icon me-3"><i class="bi bi-bar-chart-line text-white fs-4"></i></div>
                             <div>
@@ -239,9 +239,20 @@ include '../../../includes/header.php';
                         </div>
                     </a>
                 </div>
+                <div class="col-6 col-md-6 col-lg-3">
+                    <a href="../logs" class="action-tile text-decoration-none">
+                        <div class="action-tile-card action-tile-settings p-4 rounded-3 h-100 d-flex align-items-center hover-lift">
+                            <div class="action-icon me-3"><i class="bi bi-journal-text text-white fs-4"></i></div>
+                            <div>
+                                <h6 class="mb-1 text-white fw-semibold">Logs</h6>
+                                <small class="text-white opacity-75">Trace errors and activity</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
                 <?php if ($user_role === 'admin'): ?>
                 <div class="col-6 col-md-6 col-lg-3">
-                    <a href="../admin/settings.php" class="action-tile text-decoration-none">
+                    <a href="../admin/settings" class="action-tile text-decoration-none">
                         <div class="action-tile-card action-tile-settings p-4 rounded-3 h-100 d-flex align-items-center hover-lift">
                             <div class="action-icon me-3"><i class="bi bi-gear-fill text-white fs-4"></i></div>
                             <div>
@@ -322,3 +333,4 @@ include '../../../includes/header.php';
 </div><!-- /.container-fluid -->
 
 <?php include '../../../includes/footer.php'; ?>
+

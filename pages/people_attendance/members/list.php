@@ -1,7 +1,7 @@
-<?php
+﻿<?php
 require_once '../../../includes/security.php';
 
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 $user_role = getUserRole();
 
 // Database connection
@@ -9,7 +9,8 @@ try {
     require '../../../config/database.php';
     $pdo->query("SELECT 1");
 } catch (Exception $e) {
-    die("Database connection failed: " . $e->getMessage());
+    error_log('Database connection failed in members list: ' . $e->getMessage());
+    die('Database connection failed. Please contact the administrator.');
 }
 
 // Filter parameters
@@ -190,7 +191,7 @@ include '../../../includes/header.php';
                         </div>
                     </div>
                     <div class="d-flex flex-column flex-sm-row gap-2">
-                        <a href="add.php" class="btn btn-outline-primary">
+                        <a href="add" class="btn btn-outline-primary">
                             <i class="bi bi-person-plus"></i> Add Member
                         </a>
                         <div class="btn-group">
@@ -474,7 +475,7 @@ include '../../../includes/header.php';
                     <i class="bi bi-person-x text-muted empty-state-icon"></i>
                     <h4 class="text-muted mt-3 mb-2">No Members Found</h4>
                     <p class="text-muted mb-4">Try adjusting your search criteria or add new members.</p>
-                    <a href="add.php" class="btn btn-primary">
+                    <a href="add" class="btn btn-primary">
                         <i class="bi bi-person-plus"></i> Add First Member
                     </a>
                 </div>
@@ -591,15 +592,15 @@ include '../../../includes/header.php';
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
                                             <!-- View Button -->
-                                            <a href="view.php?id=<?php echo $member['id']; ?>" class="btn btn-outline-info btn-xs" title="View Details">
+                                            <a href="view?id=<?php echo $member['id']; ?>" class="btn btn-outline-info btn-xs" title="View Details">
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                             <!-- Edit Button -->
-                                            <a href="edit.php?id=<?php echo $member['id']; ?>" class="btn btn-outline-primary btn-xs" title="Edit Member">
+                                            <a href="edit?id=<?php echo $member['id']; ?>" class="btn btn-outline-primary btn-xs" title="Edit Member">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                             <!-- Disable/Enable Button -->
-                                            <a href="update_status.php?id=<?php echo $member['id']; ?>&action=toggle&return=list" 
+                                            <a href="update_status?id=<?php echo $member['id']; ?>&action=toggle&return=list" 
                                                class="btn btn-outline-<?php echo $member['status'] === 'active' ? 'warning' : 'success'; ?> btn-xs" 
                                                title="<?php echo $member['status'] === 'active' ? 'Disable Member' : 'Enable Member'; ?>"
                                                onclick="return confirm('Are you sure you want to <?php echo $member['status'] === 'active' ? 'disable' : 'enable'; ?> this member?')">
@@ -650,7 +651,7 @@ function deleteMember(memberId, memberName) {
         // Create a hidden form and submit it
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = 'delete.php';
+        form.action = 'delete';
         
         const idInput = document.createElement('input');
         idInput.type = 'hidden';

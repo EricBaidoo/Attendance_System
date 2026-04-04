@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 require_once '../../includes/security.php';
-requireLogin('../../login.php');
+requireLogin('../../login');
 require_once '../../config/database.php';
 
 $page_title = 'Tithers & Tithe Books - Bridge Ministries International';
@@ -176,7 +176,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 $_SESSION['finance_tithers_flash_success'] = 'Tithe book added successfully.';
-                header('Location: tithers.php');
+                header('Location: tithers');
                 exit;
             }
 
@@ -215,7 +215,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 $_SESSION['finance_tithers_flash_success'] = 'Tithe book updated successfully.';
-                header('Location: tithers.php');
+                header('Location: tithers');
                 exit;
             }
 
@@ -233,7 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $pdo->prepare("UPDATE tithe_books SET status = 'retired' WHERE id = ?")->execute([$book_id]);
                 $_SESSION['finance_tithers_flash_success'] = 'Tithe book retired successfully.';
-                header('Location: tithers.php');
+                header('Location: tithers');
                 exit;
             }
 
@@ -247,7 +247,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 syncBookStatus($pdo, $book_id);
 
                 $_SESSION['finance_tithers_flash_success'] = 'Tithe book reactivated successfully.';
-                header('Location: tithers.php');
+                header('Location: tithers');
                 exit;
             }
 
@@ -265,7 +265,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $pdo->prepare('DELETE FROM tithe_books WHERE id = ?')->execute([$book_id]);
                 $_SESSION['finance_tithers_flash_success'] = 'Tithe book deleted successfully.';
-                header('Location: tithers.php');
+                header('Location: tithers');
                 exit;
             }
 
@@ -346,7 +346,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     $_SESSION['finance_tithers_flash_success'] = 'Tither added successfully.';
                 }
-                header('Location: tithers.php');
+                header('Location: tithers');
                 exit;
             }
 
@@ -429,7 +429,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 $_SESSION['finance_tithers_flash_success'] = 'Tither updated successfully.';
-                header('Location: tithers.php');
+                header('Location: tithers');
                 exit;
             }
 
@@ -465,7 +465,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 $_SESSION['finance_tithers_flash_success'] = 'Tither retired successfully. Assigned tithe book retired automatically.';
-                header('Location: tithers.php');
+                header('Location: tithers');
                 exit;
             }
 
@@ -477,7 +477,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $pdo->prepare("UPDATE tithers SET status = 'active' WHERE id = ?")->execute([$tither_id]);
                 $_SESSION['finance_tithers_flash_success'] = 'Tither reactivated successfully.';
-                header('Location: tithers.php');
+                header('Location: tithers');
                 exit;
             }
 
@@ -513,7 +513,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 $_SESSION['finance_tithers_flash_success'] = 'Tither and assigned tithe book deleted successfully.';
-                header('Location: tithers.php');
+                header('Location: tithers');
                 exit;
             }
         } catch (Exception $e) {
@@ -705,7 +705,7 @@ include '../../includes/header.php';
 
                     <button type="submit" class="btn btn-primary w-100"><i class="bi bi-save2-fill me-1"></i> <?php echo $edit_tither ? 'Update Tither' : 'Save Tither'; ?></button>
                     <?php if ($edit_tither): ?>
-                        <a href="tithers.php" class="btn btn-outline-secondary w-100 mt-2">Cancel Edit</a>
+                        <a href="tithers" class="btn btn-outline-secondary w-100 mt-2">Cancel Edit</a>
                     <?php endif; ?>
                 </form>
             </div>
@@ -784,7 +784,7 @@ include '../../includes/header.php';
                                         <td><?php echo htmlspecialchars((string)($tither['phone'] ?: '-')); ?></td>
                                         <td><?php echo htmlspecialchars(ucfirst((string)$tither['status'])); ?></td>
                                         <td class="text-end">
-                                            <a href="tithers.php?edit_tither=<?php echo (int)$tither['id']; ?>" class="btn btn-sm btn-outline-primary">Edit</a>
+                                            <a href="tithers?edit_tither=<?php echo (int)$tither['id']; ?>" class="btn btn-sm btn-outline-primary">Edit</a>
                                             <?php if (($tither['status'] ?? '') === 'active'): ?>
                                                 <form method="POST" class="d-inline" onsubmit="return confirm('Retire this tither? The assigned tithe book will also be retired.');">
                                                     <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
@@ -847,3 +847,4 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

@@ -1,11 +1,11 @@
-<?php
+﻿<?php
 // pages/people_attendance/services/templates.php
 session_start();
 require __DIR__ . '/../../../config/database.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../../login.php');
+    header('Location: ../../../login');
     exit;
 }
 
@@ -82,12 +82,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_from_template'
                 $pdo->commit();
                 
                 // PRG Pattern: Redirect to prevent form resubmission
-                header('Location: templates.php?success=created&count=' . $created_count . '&name=' . urlencode($tmpl['name']));
+                header('Location: templates?success=created&count=' . $created_count . '&name=' . urlencode($tmpl['name']));
                 exit;
             }
         } catch (PDOException $e) {
             $pdo->rollback();
-            $error = 'Error creating services: ' . $e->getMessage();
+            error_log('Database error creating services from template: ' . $e->getMessage());
+            $error = 'Unable to create services right now.';
         }
     }
 }
@@ -109,7 +110,7 @@ include '../../../includes/header.php';
                         <p>Quickly create recurring services from common templates</p>
                     </div>
                     <div class="col-md-4 text-end">
-                        <a href="list.php" class="btn btn-outline-light">
+                        <a href="list" class="btn btn-outline-light">
                             <i class="bi bi-list"></i> View All Services
                         </a>
                     </div>
@@ -244,7 +245,7 @@ include '../../../includes/header.php';
         </div>
 
         <div class="text-center mt-4">
-            <p class="text-muted">Need a custom service? <a href="add.php">Create a custom service</a> instead.</p>
+            <p class="text-muted">Need a custom service? <a href="add">Create a custom service</a> instead.</p>
         </div>
     </div>
 </div>

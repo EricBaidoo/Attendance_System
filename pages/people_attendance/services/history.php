@@ -1,10 +1,10 @@
-<?php
+﻿<?php
 // pages/people_attendance/services/history.php - View service session history with attendee lists
 session_start();
 
 // Authentication check
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../../login.php');
+    header('Location: ../../../login');
     exit;
 }
 
@@ -70,7 +70,7 @@ $page_title = "Service History - " . ($service ? $service['name'] : 'Unknown Ser
                         <p class="text-muted mb-0"><?php echo htmlspecialchars($service['name']); ?></p>
                     <?php endif; ?>
                 </div>
-                <a href="list.php" class="btn btn-secondary">
+                <a href="list" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Services
                 </a>
             </div>
@@ -191,18 +191,18 @@ $page_title = "Service History - " . ($service ? $service['name'] : 'Unknown Ser
                                                 </td>
                                                 <td>
                                                     <div class="btn-group btn-group-sm" role="group">
-                                                        <a href="../attendance/view.php?session_id=<?php echo $session['id']; ?>" 
+                                                        <a href="../attendance/view?session_id=<?php echo $session['id']; ?>" 
                                                            class="btn btn-outline-primary btn-sm" 
                                                            title="View Detailed Report">
                                                             <i class="fas fa-chart-bar"></i>
                                                         </a>
-                                                        <a href="../attendance/attendees.php?session_id=<?php echo $session['id']; ?>" 
+                                                        <a href="../attendance/attendees?session_id=<?php echo $session['id']; ?>" 
                                                            class="btn btn-outline-success btn-sm" 
                                                            title="View Attendee List">
                                                             <i class="fas fa-users"></i>
                                                         </a>
                                                         <?php if ($session['status'] === 'open'): ?>
-                                                            <a href="../attendance/mark.php?session_id=<?php echo $session['id']; ?>" 
+                                                            <a href="../attendance/mark?session_id=<?php echo $session['id']; ?>" 
                                                                class="btn btn-outline-warning btn-sm" 
                                                                title="Mark Attendance">
                                                                 <i class="fas fa-edit"></i>

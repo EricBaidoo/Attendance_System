@@ -1,8 +1,8 @@
-<?php
+﻿<?php
 require_once '../../../includes/security.php';
 require_once '../../../includes/people_sync.php';
 
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 $user_role = getUserRole();
 
 // Database connection
@@ -67,7 +67,7 @@ try {
                     $visitor_id = (int)$pdo->lastInsertId();
                     peopleSyncRecord($pdo, 'visitor_roles', $visitor_id, $name, $email, $phone, 'visitor', 'visitor_checked_in', 'Visitor created from admin add form');
                     $pdo->commit();
-                    header('Location: view.php?id=' . $visitor_id . '&success=Visitor added successfully');
+                    header('Location: view?id=' . $visitor_id . '&success=Visitor added successfully');
                     exit;
                 } else {
                     $pdo->rollBack();
@@ -77,7 +77,8 @@ try {
                 if ($pdo->inTransaction()) {
                     $pdo->rollBack();
                 }
-                $error = "Database error: " . $e->getMessage();
+                error_log('Database error adding visitor: ' . $e->getMessage());
+                $error = "Database operation failed. Please try again later.";
             }
         } else {
             $error = "Please provide at least the visitor's name and service";
@@ -95,7 +96,8 @@ try {
     $services = $services_stmt->fetchAll();
     
 } catch (Exception $e) {
-    die("Database error: " . $e->getMessage());
+    error_log('Database error loading visitor add page: ' . $e->getMessage());
+    die('Database error. Please contact the administrator.');
 }
 ?>
 
@@ -105,7 +107,7 @@ $page_header = true;
 $page_icon = 'bi bi-person-plus';
 $page_heading = 'Add New Visitor';
 $page_description = 'Register a first-time or returning visitor';
-$page_actions = '<a href="list.php" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to List</a>';
+$page_actions = '<a href="list" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to List</a>';
 
 include '../../../includes/header.php';
 ?>
@@ -232,7 +234,7 @@ include '../../../includes/header.php';
 
                 <div class="visitor-form-actions d-flex flex-wrap justify-content-between gap-2 mt-4 pt-3 border-top">
                     <div class="d-flex flex-wrap gap-2">
-                        <a href="list.php" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+                        <a href="list" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
                         <button type="reset" class="btn btn-outline-warning"><i class="bi bi-arrow-clockwise me-1"></i>Reset</button>
                     </div>
                     <button type="submit" class="btn btn-success"><i class="bi bi-check-circle-fill me-1"></i>Add Visitor</button>

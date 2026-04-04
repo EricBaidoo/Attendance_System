@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 require_once '../../../includes/security.php';
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 require_once '../../../config/database.php';
 require_once '../../../includes/people_sync.php';
 
@@ -109,7 +109,7 @@ try {
         $pdo->commit();
 
         $redirect_query = http_build_query(array_merge(['limit' => $limit, 'fix' => 1], $fix_counts));
-        header('Location: identity_integrity.php?' . $redirect_query);
+        header('Location: identity_integrity?' . $redirect_query);
         exit;
     }
 
@@ -279,7 +279,7 @@ include '../../../includes/header.php';
                             <i class="bi bi-wrench-adjustable"></i> Auto-Fix Safe Issues
                         </button>
                     </form>
-                    <a href="report.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back to Reports</a>
+                    <a href="report" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back to Reports</a>
                 </div>
             </div>
             <form method="GET" class="row g-2 align-items-end mt-3">
@@ -454,3 +454,4 @@ include '../../../includes/header.php';
 </div>
 
 <?php include '../../../includes/footer.php'; ?>
+

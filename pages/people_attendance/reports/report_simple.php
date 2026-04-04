@@ -1,10 +1,10 @@
-<?php
+﻿<?php
 // pages/people_attendance/reports/report_simple.php - Simplified System Reports
 session_start();
 
 // Basic authentication check
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../../login.php');
+    header('Location: ../../../login');
     exit;
 }
 
@@ -129,7 +129,8 @@ try {
     }
 
 } catch (Exception $e) {
-    $error_message = "Database Error: " . $e->getMessage();
+    error_log('Database error loading simple report: ' . $e->getMessage());
+    $error_message = 'Database report could not be loaded right now.';
 }
 
 $page_title = "System Reports - Bridge Ministries International";
@@ -208,7 +209,7 @@ $page_title = "System Reports - Bridge Ministries International";
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-funnel"></i> Apply Filters
                                 </button>
-                                <a href="test_db.php" class="btn btn-outline-info">
+                                <a href="test_db" class="btn btn-outline-info">
                                     <i class="bi bi-database"></i> Test DB
                                 </a>
                             </div>
@@ -380,10 +381,10 @@ $page_title = "System Reports - Bridge Ministries International";
                 <div class="card shadow-sm">
                     <div class="card-body p-4 text-center">
                         <h6 class="mb-3">Report Actions</h6>
-                        <a href="test_db.php" class="btn btn-outline-primary me-2">
+                        <a href="test_db" class="btn btn-outline-primary me-2">
                             <i class="bi bi-database"></i> Test Database
                         </a>
-                        <a href="report.php" class="btn btn-outline-secondary me-2">
+                        <a href="report" class="btn btn-outline-secondary me-2">
                             <i class="bi bi-arrow-clockwise"></i> Full Report
                         </a>
                         <button class="btn btn-outline-success" onclick="window.print()">

@@ -1,10 +1,10 @@
-<?php
+﻿<?php
 // pages/people_attendance/attendance/attendees.php - View complete attendee list for a session
 session_start();
 
 // Authentication check
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../../login.php');
+    header('Location: ../../../login');
     exit;
 }
 
@@ -37,7 +37,7 @@ $page_title = "Attendee List - Bridge Ministries International";
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h3 mb-0">Session Attendee List</h1>
                 <div>
-                    <a href="view.php?session_id=<?php echo htmlspecialchars($session_id); ?>" class="btn btn-secondary">
+                    <a href="view?session_id=<?php echo htmlspecialchars($session_id); ?>" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back to Attendance View
                     </a>
                     <?php if ($attendee_data): ?>

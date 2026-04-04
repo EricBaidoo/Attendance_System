@@ -1,7 +1,7 @@
-<?php
+﻿<?php
 // pages/people_attendance/reports/progression.php
 require_once '../../../includes/security.php';
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 
 require_once '../../../config/database.php';
 
@@ -158,7 +158,8 @@ try {
     $journey_rows = $journey_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (Exception $e) {
-    $error_message = 'Failed to load progression report: ' . $e->getMessage();
+    error_log('Database error loading progression report: ' . $e->getMessage());
+    $error_message = 'Failed to load progression report right now.';
 }
 
 include '../../../includes/header.php';
@@ -189,7 +190,7 @@ include '../../../includes/header.php';
                             </p>
                         </div>
                         <div>
-                            <a href="report.php" class="btn btn-outline-secondary">
+                            <a href="report" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left"></i> Back to Reports
                             </a>
                         </div>
@@ -366,3 +367,4 @@ include '../../../includes/header.php';
 </div>
 
 <?php include '../../../includes/footer.php'; ?>
+

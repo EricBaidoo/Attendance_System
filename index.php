@@ -14,20 +14,20 @@ $can_finance_module = canAccessModule('finance', $user_role);
 $can_comm_module = canAccessModule('communication', $user_role);
 $can_admin_module = canAccessModule('administration', $user_role);
 
-$primary_action_href = 'index.php';
+$primary_action_href = 'index';
 $primary_action_text = 'Open Home Dashboard';
 $primary_action_icon = 'bi-grid-1x2-fill';
 
 if ($can_people_module) {
-    $primary_action_href = 'pages/people_attendance/attendance/dashboard.php';
+    $primary_action_href = 'pages/people_attendance/attendance/dashboard';
     $primary_action_text = 'Open Attendance Dashboard';
     $primary_action_icon = 'bi-speedometer2';
 } elseif ($can_finance_module) {
-    $primary_action_href = 'pages/finance/dashboard.php';
+    $primary_action_href = 'pages/finance/dashboard';
     $primary_action_text = 'Open Finance Dashboard';
     $primary_action_icon = 'bi-cash-coin';
 } elseif ($can_comm_module) {
-    $primary_action_href = 'pages/communication/dashboard.php';
+    $primary_action_href = 'pages/communication/dashboard';
     $primary_action_text = 'Open Communication Dashboard';
     $primary_action_icon = 'bi-chat-dots-fill';
 }
@@ -110,7 +110,7 @@ include 'includes/header.php';
                 <div class="row g-3 hub-modules-grid">
                     <?php if ($can_people_module): ?>
                     <div class="col-12 col-md-6 col-xl-4">
-                        <a href="pages/people_attendance/attendance/dashboard.php" class="module-card mod-attendance">
+                        <a href="pages/people_attendance/attendance/dashboard" class="module-card mod-attendance">
                             <span class="module-card-badge badge-active">Active</span>
                             <div class="module-icon-wrap"><i class="bi bi-people-fill"></i></div>
                             <div class="module-card-title">People &amp; Attendance</div>
@@ -122,7 +122,7 @@ include 'includes/header.php';
 
                     <?php if ($can_finance_module): ?>
                     <div class="col-12 col-md-6 col-xl-4">
-                        <a href="pages/finance/dashboard.php" class="module-card mod-finance">
+                        <a href="pages/finance/dashboard" class="module-card mod-finance">
                             <span class="module-card-badge badge-active">Active</span>
                             <div class="module-icon-wrap"><i class="bi bi-cash-coin"></i></div>
                             <div class="module-card-title">Finance</div>
@@ -134,7 +134,7 @@ include 'includes/header.php';
 
                     <?php if ($can_comm_module): ?>
                     <div class="col-12 col-md-6 col-xl-4">
-                        <a href="pages/communication/dashboard.php" class="module-card mod-comms">
+                        <a href="pages/communication/dashboard" class="module-card mod-comms">
                             <span class="module-card-badge badge-active">Active</span>
                             <div class="module-icon-wrap"><i class="bi bi-chat-dots-fill"></i></div>
                             <div class="module-card-title">Communication</div>
@@ -181,7 +181,7 @@ include 'includes/header.php';
                     <h2>Administration</h2>
                     <span>System configuration</span>
                 </div>
-                <a href="pages/admin/users.php" class="admin-entry mb-3">
+                <a href="pages/admin/users" class="admin-entry mb-3">
                     <span class="admin-entry-icon"><i class="bi bi-person-gear"></i></span>
                     <span>
                         <strong>User Management</strong>
@@ -189,7 +189,7 @@ include 'includes/header.php';
                     </span>
                     <i class="bi bi-arrow-right"></i>
                 </a>
-                <a href="pages/admin/settings.php" class="admin-entry">
+                <a href="pages/admin/settings" class="admin-entry">
                     <span class="admin-entry-icon"><i class="bi bi-gear-fill"></i></span>
                     <span>
                         <strong>System Settings</strong>
@@ -205,4 +205,5 @@ include 'includes/header.php';
 </div><!-- /.container-fluid -->
 
 <?php include 'includes/footer.php'; ?>
+
 

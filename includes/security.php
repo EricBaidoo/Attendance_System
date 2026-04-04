@@ -109,6 +109,18 @@ function setSystemNotice($type, $message) {
     ];
 }
 
+if (!function_exists('reportDatabaseException')) {
+    function reportDatabaseException(Exception $e, string $fallbackMessage = 'Database operation failed. Please try again later.'): string {
+        if (function_exists('logDatabaseError')) {
+            logDatabaseError($e->getMessage());
+        } else {
+            error_log('Database error: ' . $e->getMessage());
+        }
+
+        return $fallbackMessage;
+    }
+}
+
 function pullSystemNotice() {
     if (!isset($_SESSION['system_notice']) || !is_array($_SESSION['system_notice'])) {
         return null;
@@ -203,11 +215,11 @@ function enforceCurrentModuleAccess() {
     if (!canAccessModule($module)) {
         $request_path = strtolower((string)parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH));
         if (strpos($request_path, '/pages/people_attendance/') !== false) {
-            $home = '../../../index.php';
+            $home = '../../../index';
         } elseif (strpos($request_path, '/pages/') !== false) {
-            $home = '../../index.php';
+            $home = '../../index';
         } else {
-            $home = 'index.php';
+            $home = 'index';
         }
         $role = getUserRole();
         $module_label = getModuleLabel($module);
@@ -234,7 +246,7 @@ function enforceCurrentModuleAccess() {
 }
 
 // Check if user is logged in
-function requireLogin($redirect_to = 'login.php') {
+function requireLogin($redirect_to = 'login') {
     if (!isset($_SESSION['user_id'])) {
         header("Location: $redirect_to");
         exit;
@@ -344,7 +356,7 @@ function hasRole($required_roles) {
 }
 
 // Require specific role
-function requireRole($required_roles, $redirect_to = 'index.php') {
+function requireRole($required_roles, $redirect_to = 'index') {
     if (!hasRole($required_roles)) {
         $role_label = getRoleLabel(getUserRole());
         setSystemNotice('warning', "Access denied: Your role ({$role_label}) is not allowed to open this page.");

@@ -99,7 +99,7 @@ try {
             'message' => 'Cannot delete visitor with existing records. Please contact administrator.'
         ]);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+        echo json_encode(['success' => false, 'message' => reportDatabaseException($e)]);
     }
 }
 ?>

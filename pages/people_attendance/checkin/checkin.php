@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Enhanced Check-in System with Smart Visitor Detection
 require_once '../../../includes/people_sync.php';
 
@@ -32,8 +32,9 @@ try {
     $test_count = $pdo->query("SELECT COUNT(*) FROM member_roles WHERE status = 'active'")->fetchColumn();
     $db_status = "Connected - $test_count active members";
 } catch (Exception $e) {
-    $db_status = "Connection Failed: " . $e->getMessage();
-    die("Database error: " . $e->getMessage());
+    $db_status = "Connection failed";
+    error_log('Database error in checkin connection test: ' . $e->getMessage());
+    die('Database temporarily unavailable. Please try again later.');
 }
 
 // Get today's active services
@@ -47,7 +48,8 @@ try {
     $active_services = $services_stmt->fetchAll();
 } catch (Exception $e) {
     $active_services = [];
-    $error = "Unable to load services: " . $e->getMessage();
+    error_log('Database error loading checkin services: ' . $e->getMessage());
+    $error = "Unable to load services right now.";
 }
 
 // Handle member lookup
@@ -118,7 +120,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['find_person'])) {
                 }
             }
         } catch (Exception $e) {
-            $error = "Database error: " . $e->getMessage();
+            error_log('Database error during member lookup in checkin: ' . $e->getMessage());
+            $error = "Unable to look up that person right now.";
         }
     }
 }
@@ -253,7 +256,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                         
                         // Clear form data and redirect to prevent resubmission
                         $pdo->commit();
-                        header('Location: checkin.php?success=checkin&name=' . urlencode($name));
+                        header('Location: checkin?success=checkin&name=' . urlencode($name));
                         exit;
                     }
                 }
@@ -262,7 +265,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                 
             } catch (Exception $e) {
                 $pdo->rollBack();
-                $error = "Error recording attendance: " . $e->getMessage();
+                error_log('Database error recording attendance: ' . $e->getMessage());
+                $error = "Unable to record attendance right now.";
                 
                 // Reload member data to display on the form
                 if ($member_id) {
@@ -314,7 +318,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                     
                     // Clear form data and redirect
                     $pdo->commit();
-                    header('Location: checkin.php?success=visitor&name=' . urlencode($name));
+                    header('Location: checkin?success=visitor&name=' . urlencode($name));
                     exit;
                 }
                 
@@ -322,7 +326,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                 
             } catch (Exception $e) {
                 $pdo->rollBack();
-                $error = "Error recording visitor: " . $e->getMessage();
+                error_log('Database error recording visitor in checkin: ' . $e->getMessage());
+                $error = "Unable to record visitor right now.";
             }
         }
     } elseif ($person_type === 'returning_visitor') {
@@ -350,12 +355,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                 
                 // Clear form data and redirect
                 $pdo->commit();
-                header('Location: checkin.php?success=returning&name=' . urlencode($name));
+                header('Location: checkin?success=returning&name=' . urlencode($name));
                 exit;
                 
             } catch (Exception $e) {
                 $pdo->rollBack();
-                $error = "Error recording visitor return: " . $e->getMessage();
+                error_log('Database error recording returning visitor in checkin: ' . $e->getMessage());
+                $error = "Unable to record returning visitor right now.";
             }
         }
     }
@@ -367,7 +373,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Church Check-In — Bridge Ministries International</title>
+    <title>Church Check-In â€” Bridge Ministries International</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="../../../assets/css/checkin.css?v=<?php echo time(); ?>" rel="stylesheet">
@@ -477,7 +483,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                                     <button type="submit" name="checkin" class="checkin-submit-btn">
                                         <i class="bi bi-check-circle-fill"></i> Check In Now
                                     </button>
-                                    <a href="checkin.php" class="checkin-back-btn">Search Again</a>
+                                    <a href="checkin" class="checkin-back-btn">Search Again</a>
                                 </div>
                             </form>
                         </div>
@@ -514,7 +520,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                                     <button type="submit" name="checkin" class="checkin-submit-btn">
                                         <i class="bi bi-check-circle-fill"></i> Check In Now
                                     </button>
-                                    <a href="checkin.php" class="checkin-back-btn">Search Again</a>
+                                    <a href="checkin" class="checkin-back-btn">Search Again</a>
                                 </div>
                             </form>
                         </div>
@@ -570,7 +576,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                                     <button type="submit" name="checkin" class="checkin-submit-btn">
                                         <i class="bi bi-check-circle-fill"></i> Complete Check-In
                                     </button>
-                                    <a href="checkin.php" class="checkin-back-btn">Search Again</a>
+                                    <a href="checkin" class="checkin-back-btn">Search Again</a>
                                 </div>
                             </form>
                         </div>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // pages/people_attendance/reports/report.php - Complete System Reports
 
 // Handle includes gracefully
@@ -11,7 +11,7 @@ if (file_exists($base_dir . '/includes/security.php')) {
     // Basic session handling if security.php doesn't exist
     session_start();
     if (!isset($_SESSION['user_id'])) {
-        header('Location: ../../../login.php');
+        header('Location: ../../../login');
         exit;
     }
     
@@ -40,7 +40,7 @@ if (file_exists($base_dir . '/includes/error_handler.php')) {
 
 // Require login if function exists
 if (function_exists('requireLogin')) {
-    requireLogin('../../../login.php');
+    requireLogin('../../../login');
 }
 
 // Get filter parameters and validate
@@ -294,7 +294,7 @@ try {
     $services_stmt = $pdo->query("SELECT id, name FROM services WHERE template_status = 'active' ORDER BY name");
     $services = $services_stmt->fetchAll();
 
-    // ── Feature 1: Period-over-Period comparison ─────────────────────────────
+    // â”€â”€ Feature 1: Period-over-Period comparison â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     $period_days      = max(1, (int)((strtotime($end_date) - strtotime($start_date)) / 86400) + 1);
     $prev_end_date    = date('Y-m-d', strtotime($start_date . ' -1 day'));
     $prev_start_date  = date('Y-m-d', strtotime($prev_end_date . ' -' . ($period_days - 1) . ' days'));
@@ -343,7 +343,7 @@ try {
         'delta_visitors'   => $delta_visitors,
     ];
 
-    // ── Feature 2: First-time vs Returning Visitors ──────────────────────────
+    // â”€â”€ Feature 2: First-time vs Returning Visitors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     $visitor_type_sql = "SELECT
         COUNT(CASE WHEN first_time = 'yes' THEN 1 END) as first_time_count,
         COUNT(CASE WHEN first_time = 'no'  THEN 1 END) as returning_count,
@@ -355,7 +355,7 @@ try {
     $visitor_type_stmt->execute($visitor_type_params);
     $visitor_type_stats = $visitor_type_stmt->fetch();
 
-    // ── Feature 3: Visitor → Member Conversion ───────────────────────────────
+    // â”€â”€ Feature 3: Visitor â†’ Member Conversion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Converts who were originally recorded as visitors (via phone match or direct convert)
     $conversion_sql = "SELECT COUNT(*) FROM new_convert_roles WHERE DATE(date_converted) BETWEEN ? AND ?";
     $conversion_params = [$start_date, $end_date];
@@ -373,7 +373,7 @@ try {
     $prev_converts = (int)$prev_conv_stmt->fetchColumn();
     $delta_converts = $converts_in_period - $prev_converts;
 
-    // ── Feature 4: Attendance Streaks ────────────────────────────────────────
+    // â”€â”€ Feature 4: Attendance Streaks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Subquery collects each member's present/absent sequence for the period
     $streak_inner = "SELECT
         a.member_id,
@@ -441,8 +441,7 @@ try {
         logDatabaseError($e->getMessage());
     }
     
-    // Provide more detailed error for debugging
-    $error_message = "Database Error: " . $e->getMessage();
+    $error_message = 'Database report could not be loaded right now.';
     
     // Set default values to prevent further errors
     $overview_stats = [
@@ -510,9 +509,9 @@ include '../../../includes/header.php';
         </div>
     <?php endif; ?>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         SECTION 1 — PAGE HEADER + FILTERS
-    ════════════════════════════════════════════════════════════════ -->
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         SECTION 1 â€” PAGE HEADER + FILTERS
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <div class="row mb-3">
         <div class="col-12">
             <div class="card report-card">
@@ -526,17 +525,17 @@ include '../../../includes/header.php';
                                 Showing data for <strong><?php echo date('M j, Y', strtotime($start_date)); ?></strong>
                                 to <strong><?php echo date('M j, Y', strtotime($end_date)); ?></strong>
                                 <?php if ($department_filter || $service_filter): ?>
-                                    &nbsp;·&nbsp;
+                                    &nbsp;Â·&nbsp;
                                     <?php if ($department_filter): ?><span class="badge bg-primary">Dept filtered</span><?php endif; ?>
                                     <?php if ($service_filter): ?><span class="badge bg-info ms-1">Service filtered</span><?php endif; ?>
                                 <?php endif; ?>
                             </p>
                         </div>
                         <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                            <a href="identity_integrity.php" class="btn btn-outline-dark export-btn me-2" aria-label="Open identity integrity report">
+                            <a href="identity_integrity" class="btn btn-outline-dark export-btn me-2" aria-label="Open identity integrity report">
                                 <i class="bi bi-shield-check"></i> Identity Integrity
                             </a>
-                            <a href="progression.php?start_date=<?php echo urlencode($start_date); ?>&end_date=<?php echo urlencode($end_date); ?>" class="btn btn-outline-primary export-btn me-2" aria-label="Open progression and journey report">
+                            <a href="progression?start_date=<?php echo urlencode($start_date); ?>&end_date=<?php echo urlencode($end_date); ?>" class="btn btn-outline-primary export-btn me-2" aria-label="Open progression and journey report">
                                 <i class="bi bi-signpost-split"></i> Progression
                             </a>
                             <div class="btn-group me-2">
@@ -607,11 +606,11 @@ include '../../../includes/header.php';
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         SECTION 2 — OVERVIEW: 4 KEY STAT CARDS
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         SECTION 2 â€” OVERVIEW: 4 KEY STAT CARDS
          Global (unfiltered): Active Members, Total Visitors
          Filtered: Total Attendance, Attendance Rate
-    ════════════════════════════════════════════════════════════════ -->
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <div class="row g-3 mb-3">
         <!-- Active Members (global) -->
         <div class="col-xl-3 col-md-6">
@@ -681,9 +680,9 @@ include '../../../includes/header.php';
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         SECTION 3 — PERIOD-OVER-PERIOD COMPARISON
-    ════════════════════════════════════════════════════════════════ -->
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         SECTION 3 â€” PERIOD-OVER-PERIOD COMPARISON
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card report-card">
@@ -695,7 +694,7 @@ include '../../../includes/header.php';
                             </h5>
                             <p class="text-muted mb-0 mt-1 small">
                                 vs previous <?php echo $period_days; ?>-day period
-                                (<?php echo date('M j', strtotime($prev_start_date)); ?> – <?php echo date('M j, Y', strtotime($prev_end_date)); ?>)
+                                (<?php echo date('M j', strtotime($prev_start_date)); ?> â€“ <?php echo date('M j, Y', strtotime($prev_end_date)); ?>)
                             </p>
                         </div>
                     </div>
@@ -736,9 +735,9 @@ include '../../../includes/header.php';
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         SECTION 4 — TRENDS & DEMOGRAPHICS
-    ════════════════════════════════════════════════════════════════ -->
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         SECTION 4 â€” TRENDS & DEMOGRAPHICS
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <div class="row g-4 mb-4">
         <div class="col-lg-8">
             <div class="card report-card h-100">
@@ -795,9 +794,9 @@ include '../../../includes/header.php';
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         SECTION 5 — SERVICE PERFORMANCE + QUICK STATS
-    ════════════════════════════════════════════════════════════════ -->
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         SECTION 5 â€” SERVICE PERFORMANCE + QUICK STATS
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <div class="row g-4 mb-4">
         <div class="col-lg-6">
             <div class="card report-card h-100">
@@ -818,7 +817,7 @@ include '../../../includes/header.php';
                             <div class="badge bg-primary rounded-pill me-3"><?php echo $index + 1; ?></div>
                             <div class="flex-grow-1">
                                 <div class="fw-semibold"><?php echo htmlspecialchars($service['service_name']); ?></div>
-                                <small class="text-muted"><?php echo $service['total_attendance']; ?> attendees · <?php echo $service['session_count']; ?> sessions</small>
+                                <small class="text-muted"><?php echo $service['total_attendance']; ?> attendees Â· <?php echo $service['session_count']; ?> sessions</small>
                             </div>
                             <div class="text-end">
                                 <div class="fw-bold text-primary"><?php echo $service['avg_attendance_rate']; ?>%</div>
@@ -866,13 +865,13 @@ include '../../../includes/header.php';
                         </div>
                         <div class="col-6">
                             <div class="text-center p-3 bg-light rounded">
-                                <div class="h4 mb-1 text-danger fw-bold"><?php echo $overview_stats['active_services'] ?? '—'; ?></div>
+                                <div class="h4 mb-1 text-danger fw-bold"><?php echo $overview_stats['active_services'] ?? 'â€”'; ?></div>
                                 <small class="text-muted">Active Services</small>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="text-center p-3 bg-light rounded">
-                                <div class="h4 mb-1 text-secondary fw-bold"><?php echo $attendance_stats['sessions_with_attendance'] ?? '—'; ?></div>
+                                <div class="h4 mb-1 text-secondary fw-bold"><?php echo $attendance_stats['sessions_with_attendance'] ?? 'â€”'; ?></div>
                                 <small class="text-muted">Sessions w/ Records</small>
                             </div>
                         </div>
@@ -882,9 +881,9 @@ include '../../../includes/header.php';
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         SECTION 6 — VISITOR INSIGHTS
-    ════════════════════════════════════════════════════════════════ -->
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         SECTION 6 â€” VISITOR INSIGHTS
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <div class="row g-4 mb-4">
         <div class="col-lg-5">
             <div class="card report-card h-100">
@@ -925,7 +924,7 @@ include '../../../includes/header.php';
             <div class="card report-card h-100">
                 <div class="card-header bg-transparent border-bottom-0 pt-4 px-4 pb-0">
                     <h5 class="card-title mb-0">
-                        <i class="bi bi-heart-pulse text-danger"></i> Visitor → Member Conversion
+                        <i class="bi bi-heart-pulse text-danger"></i> Visitor â†’ Member Conversion
                     </h5>
                     <p class="text-muted mb-0 mt-1 small">New converts recorded in the filtered period</p>
                 </div>
@@ -976,9 +975,9 @@ include '../../../includes/header.php';
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         SECTION 7 — MEMBER ANALYSIS (Dept Performance + Streaks)
-    ════════════════════════════════════════════════════════════════ -->
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         SECTION 7 â€” MEMBER ANALYSIS (Dept Performance + Streaks)
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <div class="row g-4 mb-4">
         <!-- Department Performance -->
         <div class="col-lg-6">
@@ -1058,12 +1057,12 @@ include '../../../includes/header.php';
                                 <tbody>
                                     <?php foreach ($streaks as $i => $s):
                                         $cur   = $s['current_streak'];
-                                        $flame = $cur >= 5 ? '🔥 ' : ($cur >= 3 ? '⚡ ' : '');
+                                        $flame = $cur >= 5 ? 'ðŸ”¥ ' : ($cur >= 3 ? 'âš¡ ' : '');
                                     ?>
                                     <tr>
                                         <td><span class="badge <?php echo $i===0?'bg-warning text-dark':($i<3?'bg-primary':'bg-secondary'); ?>">#<?php echo $i+1; ?></span></td>
                                         <td class="fw-semibold"><?php echo htmlspecialchars($s['member_name']); ?></td>
-                                        <td class="text-muted small"><?php echo htmlspecialchars($s['department_name'] ?? '—'); ?></td>
+                                        <td class="text-muted small"><?php echo htmlspecialchars($s['department_name'] ?? 'â€”'); ?></td>
                                         <td class="text-center">
                                             <span class="badge bg-<?php echo $cur>=5?'danger':($cur>=3?'warning text-dark':'success'); ?>">
                                                 <?php echo $flame.$cur; ?>
@@ -1081,9 +1080,9 @@ include '../../../includes/header.php';
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         SECTION 8 — FOLLOW-UP LIST
-    ════════════════════════════════════════════════════════════════ -->
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         SECTION 8 â€” FOLLOW-UP LIST
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card report-card">
@@ -1131,7 +1130,7 @@ include '../../../includes/header.php';
                                                     <i class="bi bi-telephone"></i> <?php echo $member['phone']; ?>
                                                 </a>
                                             <?php else: ?>
-                                                <span class="text-muted">—</span>
+                                                <span class="text-muted">â€”</span>
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-center"><span class="badge bg-danger"><?php echo $member['attendance_percentage']; ?>%</span></td>
@@ -1157,9 +1156,9 @@ include '../../../includes/header.php';
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         SECTION 9 — INDIVIDUAL MEMBER TRACKING (Full Table)
-    ════════════════════════════════════════════════════════════════ -->
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         SECTION 9 â€” INDIVIDUAL MEMBER TRACKING (Full Table)
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card report-card">
@@ -1180,7 +1179,7 @@ include '../../../includes/header.php';
                             </button>
                             <div class="input-group input-group-sm" style="width:220px;">
                                 <span class="input-group-text"><i class="bi bi-search"></i></span>
-                                <input type="text" class="form-control" id="memberSearch" placeholder="Search members…" aria-label="Search members in tracking table">
+                                <input type="text" class="form-control" id="memberSearch" placeholder="Search membersâ€¦" aria-label="Search members in tracking table">
                             </div>
                         </div>
                     </div>
@@ -1204,7 +1203,7 @@ include '../../../includes/header.php';
                                         <div class="badge bg-<?php echo $index===0?'warning text-dark':($index<3?'primary':'secondary'); ?> rounded-pill me-3"><?php echo $index+1; ?></div>
                                         <div class="flex-grow-1">
                                             <div class="fw-semibold"><?php echo htmlspecialchars($member['member_name']); ?></div>
-                                            <small class="text-muted"><?php echo htmlspecialchars($member['department_name'] ?? 'No Dept'); ?> · <?php echo $member['times_present']; ?> sessions</small>
+                                            <small class="text-muted"><?php echo htmlspecialchars($member['department_name'] ?? 'No Dept'); ?> Â· <?php echo $member['times_present']; ?> sessions</small>
                                         </div>
                                         <div class="text-end">
                                             <div class="fw-bold text-success"><?php echo $member['attendance_percentage']; ?>%</div>
@@ -1564,7 +1563,7 @@ function exportData(format) {
     const service = document.querySelector('select[name="service_filter"]').value;
     
     // Create download URL
-    let url = 'export.php?format=' + format;
+    let url = 'export?format=' + format;
     url += '&start_date=' + encodeURIComponent(startDate);
     url += '&end_date=' + encodeURIComponent(endDate);
     if (department) url += '&department_filter=' + encodeURIComponent(department);
@@ -1587,7 +1586,7 @@ function startAutoRefresh() {
 // Initialize auto-refresh
 startAutoRefresh();
 
-// ── Visitor Type Chart ───────────────────────────────────────────────────────
+// â”€â”€ Visitor Type Chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const visitorTypeCtx = document.getElementById('visitorTypeChart');
 if (visitorTypeCtx) {
     new Chart(visitorTypeCtx.getContext('2d'), {
@@ -1623,7 +1622,7 @@ if (visitorTypeCtx) {
     });
 }
 
-// ── Conversion Gauge (doughnut used as semicircle gauge) ─────────────────────
+// â”€â”€ Conversion Gauge (doughnut used as semicircle gauge) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const convCtx = document.getElementById('conversionGauge');
 if (convCtx) {
     const rate = <?php echo (float)$conversion_rate; ?>;

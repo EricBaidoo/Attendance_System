@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Public visitor check-in (no login required)
 require_once '../../../includes/people_sync.php';
 
@@ -9,9 +9,9 @@ $error = '';
 if (isset($_GET['success'])) {
     $visitor_name = $_GET['name'] ?? 'Guest';
     if ($_GET['success'] === 'returning') {
-        $message = "👋 Welcome back, " . htmlspecialchars($visitor_name) . "! Thank you for visiting us again today.";
+        $message = "ðŸ‘‹ Welcome back, " . htmlspecialchars($visitor_name) . "! Thank you for visiting us again today.";
     } else if ($_GET['success'] === 'new') {
-        $message = "🎉 Welcome to our church, " . htmlspecialchars($visitor_name) . "! We're so excited you're here. Someone from our team will follow up with you soon.";
+        $message = "ðŸŽ‰ Welcome to our church, " . htmlspecialchars($visitor_name) . "! We're so excited you're here. Someone from our team will follow up with you soon.";
     }
 }
 
@@ -155,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin_visitor'])) {
                 $pdo->commit();
 
                 $message_type = ($existing_visitor || $visit_first_time === 'no') ? 'returning' : 'new';
-                header('Location: checkin.php?success=' . $message_type . '&name=' . urlencode($name));
+                header('Location: checkin?success=' . $message_type . '&name=' . urlencode($name));
                 exit;
             }
         } catch (Exception $e) {

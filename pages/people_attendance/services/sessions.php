@@ -1,11 +1,11 @@
-<?php
+﻿<?php
 // pages/people_attendance/services/sessions.php - Manage service sessions (today's services)
 session_start();
 require __DIR__ . '/../../../config/database.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../../../login.php');
+    header('Location: ../../../login');
     exit;
 }
 
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo->commit();
                     
                     // PRG Pattern: Redirect to prevent form resubmission
-                    header('Location: sessions.php?success=opened&name=' . urlencode($service_name));
+                    header('Location: sessions?success=opened&name=' . urlencode($service_name));
                     exit;
                 } else {
                     throw new Exception('Failed to create session.');
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo->commit();
                     
                     // PRG Pattern: Redirect to prevent form resubmission
-                    header('Location: sessions.php?success=opened&name=' . urlencode($service_name));
+                    header('Location: sessions?success=opened&name=' . urlencode($service_name));
                     exit;
                 } else {
                     throw new Exception('Failed to create session.');
@@ -103,8 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->commit();
         } catch (Exception $e) {
             $pdo->rollback();
-            $error = 'Error opening session: ' . $e->getMessage();
-            error_log("Database error: " . $e->getMessage());
+            error_log('Database error opening session: ' . $e->getMessage());
+            $error = 'Unable to open session right now.';
         }
     }
     
@@ -165,12 +165,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             error_log("Session $session_id closed successfully");
             
             // PRG Pattern: Redirect to prevent form resubmission
-            header('Location: sessions.php?success=closed&count=' . count($unmarked_members));
+            header('Location: sessions?success=closed&count=' . count($unmarked_members));
             exit;
         } catch (Exception $e) {
             $pdo->rollback();
-            $error = 'Error closing session: ' . $e->getMessage();
-            error_log("Error closing session: " . $e->getMessage());
+            error_log('Database error closing session: ' . $e->getMessage());
+            $error = 'Unable to close session right now.';
         }
     }
 }
@@ -323,7 +323,7 @@ include '../../../includes/header.php';
 
 /* Fallback content for icons that don't load */
 .template-icon::after {
-    content: "⛪";
+    content: "â›ª";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -334,7 +334,7 @@ include '../../../includes/header.php';
 
 /* Show fallback if icon doesn't load */
 .template-icon i:empty::before {
-    content: "⛪";
+    content: "â›ª";
     font-family: system-ui, -apple-system, sans-serif;
 }
 
@@ -384,11 +384,11 @@ include '../../../includes/header.php';
 
 /* Fallback for filter buttons if icons don't load */
 .btn .bi-funnel:empty::before {
-    content: "🔽";
+    content: "ðŸ”½";
     font-family: system-ui;
 }
 .btn .bi-arrow-clockwise:empty::before {
-    content: "↻";
+    content: "â†»";
     font-family: system-ui;
 }
 </style>
@@ -415,10 +415,10 @@ include '../../../includes/header.php';
                     <a href="#past-sessions" class="btn btn-outline-secondary me-2" onclick="document.getElementById('past-sessions').scrollIntoView({behavior: 'smooth'});">
                         <i class="bi bi-clock-fill"></i> Past Sessions
                     </a>
-                    <a href="list.php" class="btn btn-outline-primary me-2">
+                    <a href="list" class="btn btn-outline-primary me-2">
                         <i class="bi bi-list"></i> All Services
                     </a>
-                    <a href="../attendance/mark.php" class="btn btn-primary">
+                    <a href="../attendance/mark" class="btn btn-primary">
                         <i class="bi bi-check-square"></i> Mark Attendance
                     </a>
                 </div>
@@ -573,7 +573,7 @@ include '../../../includes/header.php';
                                                         <small class="text-muted">
                                                             <i class="bi bi-clock"></i> Started at <?php echo date('g:i A', strtotime($session['opened_at'])); ?>
                                                             <?php if ($session['closed_at']): ?>
-                                                                • Ended at <?php echo date('g:i A', strtotime($session['closed_at'])); ?>
+                                                                â€¢ Ended at <?php echo date('g:i A', strtotime($session['closed_at'])); ?>
                                                             <?php endif; ?>
                                                         </small>
                                                     </div>
@@ -585,7 +585,7 @@ include '../../../includes/header.php';
                                                     <i class="bi bi-person text-primary me-1"></i>
                                                     Opened by <strong><?php echo htmlspecialchars($session['opened_by_user']); ?></strong>
                                                     <?php if ($session['closed_by_user']): ?>
-                                                        • Closed by <strong><?php echo htmlspecialchars($session['closed_by_user']); ?></strong>
+                                                        â€¢ Closed by <strong><?php echo htmlspecialchars($session['closed_by_user']); ?></strong>
                                                     <?php endif; ?>
                                                 </small>
                                             </div>
@@ -622,7 +622,7 @@ include '../../../includes/header.php';
                                                         </div>
                                                     </div>
                                                     
-                                                    <a href="../attendance/view.php?session_id=<?php echo $session['id']; ?>" 
+                                                    <a href="../attendance/view?session_id=<?php echo $session['id']; ?>" 
                                                        class="btn btn-primary btn-sm w-100">
                                                         <i class="bi bi-eye"></i> Comprehensive Report
                                                     </a>
@@ -639,7 +639,7 @@ include '../../../includes/header.php';
                                                     </div>
                                                     
                                                     <div class="d-flex gap-2 mb-2">
-                                                        <a href="../attendance/mark.php?session_id=<?php echo $session['id']; ?>" 
+                                                        <a href="../attendance/mark?session_id=<?php echo $session['id']; ?>" 
                                                            class="btn btn-success btn-sm flex-fill">
                                                             <i class="bi bi-check-square"></i> Mark
                                                         </a>
@@ -651,7 +651,7 @@ include '../../../includes/header.php';
                                                             </button>
                                                         </form>
                                                     </div>
-                                                    <a href="../attendance/attendees.php?session_id=<?php echo $session['id']; ?>" 
+                                                    <a href="../attendance/attendees?session_id=<?php echo $session['id']; ?>" 
                                                        class="btn btn-info btn-sm w-100">
                                                         <i class="bi bi-people"></i> View Attendee List
                                                     </a>
@@ -709,7 +709,7 @@ include '../../../includes/header.php';
                         <button type="submit" class="btn btn-primary btn-sm px-3">
                             <i class="bi bi-funnel me-1"></i> Filter
                         </button>
-                        <a href="sessions.php" class="btn btn-outline-secondary btn-sm px-3">
+                        <a href="sessions" class="btn btn-outline-secondary btn-sm px-3">
                             <i class="bi bi-arrow-clockwise me-1"></i> Reset
                         </a>
                     </form>
@@ -749,7 +749,7 @@ include '../../../includes/header.php';
                                                 - <?php echo date('g:i A', strtotime($session['closed_at'])); ?>
                                             <?php endif; ?>
                                             <?php if ($session['closed_by_user']): ?>
-                                                <span class="mx-2">•</span>
+                                                <span class="mx-2">â€¢</span>
                                                 <i class="bi bi-person me-1"></i>
                                                 Closed by <?php echo htmlspecialchars($session['closed_by_user']); ?>
                                             <?php endif; ?>
@@ -757,7 +757,7 @@ include '../../../includes/header.php';
                                     </div>
                                 </div>
                                 <div>
-                                    <a href="../attendance/view.php?session_id=<?php echo $session['id']; ?>" 
+                                    <a href="../attendance/view?session_id=<?php echo $session['id']; ?>" 
                                        class="btn btn-outline-primary btn-sm">
                                         <i class="bi bi-eye me-1"></i> View Report
                                     </a>
@@ -783,7 +783,7 @@ include '../../../includes/header.php';
                     <i class="bi bi-exclamation-triangle text-warning warning-state-icon"></i>
                     <h4 class="text-muted mt-3 mb-2">No Service Templates</h4>
                     <p class="text-muted mb-4">Please create some services first before opening sessions.</p>
-                    <a href="list.php" class="btn btn-primary">
+                    <a href="list" class="btn btn-primary">
                         <i class="bi bi-plus"></i> Create Services
                     </a>
                 </div>

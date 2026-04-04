@@ -1,12 +1,12 @@
-<?php
+﻿<?php
 require_once '../../../includes/security.php';
 
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 $user_role = getUserRole();
 
 $member_id = $_GET['id'] ?? null;
 if (!$member_id) {
-    header('Location: list.php');
+    header('Location: list');
     exit;
 }
 
@@ -22,7 +22,7 @@ try {
     $member = $stmt->fetch();
 
     if (!$member) {
-        header('Location: list.php?error=Member not found');
+        header('Location: list?error=Member not found');
         exit;
     }
 
@@ -91,7 +91,8 @@ try {
         }
     }
 } catch (Exception $e) {
-    die("Database error: " . $e->getMessage());
+    error_log('Database error in members view: ' . $e->getMessage());
+    die('Database error. Please contact the administrator.');
 }
 
 $page_title = "View Member - {$member['name']}";
@@ -99,8 +100,8 @@ $page_header = true;
 $page_icon = "bi bi-person";
 $page_heading = "Member Details";
 $page_description = "View member information and details";
-$page_actions = '<a href="edit.php?id=' . $member['id'] . '" class="btn btn-warning"><i class="bi bi-pencil"></i> Edit Member</a>
-                <a href="list.php" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to List</a>';
+$page_actions = '<a href="edit?id=' . $member['id'] . '" class="btn btn-warning"><i class="bi bi-pencil"></i> Edit Member</a>
+                <a href="list" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to List</a>';
 
 include '../../../includes/header.php';
 
@@ -144,13 +145,13 @@ $ministerial_label = $ministerial ?: 'Not Set';
                 </div>
 
                 <div class="d-flex flex-wrap gap-2 member-view-actions">
-                    <a href="edit.php?id=<?php echo $member['id']; ?>" class="btn btn-primary">
+                    <a href="edit?id=<?php echo $member['id']; ?>" class="btn btn-primary">
                         <i class="bi bi-pencil me-1"></i>Edit Member
                     </a>
-                    <a href="list.php" class="btn btn-outline-secondary">
+                    <a href="list" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left me-1"></i>Back to List
                     </a>
-                    <a href="../../../pages/people_attendance/attendance/view.php?member_id=<?php echo $member['id']; ?>" class="btn btn-outline-info">
+                    <a href="../../../pages/people_attendance/attendance/view?member_id=<?php echo $member['id']; ?>" class="btn btn-outline-info">
                         <i class="bi bi-calendar-check me-1"></i>Attendance
                     </a>
                 </div>
@@ -321,8 +322,8 @@ $ministerial_label = $ministerial ?: 'Not Set';
                                 <div class="small text-muted mb-1">Stage 1</div>
                                 <h6 class="mb-1">Visitor</h6>
                                 <?php if (!empty($source_visitor)): ?>
-                                    <div class="mb-2">#<?php echo (int)$source_visitor['id']; ?> — <?php echo htmlspecialchars($source_visitor['name']); ?></div>
-                                    <a class="btn btn-sm btn-outline-primary" href="../visitors/view.php?id=<?php echo (int)$source_visitor['id']; ?>">Open Visitor</a>
+                                    <div class="mb-2">#<?php echo (int)$source_visitor['id']; ?> â€” <?php echo htmlspecialchars($source_visitor['name']); ?></div>
+                                    <a class="btn btn-sm btn-outline-primary" href="../visitors/view?id=<?php echo (int)$source_visitor['id']; ?>">Open Visitor</a>
                                 <?php else: ?>
                                     <div class="text-muted">No linked visitor found</div>
                                 <?php endif; ?>
@@ -333,9 +334,9 @@ $ministerial_label = $ministerial ?: 'Not Set';
                                 <div class="small text-muted mb-1">Stage 2</div>
                                 <h6 class="mb-1">New Convert</h6>
                                 <?php if (!empty($source_convert)): ?>
-                                    <div class="mb-2">#<?php echo (int)$source_convert['id']; ?> — <?php echo htmlspecialchars($source_convert['name']); ?></div>
+                                    <div class="mb-2">#<?php echo (int)$source_convert['id']; ?> â€” <?php echo htmlspecialchars($source_convert['name']); ?></div>
                                     <?php if (!empty($source_convert['visitor_id'])): ?>
-                                        <a class="btn btn-sm btn-outline-primary" href="../visitors/convert.php?id=<?php echo (int)$source_convert['visitor_id']; ?>">Open Convert Flow</a>
+                                        <a class="btn btn-sm btn-outline-primary" href="../visitors/convert?id=<?php echo (int)$source_convert['visitor_id']; ?>">Open Convert Flow</a>
                                     <?php else: ?>
                                         <span class="text-muted small">No visitor link on convert</span>
                                     <?php endif; ?>
@@ -348,7 +349,7 @@ $ministerial_label = $ministerial ?: 'Not Set';
                             <div class="p-3 border rounded h-100">
                                 <div class="small text-muted mb-1">Stage 3</div>
                                 <h6 class="mb-1">Member</h6>
-                                <div class="mb-2">#<?php echo (int)$member['id']; ?> — <?php echo htmlspecialchars($member['name']); ?></div>
+                                <div class="mb-2">#<?php echo (int)$member['id']; ?> â€” <?php echo htmlspecialchars($member['name']); ?></div>
                                 <span class="badge text-bg-success">Current Record</span>
                             </div>
                         </div>

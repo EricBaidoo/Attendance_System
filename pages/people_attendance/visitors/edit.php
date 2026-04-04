@@ -1,14 +1,14 @@
-<?php
+﻿<?php
 require_once '../../../includes/security.php';
 require_once '../../../includes/people_sync.php';
 
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 $user_role = getUserRole();
 
 // Get visitor ID
 $visitor_id = $_GET['id'] ?? null;
 if (!$visitor_id) {
-    header('Location: list.php');
+    header('Location: list');
     exit;
 }
 
@@ -72,7 +72,7 @@ try {
                 $expected_stage = strtolower((string)$became_member) === 'yes' ? 'member' : 'visitor';
                 peopleSyncRecord($pdo, 'visitors', (int)$visitor_id, $name, $email, $phone, $expected_stage);
                 $pdo->commit();
-                header('Location: view.php?id=' . $visitor_id . '&success=Visitor updated successfully');
+                header('Location: view?id=' . $visitor_id . '&success=Visitor updated successfully');
                 exit;
             }
 
@@ -82,7 +82,8 @@ try {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            $error = "Database error: " . $e->getMessage();
+            error_log('Database error updating visitor: ' . $e->getMessage());
+            $error = "Database operation failed. Please try again later.";
         }
     }
     
@@ -95,7 +96,7 @@ try {
     $visitor = $stmt->fetch();
     
     if (!$visitor) {
-        header('Location: list.php?error=Visitor not found');
+        header('Location: list?error=Visitor not found');
         exit;
     }
     
@@ -129,7 +130,8 @@ try {
     $services = $services_stmt->fetchAll();
     
 } catch (Exception $e) {
-    die("Database error: " . $e->getMessage());
+    error_log('Database error loading visitor edit page: ' . $e->getMessage());
+    die('Database error. Please contact the administrator.');
 }
 
 // Page configuration
@@ -138,8 +140,8 @@ $page_header = true;
 $page_icon = "bi bi-pencil";
 $page_heading = "Edit Visitor";
 $page_description = "Update visitor information and details";
-$page_actions = '<a href="view.php?id=' . $visitor['id'] . '" class="btn btn-secondary"><i class="bi bi-eye"></i> View Visitor</a>
-                <a href="list.php" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to List</a>';
+$page_actions = '<a href="view?id=' . $visitor['id'] . '" class="btn btn-secondary"><i class="bi bi-eye"></i> View Visitor</a>
+                <a href="list" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to List</a>';
 
 include '../../../includes/header.php';
 ?>
@@ -267,8 +269,8 @@ include '../../../includes/header.php';
 
                 <div class="visitor-form-actions d-flex flex-wrap justify-content-between gap-2 mt-4 pt-3 border-top">
                     <div class="d-flex flex-wrap gap-2">
-                        <a href="view.php?id=<?php echo $visitor['id']; ?>" class="btn btn-outline-secondary"><i class="bi bi-x-circle me-1"></i>Cancel</a>
-                        <a href="list.php" class="btn btn-light border"><i class="bi bi-list me-1"></i>Visitor List</a>
+                        <a href="view?id=<?php echo $visitor['id']; ?>" class="btn btn-outline-secondary"><i class="bi bi-x-circle me-1"></i>Cancel</a>
+                        <a href="list" class="btn btn-light border"><i class="bi bi-list me-1"></i>Visitor List</a>
                     </div>
                     <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-1"></i>Update Visitor</button>
                 </div>

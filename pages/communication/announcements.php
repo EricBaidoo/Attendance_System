@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 require_once '../../includes/security.php';
-requireLogin('../../login.php');
+requireLogin('../../login');
 require_once '../../config/database.php';
 
 $page_title = 'Communication Announcements - Bridge Ministries International';
@@ -218,11 +218,11 @@ include '../../includes/header.php';
     <?php endif; ?>
 
     <nav class="nav nav-pills communication-subnav mb-3">
-        <a class="nav-link" href="dashboard.php">Overview</a>
-        <a class="nav-link active" href="announcements.php">Announcements</a>
-        <a class="nav-link" href="campaigns.php">Campaigns</a>
-        <a class="nav-link" href="sms.php">SMS Center</a>
-        <a class="nav-link" href="logs.php">Logs</a>
+        <a class="nav-link" href="dashboard">Overview</a>
+        <a class="nav-link active" href="announcements">Announcements</a>
+        <a class="nav-link" href="campaigns">Campaigns</a>
+        <a class="nav-link" href="sms">SMS Center</a>
+        <a class="nav-link" href="logs">Logs</a>
     </nav>
 
     <section class="row g-3 communication-stats mb-1">
@@ -299,7 +299,7 @@ include '../../includes/header.php';
                         <i class="bi bi-save2-fill me-1"></i> <?php echo htmlspecialchars($submit_label); ?>
                     </button>
                     <?php if ($edit_row): ?>
-                        <a href="announcements.php" class="btn btn-outline-secondary w-100 mt-2">Cancel Edit</a>
+                        <a href="announcements" class="btn btn-outline-secondary w-100 mt-2">Cancel Edit</a>
                     <?php endif; ?>
                 </form>
             </div>
@@ -339,7 +339,7 @@ include '../../includes/header.php';
                                         <td class="communication-col-content"><?php echo htmlspecialchars((string)$row['body']); ?></td>
                                         <td class="text-end communication-col-actions">
                                             <div class="communication-row-actions">
-                                                <a href="announcements.php?edit=<?php echo (int)$row['id']; ?>" class="btn btn-sm btn-outline-primary">Edit</a>
+                                                <a href="announcements?edit=<?php echo (int)$row['id']; ?>" class="btn btn-sm btn-outline-primary">Edit</a>
                                                 <form method="POST" class="d-inline" onsubmit="return confirm('Delete this announcement?');">
                                                     <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                                                     <input type="hidden" name="action" value="delete_announcement">
@@ -360,3 +360,4 @@ include '../../includes/header.php';
 </div>
 
 <?php include '../../includes/footer.php'; ?>
+

@@ -1,8 +1,8 @@
-<?php
+﻿<?php
 require_once '../../../includes/security.php';
 require_once '../../../includes/people_sync.php';
 
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 $user_role = getUserRole();
 
 // Database connection
@@ -10,7 +10,8 @@ try {
     require '../../../config/database.php';
     $pdo->query("SELECT 1");
 } catch (Exception $e) {
-    die("Database connection failed: " . $e->getMessage());
+    error_log('Database connection failed in member delete: ' . $e->getMessage());
+    die('Database connection failed. Please contact the administrator.');
 }
 
 // Get member ID
@@ -19,7 +20,7 @@ $return_url = $_POST['return'] ?? $_GET['return'] ?? 'list';
 
 if (!$member_id) {
     $_SESSION['error'] = 'Invalid member ID';
-    header('Location: ' . ($return_url === 'list' ? 'list.php' : 'view.php?id=' . $member_id));
+    header('Location: ' . ($return_url === 'list' ? 'list' : 'view?id=' . $member_id));
     exit;
 }
 
@@ -87,7 +88,7 @@ try {
     $pdo->commit();
 
     $_SESSION['success'] = 'Member "' . htmlspecialchars($member['name']) . '" has been successfully deleted.';
-    header('Location: list.php');
+    header('Location: list');
     exit;
 
 } catch (Exception $e) {
@@ -95,8 +96,10 @@ try {
     if ($pdo->inTransaction()) {
         $pdo->rollback();
     }
-    $_SESSION['error'] = 'Error deleting member: ' . $e->getMessage();
-    header('Location: ' . ($return_url === 'list' ? 'list.php' : 'view.php?id=' . $member_id));
+    error_log('Database error deleting member: ' . $e->getMessage());
+    $_SESSION['error'] = 'Error deleting member. Please try again later.';
+    header('Location: ' . ($return_url === 'list' ? 'list' : 'view?id=' . $member_id));
     exit;
 }
 ?>
+

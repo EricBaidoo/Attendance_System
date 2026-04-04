@@ -78,6 +78,6 @@ try {
     }
     
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => reportDatabaseException($e)]);
 }
 ?>

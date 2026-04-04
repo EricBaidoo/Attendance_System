@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 require_once '../../includes/security.php';
-requireLogin('../../login.php');
+requireLogin('../../login');
 require_once '../../config/database.php';
 
 $page_title = 'Financial Reports - Bridge Ministries International';
@@ -634,3 +634,4 @@ include '../../includes/header.php';
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

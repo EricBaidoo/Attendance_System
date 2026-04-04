@@ -1,7 +1,7 @@
-<?php
+﻿<?php
 require_once '../../includes/security.php';
-requireLogin('../../login.php');
-requireRole('admin', '../../index.php');
+requireLogin('../../login');
+requireRole('admin', '../../index');
 require_once '../../config/database.php';
 
 $success = '';
@@ -118,7 +118,8 @@ $page_header = true;
 $page_icon = 'bi bi-person-gear';
 $page_heading = 'User Management';
 $page_description = 'Create users, assign module roles and reset staff passwords.';
-$page_actions = '<a href="../../index.php" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>';
+$page_actions = '<a href="logs" class="btn btn-outline-warning me-2"><i class="bi bi-journal-text"></i> Logs</a>
+                 <a href="../../index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>';
 
 include '../../includes/header.php';
 ?>
@@ -297,3 +298,4 @@ include '../../includes/header.php';
 </div>
 
 <?php include '../../includes/footer.php'; ?>
+

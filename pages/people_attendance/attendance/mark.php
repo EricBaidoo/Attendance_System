@@ -1,7 +1,7 @@
-<?php
+﻿<?php
 // pages/people_attendance/attendance/mark.php
 require_once '../../../includes/security.php';
-requireLogin('../../../login.php');
+requireLogin('../../../login');
 require __DIR__ . '/../../../config/database.php';
 
 $user_role = getUserRole();
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_attendance'])) {
             }
             exit;
         } catch (PDOException $e) {
-            echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+            echo json_encode(['success' => false, 'message' => reportDatabaseException($e)]);
             exit;
         }
     }
@@ -149,7 +149,7 @@ include '../../../includes/header.php';
                             <h1 class="mb-1 fw-bold text-dark">Mark Attendance</h1>
                             <?php if ($selected_session): ?>
                                 <p class="text-muted mb-0">
-                                    <strong><?php echo htmlspecialchars($selected_session['service_name'] ?? ''); ?></strong> • 
+                                    <strong><?php echo htmlspecialchars($selected_session['service_name'] ?? ''); ?></strong> â€¢ 
                                     <?php echo date('F j, Y'); ?>
                                 </p>
                                 <div class="d-flex gap-3 text-muted small">
@@ -227,7 +227,7 @@ include '../../../includes/header.php';
                     <button class="btn btn-success btn-sm" onclick="markAllPresent()">
                         <i class="bi bi-check-all"></i> Mark All Present
                     </button>
-                    <a href="view.php?session_id=<?php echo $selected_session_id; ?>" class="btn btn-info btn-sm">
+                    <a href="view?session_id=<?php echo $selected_session_id; ?>" class="btn btn-info btn-sm">
                         <i class="bi bi-eye"></i> View Reports
                     </a>
                 </div>
@@ -279,7 +279,7 @@ include '../../../includes/header.php';
                             <?php if ($member['attendance_status'] === 'present'): ?>
                                 <button type="button" class="attendance-btn btn-present marked" 
                                         onclick="markAttendance(<?php echo $member['id']; ?>, 'unmark', this)">
-                                    <i class="bi bi-check-circle-fill"></i> Present ✓
+                                    <i class="bi bi-check-circle-fill"></i> Present âœ“
                                 </button>
                             <?php else: ?>
                                 <button type="button" class="attendance-btn btn-present" 
@@ -348,7 +348,7 @@ function markAttendance(memberId, action, button) {
     button.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
     button.disabled = true;
     
-    fetch('mark.php', {
+    fetch('mark', {
         method: 'POST',
         body: formData
     })
@@ -361,7 +361,7 @@ function markAttendance(memberId, action, button) {
             if (action === 'mark') {
                 card.className = 'member-attendance-card present';
                 card.setAttribute('data-status', 'present');
-                button.innerHTML = '<i class="bi bi-check-circle-fill"></i> Present ✓';
+                button.innerHTML = '<i class="bi bi-check-circle-fill"></i> Present âœ“';
                 button.className = 'attendance-btn btn-present marked';
                 button.setAttribute('onclick', `markAttendance(${memberId}, 'unmark', this)`);
                 updateSummaryCount('mark');

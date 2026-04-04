@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 require_once '../../includes/security.php';
-requireLogin('../../login.php');
+requireLogin('../../login');
 require_once '../../config/database.php';
 
 $page_title = 'Communication SMS Center - Bridge Ministries International';
@@ -687,7 +687,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['continue_campaign'])) {
                 $success = 'SMS sending completed. Processed ' . (int)($batch_result['processed'] ?? 0) . '/' . (int)($batch_result['total'] ?? 0) . ' (' . (float)($batch_result['percent'] ?? 100.0) . '%). Delivered: ' . (int)($batch_result['delivered'] ?? 0) . ', Failed: ' . (int)($batch_result['failed'] ?? 0) . '.';
             } else {
                 $success = 'SMS batch running: ' . (int)($batch_result['processed'] ?? 0) . '/' . (int)($batch_result['total'] ?? 0) . ' processed (' . (float)($batch_result['percent'] ?? 0.0) . '%). Remaining: ' . (int)($batch_result['remaining'] ?? 0) . '. Delivered: ' . (int)($batch_result['delivered'] ?? 0) . ', Failed: ' . (int)($batch_result['failed'] ?? 0) . '.';
-                header('Refresh: 1; url=sms.php?continue_campaign=' . $continue_campaign_id);
+                header('Refresh: 1; url=sms?continue_campaign=' . $continue_campaign_id);
             }
         } else {
             error_log('[sms.php] Batch continuation failed for campaign ' . $continue_campaign_id . ': ' . (string)($batch_result['error'] ?? 'Unknown error'));
@@ -1095,7 +1095,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if ($is_immediate_send) {
                             $batch_result = processSmsBatchJob($pdo, $sms_config, $campaign_id);
                             if (($batch_result['ok'] ?? false) === true && ($batch_result['done'] ?? false) === false) {
-                                header('Location: sms.php?continue_campaign=' . $campaign_id);
+                                header('Location: sms?continue_campaign=' . $campaign_id);
                                 exit;
                             }
 
@@ -1203,10 +1203,10 @@ include '../../includes/header.php';
     <?php endif; ?>
 
     <nav class="nav nav-pills communication-subnav mb-3">
-        <a class="nav-link" href="dashboard.php">Overview</a>
-        <a class="nav-link" href="campaigns.php">Campaigns</a>
-        <a class="nav-link active" href="sms.php">SMS Center</a>
-        <a class="nav-link" href="logs.php">Logs</a>
+        <a class="nav-link" href="dashboard">Overview</a>
+        <a class="nav-link" href="campaigns">Campaigns</a>
+        <a class="nav-link active" href="sms">SMS Center</a>
+        <a class="nav-link" href="logs">Logs</a>
     </nav>
 
     <section class="row g-3 communication-stats mb-1">
@@ -1243,7 +1243,7 @@ include '../../includes/header.php';
                 <div class="communication-stat-content">
                     <span class="communication-stat-label">Gateway Balance</span>
                     <h3 class="communication-stat-value"><?php echo $gateway_balance !== null && $gateway_balance !== '' ? htmlspecialchars($gateway_balance) : 'N/A'; ?></h3>
-                    <a class="small text-decoration-none" href="sms.php?refresh_balance=1">Refresh balance</a>
+                    <a class="small text-decoration-none" href="sms?refresh_balance=1">Refresh balance</a>
                 </div>
             </article>
         </div>
@@ -1429,7 +1429,7 @@ document.addEventListener('DOMContentLoaded', function () {
             message_text: messageInput.value || ''
         });
 
-        return fetch('sms.php?' + params.toString(), { method: 'GET', credentials: 'same-origin' })
+        return fetch('sms?' + params.toString(), { method: 'GET', credentials: 'same-origin' })
             .then(function (response) { return response.json(); })
             .then(function (data) { return data; })
             .catch(function () {
@@ -1478,3 +1478,4 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+
