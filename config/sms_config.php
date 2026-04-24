@@ -1,16 +1,28 @@
 <?php
 
+$provider = getSystemSetting($pdo, 'sms_provider', 'bulksmsgh');
+$sender_id = getSystemSetting($pdo, 'sms_sender_id', 'BRIDGE MIN.');
+$api_key = getSystemSetting($pdo, 'sms_api_key', '');
+$unit_cost = (float)getSystemSetting($pdo, 'sms_unit_cost', '0.02');
+$currency = getSystemSetting($pdo, 'sms_currency', 'GHS');
+
 return [
-    'provider' => getenv('SMS_PROVIDER') ?: 'bulksmsgh',
-    'sender_id' => getenv('SMS_SENDER_ID') ?: 'BRIDGE MIN.',
+    'provider' => $provider,
+    'sender_id' => $sender_id,
     'bulksmsgh' => [
-        'api_key' => getenv('BULKSMSGH_API_KEY') ?: '',
-        'sender_id' => getenv('BULKSMSGH_SENDER_ID') ?: (getenv('SMS_SENDER_ID') ?: 'BRIDGE MIN.'),
-        'send_endpoint' => getenv('BULKSMSGH_SEND_ENDPOINT') ?: 'https://clientlogin.bulksmsgh.com/smsapi',
+        'api_key' => $api_key,
+        'sender_id' => $sender_id,
+        'send_endpoint' => 'https://clientlogin.bulksmsgh.com/smsapi',
         'balance_endpoints' => [
-            getenv('BULKSMSGH_BALANCE_ENDPOINT_1') ?: 'https://clientlogin.bulksmsgh.com/api/smsapibalance',
-            getenv('BULKSMSGH_BALANCE_ENDPOINT_2') ?: 'https://clientlogin.bulksmsgh.com/api/balance/sms',
+            'https://clientlogin.bulksmsgh.com/api/smsapibalance',
+            'https://clientlogin.bulksmsgh.com/api/balance/sms',
         ],
+    ],
+    'arkesel' => [
+        'api_key' => $api_key,
+        'sender_id' => $sender_id,
+        'send_endpoint' => 'https://sms.arkesel.com/sms/api',
+        'balance_endpoint' => 'https://sms.arkesel.com/sms/api',
     ],
     'twilio' => [
         'sid' => getenv('TWILIO_ACCOUNT_SID') ?: '',
@@ -18,7 +30,7 @@ return [
         'from' => getenv('TWILIO_FROM') ?: '',
     ],
     'pricing' => [
-        'unit_cost' => (float)(getenv('SMS_UNIT_COST') ?: '0.00'),
-        'currency' => getenv('SMS_CURRENCY') ?: 'GHS',
+        'unit_cost' => $unit_cost,
+        'currency' => $currency,
     ],
 ];

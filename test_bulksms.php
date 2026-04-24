@@ -3,6 +3,8 @@ if (PHP_SAPI !== 'cli' || getenv('APP_ENABLE_MAINTENANCE_TOOLS') !== '1') {
     http_response_code(403);
     exit('Forbidden');
 }
+require_once 'config/database.php';
+require_once 'includes/settings_utils.php';
 
 $config = require 'config/sms_config.php';
 

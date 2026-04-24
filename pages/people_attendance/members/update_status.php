@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once '../../../includes/security.php';
 require_once '../../../includes/people_sync.php';
 
@@ -25,47 +25,55 @@ if (!canAccessModule('people_attendance', $user_role)) {
     exit;
 }
 
-// Handle both GET (from button links) and POST (from AJAX)
-$is_get_request = isset($_GET['id']) && isset($_GET['action']);
-$member_id = null;
-$new_status = null;
+// Secure POST request check
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    if (isset($_POST['return'])) {
+        header('Location: list?error=' . urlencode('Method Not Allowed'));
+        exit;
+    }
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Method Not Allowed']);
+    exit;
+}
 
-if ($is_get_request) {
-    // GET request with action=toggle
-    $member_id = $_GET['id'];
-    $action = $_GET['action'];
+$csrf_token = false;
+$is_form_submission = isset($_POST['action']);
+
+if ($is_form_submission) {
+    // Form submission
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    $member_id = $_POST['id'] ?? null;
+    $action = $_POST['action'] ?? '';
     
     if ($action === 'toggle') {
-        // Need to fetch current status to toggle it
         require '../../../config/database.php';
         $check_stmt = $pdo->prepare("SELECT status FROM member_roles WHERE id = ?");
         $check_stmt->execute([$member_id]);
         $current = $check_stmt->fetch();
-        
-        if (!$current) {
-            if (isset($_GET['return'])) {
-                header('Location: list?error=' . urlencode('Member not found'));
-                exit;
-            }
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => 'Member not found']);
-            exit;
+        if ($current) {
+            $new_status = $current['status'] === 'active' ? 'inactive' : 'active';
         }
-        
-        $new_status = $current['status'] === 'active' ? 'inactive' : 'active';
     }
 } else {
-    // JSON POST request
-    header('Content-Type: application/json');
+    // JSON API request
     $input = json_decode(file_get_contents('php://input'), true);
-    
-    if (!isset($input['member_id']) || !isset($input['status'])) {
-        echo json_encode(['success' => false, 'message' => 'Missing required parameters']);
-        exit;
+    if ($input) {
+        $csrf_token = $input['csrf_token'] ?? '';
+        $member_id = $input['member_id'] ?? null;
+        $new_status = $input['status'] ?? null;
     }
-    
-    $member_id = $input['member_id'];
-    $new_status = $input['status'];
+}
+
+if (!validateCSRFToken($csrf_token)) {
+    http_response_code(403);
+    if ($is_form_submission && isset($_POST['return'])) {
+         header('Location: list?error=' . urlencode('Invalid CSRF token'));
+         exit;
+    }
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+    exit;
 }
 
 // Validate status

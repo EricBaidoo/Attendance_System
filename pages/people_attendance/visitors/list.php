@@ -192,7 +192,7 @@ try {
 $query_params = $_GET;
 unset($query_params['page']);
 $query_base = http_build_query($query_params);
-$page_title = 'Visitors Directory - Bridge Ministries International';
+$page_title = 'Visitors Directory - ' . getInstitutionName($pdo);
 
 include '../../../includes/header.php';
 ?>

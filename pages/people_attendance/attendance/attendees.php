@@ -25,7 +25,7 @@ if ($session_id) {
     $error = 'No session specified.';
 }
 
-$page_title = "Attendee List - Bridge Ministries International";
+$page_title = "Attendee List - " . getInstitutionName($pdo);
 ?>
 <?php include '../../../includes/header.php'; ?>
 

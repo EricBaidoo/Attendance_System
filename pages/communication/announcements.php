@@ -1,9 +1,9 @@
-﻿<?php
+<?php
 require_once '../../includes/security.php';
 requireLogin('../../login');
 require_once '../../config/database.php';
 
-$page_title = 'Communication Announcements - Bridge Ministries International';
+$page_title = 'Communication Announcements - ' . getInstitutionName($pdo);
 $page_heading = 'Communication Announcements';
 $page_header = false;
 
@@ -335,7 +335,18 @@ include '../../includes/header.php';
                                         <td class="communication-col-date"><?php echo htmlspecialchars(date('d M Y', strtotime((string)($row['publish_date'] ?: $row['created_at'])))); ?></td>
                                         <td class="communication-col-title"><?php echo htmlspecialchars((string)$row['title']); ?></td>
                                         <td><?php echo htmlspecialchars((string)($row['audience'] ?: 'All')); ?></td>
-                                        <td><span class="communication-badge status-<?php echo htmlspecialchars(strtolower((string)$row['status'])); ?>"><?php echo htmlspecialchars((string)$row['status']); ?></span></td>
+                                        <td>
+                                            <?php 
+                                                $is_expired = !empty($row['expires_at']) && strtotime((string)$row['expires_at']) < time();
+                                                $status = (string)$row['status'];
+                                            ?>
+                                            <span class="communication-badge status-<?php echo htmlspecialchars(strtolower($status)); ?>">
+                                                <?php echo htmlspecialchars($status); ?>
+                                            </span>
+                                            <?php if ($is_expired && $status === 'published'): ?>
+                                                <span class="badge bg-danger ms-1">Expired</span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td class="communication-col-content"><?php echo htmlspecialchars((string)$row['body']); ?></td>
                                         <td class="text-end communication-col-actions">
                                             <div class="communication-row-actions">

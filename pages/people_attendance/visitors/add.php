@@ -102,7 +102,7 @@ try {
 ?>
 
 <?php
-$page_title = 'Add Visitor - Bridge Ministries International';
+$page_title = 'Add Visitor - ' . getInstitutionName($pdo);
 $page_header = true;
 $page_icon = 'bi bi-person-plus';
 $page_heading = 'Add New Visitor';

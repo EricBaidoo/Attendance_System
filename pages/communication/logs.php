@@ -1,9 +1,9 @@
-﻿<?php
+<?php
 require_once '../../includes/security.php';
 requireLogin('../../login');
 require_once '../../config/database.php';
 
-$page_title = 'Communication Logs - Bridge Ministries International';
+$page_title = 'Communication Logs - ' . getInstitutionName($pdo);
 $page_heading = 'Communication Delivery Logs';
 $page_header = false;
 
@@ -72,15 +72,41 @@ try {
     $failed_logs = (int)($summary['failed_logs'] ?? 0);
     $queued_logs = (int)($summary['queued_logs'] ?? 0);
 
-    $list_stmt = $pdo->prepare(
-        "SELECT l.id, l.channel, l.recipient, l.status, l.message_preview, l.error_detail, l.sent_at, l.created_at,
-                c.name AS campaign_name
-         FROM communication_logs l
-         LEFT JOIN communication_campaigns c ON c.id = l.campaign_id
-         WHERE {$where_sql}
-         ORDER BY COALESCE(l.sent_at, l.created_at) DESC, l.id DESC
-         LIMIT 150"
-    );
+    // SQL for fetching logs (Shared by List and Export)
+    $logs_query = "SELECT l.id, l.channel, l.recipient, l.status, l.message_preview, l.error_detail, l.sent_at, l.created_at,
+                          c.name AS campaign_name
+                   FROM communication_logs l
+                   LEFT JOIN communication_campaigns c ON c.id = l.campaign_id
+                   WHERE {$where_sql}
+                   ORDER BY COALESCE(l.sent_at, l.created_at) DESC, l.id DESC";
+
+    // Handle CSV Export
+    if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+        $export_stmt = $pdo->prepare($logs_query);
+        $export_stmt->execute($params);
+        $export_rows = $export_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=communication_logs_' . date('Y-m-d') . '.csv');
+        $output = fopen('php://output', 'w');
+        fputcsv($output, ['ID', 'Date', 'Campaign', 'Channel', 'Recipient', 'Status', 'Message Preview', 'Error Detail']);
+        foreach ($export_rows as $row) {
+            fputcsv($output, [
+                $row['id'],
+                date('Y-m-d H:i', strtotime((string)($row['sent_at'] ?: $row['created_at']))),
+                $row['campaign_name'] ?: 'Manual',
+                strtoupper((string)$row['channel']),
+                $row['recipient'],
+                $row['status'],
+                $row['message_preview'],
+                $row['error_detail']
+            ]);
+        }
+        fclose($output);
+        exit;
+    }
+
+    $list_stmt = $pdo->prepare($logs_query . " LIMIT 150");
     $list_stmt->execute($params);
     $log_rows = $list_stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
@@ -178,6 +204,9 @@ include '../../includes/header.php';
                 <button type="submit" class="btn btn-primary w-100">Apply</button>
             </div>
             <div class="col-12 col-md-2 d-flex align-items-end">
+                <button type="submit" name="export" value="csv" class="btn btn-success w-100"><i class="bi bi-download me-1"></i>Export</button>
+            </div>
+            <div class="col-12 col-md-2 d-flex align-items-end">
                 <a href="logs" class="btn btn-outline-secondary w-100">Reset</a>
             </div>
         </form>
@@ -186,14 +215,14 @@ include '../../includes/header.php';
     <div class="communication-panel mt-3">
         <div class="communication-panel-head">
             <h2><i class="bi bi-clock-history"></i> Delivery Log List</h2>
-            <p>Latest communication delivery entries.</p>
+            <p>Grouped by date of transmission.</p>
         </div>
 
         <div class="communication-table-wrap mt-3">
             <table class="table communication-table align-middle mb-0">
                 <thead>
                     <tr>
-                        <th class="communication-col-date">Date</th>
+                        <th class="communication-col-date">Time</th>
                         <th class="communication-col-title">Campaign</th>
                         <th>Channel</th>
                         <th>Recipient</th>
@@ -207,9 +236,21 @@ include '../../includes/header.php';
                             <td colspan="6" class="text-center text-muted py-4">No logs found for selected filters.</td>
                         </tr>
                     <?php else: ?>
-                        <?php foreach ($log_rows as $row): ?>
+                        <?php 
+                        $last_date = '';
+                        foreach ($log_rows as $row): 
+                            $curr_date = date('d M Y', strtotime((string)($row['sent_at'] ?: $row['created_at'])));
+                            if ($curr_date !== $last_date):
+                                $last_date = $curr_date;
+                        ?>
+                            <tr class="table-light">
+                                <td colspan="6" class="p-2 ps-3 fw-bold text-secondary bg-body-tertiary">
+                                    <i class="bi bi-calendar3 me-2"></i><?php echo $curr_date; ?>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
                             <tr>
-                                <td class="communication-col-date"><?php echo htmlspecialchars(date('d M Y H:i', strtotime((string)($row['sent_at'] ?: $row['created_at'])))); ?></td>
+                                <td class="communication-col-date ps-4"><?php echo htmlspecialchars(date('H:i', strtotime((string)($row['sent_at'] ?: $row['created_at'])))); ?></td>
                                 <td class="communication-col-title"><?php echo htmlspecialchars((string)($row['campaign_name'] ?: 'Manual Entry')); ?></td>
                                 <td><?php echo htmlspecialchars(strtoupper((string)$row['channel'])); ?></td>
                                 <td><?php echo htmlspecialchars((string)($row['recipient'] ?: '-')); ?></td>
@@ -217,7 +258,7 @@ include '../../includes/header.php';
                                 <td class="communication-col-content">
                                     <?php echo htmlspecialchars((string)($row['message_preview'] ?: '-')); ?>
                                     <?php if (!empty($row['error_detail'])): ?>
-                                        <div class="text-danger mt-1"><?php echo htmlspecialchars((string)$row['error_detail']); ?></div>
+                                        <div class="text-danger mt-1 small"><i class="bi bi-info-circle me-1"></i><?php echo htmlspecialchars((string)$row['error_detail']); ?></div>
                                     <?php endif; ?>
                                 </td>
                             </tr>

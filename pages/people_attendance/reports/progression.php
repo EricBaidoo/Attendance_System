@@ -5,7 +5,7 @@ requireLogin('../../../login');
 
 require_once '../../../config/database.php';
 
-$page_title = 'Progression Report - Bridge Ministries International';
+$page_title = 'Progression Report - ' . getInstitutionName($pdo);
 
 $start_date = isset($_GET['start_date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['start_date'])
     ? $_GET['start_date']

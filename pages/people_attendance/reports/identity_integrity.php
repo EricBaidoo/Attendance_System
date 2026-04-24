@@ -4,7 +4,7 @@ requireLogin('../../../login');
 require_once '../../../config/database.php';
 require_once '../../../includes/people_sync.php';
 
-$page_title = 'Identity Integrity Report - Bridge Ministries International';
+$page_title = 'Identity Integrity Report - ' . getInstitutionName($pdo);
 $page_header = false;
 
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 50;

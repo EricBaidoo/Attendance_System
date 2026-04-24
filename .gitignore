@@ -1,0 +1,34 @@
+# --- Security & Credentials ---
+config/database.php
+config/sms_config.php
+.env
+*.key
+*.pem
+
+# --- System Logs & Locks ---
+cron/*.lock
+cron/*.txt
+logs/*.log
+error_log
+
+# --- Database Backups & Data ---
+database/*.sql
+database/*.csv
+# Allow the update script and SQL patches
+!database/db_updates.sql
+!database/apply_updates.php
+
+# --- User Content & Uploads ---
+assets/uploads/*
+!assets/uploads/.gitkeep
+
+# --- IDE & OS Junk ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Dependencies ---
+vendor/
+node_modules/

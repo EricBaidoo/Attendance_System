@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Enhanced Check-in System with Smart Visitor Detection
 require_once '../../../includes/people_sync.php';
 
@@ -373,7 +373,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Church Check-In â€” Bridge Ministries International</title>
+    <title>Church Check-In — <?php echo htmlspecialchars(getInstitutionName($pdo)); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="../../../assets/css/checkin.css?v=<?php echo time(); ?>" rel="stylesheet">
@@ -387,7 +387,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
                     <i class="bi bi-house-heart-fill"></i>
                 </div>
                 <h1>Church Check-In</h1>
-                <p class="checkin-brand-name">Bridge Ministries International</p>
+                <p class="checkin-brand-name"><?php echo htmlspecialchars(getInstitutionName($pdo)); ?></p>
               
 
                 <div class="checkin-brand-stats">
@@ -586,7 +586,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkin'])) {
         </div>
 
         <p class="checkin-page-footer">
-            &copy; <?php echo date('Y'); ?> Bridge Ministries International
+            &copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars(getInstitutionName($pdo)); ?>
         </p>
     </div>
 

@@ -1570,9 +1570,51 @@ SET @sql = (
       AND @users_role_type LIKE '%data_staff%'
       AND @users_role_type LIKE '%accountant%'
       AND @users_role_type LIKE '%communication_team%',
-      'SELECT "users.role enum already supports module roles"',
       "ALTER TABLE users MODIFY COLUMN role ENUM('admin','staff','general_admin','data_staff','accountant','communication_team') NOT NULL DEFAULT 'data_staff'"
     )
   )
 );
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+
+-- =========================================================
+-- [2026-04-24] SMS Background Processing & Batch Settings
+-- =========================================================
+-- Seeds settings for controlled background SMS delivery.
+
+INSERT IGNORE INTO system_settings (setting_key, setting_value, category, description)
+VALUES ('sms_batch_size', '40', 'communication', 'Maximum number of SMS messages to process in a single batch script execution.');
+
+INSERT IGNORE INTO system_settings (setting_key, setting_value, category, description)
+VALUES ('sms_batch_time_limit', '18', 'communication', 'Time limit in seconds for a single SMS batch run to prevent server timeout/lockup.');
+
+
+-- =========================================================
+-- [2026-04-24] Lesson Plan Week Number Support
+-- =========================================================
+-- Ensures lesson plans can be tracked by academic week.
+
+SET @has_week_col = (
+  SELECT COUNT(*)
+  FROM INFORMATION_SCHEMA.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'lesson_plans'
+    AND COLUMN_NAME = 'week_number'
+);
+
+SET @sql = IF(
+  @has_week_col = 0 AND EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'lesson_plans'),
+  'ALTER TABLE lesson_plans ADD COLUMN week_number INT NULL AFTER topic',
+  'SELECT "lesson_plans.week_number already exists or table missing"'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- Finance: Tither Categorization and Corporate Support (April 2024 Update)
+ALTER TABLE tithers ADD COLUMN tither_type ENUM('individual', 'company') DEFAULT 'individual' AFTER member_id;
+ALTER TABLE tithers ADD COLUMN age_group ENUM('adult', 'youth', 'child') DEFAULT 'adult' AFTER tither_type;
+ALTER TABLE tithers ADD COLUMN company_tin VARCHAR(50) DEFAULT NULL AFTER email;
+
+-- System Settings: Tithe Numbering Formats
+INSERT IGNORE INTO system_settings (setting_key, setting_value, category, description) VALUES 
+('tithe_format_member', 'BMI{SEQ}-{YY}', 'finance', 'Format for individual tithers. {SEQ} is number, {YY} is year'),
+('tithe_format_company', 'CORP{SEQ}-{YY}', 'finance', 'Format for corporate tithers.');

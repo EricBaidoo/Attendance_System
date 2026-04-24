@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once '../../includes/security.php';
 
 requireLogin('../../login');
@@ -16,7 +16,11 @@ try {
     require '../../config/database.php';
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $action = $_POST['action'] ?? '';
+        $csrf_token = $_POST['csrf_token'] ?? '';
+        if (!validateCSRFToken($csrf_token)) {
+            $error = 'Invalid request token. Please submit the form again.';
+        } else {
+            $action = $_POST['action'] ?? '';
 
         try {
             if ($action === 'add_department') {
@@ -101,11 +105,27 @@ try {
                 $success = 'Cell center deleted successfully.';
                 $active_tab = 'cell-centers';
             }
+
+            if ($action === 'update_settings') {
+                $settings = $_POST['settings'] ?? [];
+                
+                $pdo->beginTransaction();
+                $stmt = $pdo->prepare("UPDATE system_settings SET setting_value = ?, updated_by = ? WHERE setting_key = ?");
+                
+                foreach ($settings as $key => $value) {
+                    $stmt->execute([$value, $_SESSION['user_id'], $key]);
+                }
+                
+                $pdo->commit();
+                $success = 'System configuration updated successfully.';
+                $active_tab = 'configuration';
+            }
         } catch (Exception $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
             $error = $e->getMessage();
+        }
         }
     }
 
@@ -143,11 +163,19 @@ try {
 
     $department_count = count($departments);
     $cell_center_count = count($cell_centers);
+
+    // Fetch system settings
+    $system_settings_data = $pdo->query("SELECT * FROM system_settings ORDER BY category, id")->fetchAll();
+    $grouped_settings = [];
+    foreach ($system_settings_data as $s) {
+        $category_label = ucwords(str_replace('_', ' ', $s['category']));
+        $grouped_settings[$category_label][] = $s;
+    }
 } catch (Exception $e) {
     die('Database error: ' . $e->getMessage());
 }
 
-$page_title = 'System Settings - Bridge Ministries International';
+$page_title = 'System Settings - ' . getInstitutionName($pdo);
 $page_header = true;
 $page_icon = 'bi bi-gear-fill';
 $page_heading = 'System Settings';
@@ -205,6 +233,11 @@ include '../../includes/header.php';
                 <i class="bi bi-geo-alt me-1"></i>Cell Centers
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link <?php echo $active_tab === 'configuration' ? 'active' : ''; ?>" href="?tab=configuration">
+                <i class="bi bi-sliders me-1"></i>Configuration
+            </a>
+        </li>
     </ul>
 
     <div class="row g-4">
@@ -217,6 +250,7 @@ include '../../includes/header.php';
                     </h5>
                     <form method="POST">
                         <input type="hidden" name="action" value="<?php echo $edit_department ? 'update_department' : 'add_department'; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                         <?php if ($edit_department): ?>
                             <input type="hidden" name="department_id" value="<?php echo (int) $edit_department['id']; ?>">
                         <?php endif; ?>
@@ -263,6 +297,7 @@ include '../../includes/header.php';
                                             <td class="text-end">
                                                 <a href="?tab=departments&edit_department=<?php echo (int) $department['id']; ?>" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
                                                 <form method="POST" class="d-inline" onsubmit="return confirm('Delete this department? Members using it as primary will be reset, and linked memberships will be removed.');">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                                                     <input type="hidden" name="action" value="delete_department">
                                                     <input type="hidden" name="department_id" value="<?php echo (int) $department['id']; ?>">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
@@ -287,6 +322,7 @@ include '../../includes/header.php';
                     </h5>
                     <form method="POST">
                         <input type="hidden" name="action" value="<?php echo $edit_cell_center ? 'update_cell_center' : 'add_cell_center'; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                         <?php if ($edit_cell_center): ?>
                             <input type="hidden" name="cell_center_id" value="<?php echo (int) $edit_cell_center['id']; ?>">
                         <?php endif; ?>
@@ -331,6 +367,7 @@ include '../../includes/header.php';
                                             <td class="text-end">
                                                 <a href="?tab=cell-centers&edit_cell_center=<?php echo (int) $cell_center['id']; ?>" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
                                                 <form method="POST" class="d-inline" onsubmit="return confirm('Delete this cell center? Assigned members will be reset to no cell center.');">
+                                                    <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                                                     <input type="hidden" name="action" value="delete_cell_center">
                                                     <input type="hidden" name="cell_center_id" value="<?php echo (int) $cell_center['id']; ?>">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
@@ -344,6 +381,75 @@ include '../../includes/header.php';
                     <?php endif; ?>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Configuration Tab Content -->
+    <div class="row <?php echo $active_tab === 'configuration' ? '' : 'd-none'; ?>">
+        <div class="col-12">
+            <form method="POST">
+                <input type="hidden" name="action" value="update_settings">
+                <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
+                
+                <div class="row g-4">
+                    <?php foreach ($grouped_settings as $category => $settings): ?>
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm settings-card h-100">
+                                <div class="card-body p-4">
+                                    <h5 class="settings-card-title mb-4">
+                                        <i class="bi bi-journal-text me-2"></i><?php echo $category; ?>
+                                    </h5>
+                                    
+                                    <?php foreach ($settings as $setting): ?>
+                                        <div class="mb-3">
+                                            <label class="form-label d-flex justify-content-between">
+                                                <span><?php echo ucwords(str_replace('_', ' ', $setting['setting_key'])); ?></span>
+                                                <?php if ($setting['category'] === 'attendance'): ?>
+                                                    <span class="text-info small"><i class="bi bi-info-circle me-1"></i>Behavior</span>
+                                                <?php endif; ?>
+                                            </label>
+                                            
+                                            <?php if ($setting['setting_key'] === 'attendance_auto_mark' || $setting['setting_key'] === 'notification_email'): ?>
+                                                <select class="form-select" name="settings[<?php echo $setting['setting_key']; ?>]">
+                                                    <option value="yes" <?php echo $setting['setting_value'] === 'yes' ? 'selected' : ''; ?>>Yes / Enabled</option>
+                                                    <option value="no" <?php echo $setting['setting_value'] === 'no' ? 'selected' : ''; ?>>No / Disabled</option>
+                                                </select>
+                                            <?php elseif ($setting['setting_key'] === 'sms_provider'): ?>
+                                                <select class="form-select" name="settings[<?php echo $setting['setting_key']; ?>]">
+                                                    <option value="bulksmsgh" <?php echo $setting['setting_value'] === 'bulksmsgh' ? 'selected' : ''; ?>>BulkSMSGH (Ghana)</option>
+                                                    <option value="arkesel" <?php echo $setting['setting_value'] === 'arkesel' ? 'selected' : ''; ?>>Arkesel (Ghana)</option>
+                                                    <option value="twilio" <?php echo $setting['setting_value'] === 'twilio' ? 'selected' : ''; ?>>Twilio (International)</option>
+                                                    <option value="none" <?php echo $setting['setting_value'] === 'none' ? 'selected' : ''; ?>>None / Disable Sending</option>
+                                                </select>
+                                            <?php elseif ($setting['setting_key'] === 'sms_batch_size'): ?>
+                                                <input type="number" class="form-control" name="settings[<?php echo $setting['setting_key']; ?>]" value="<?php echo htmlspecialchars($setting['setting_value']); ?>" min="10" max="500">
+                                            <?php elseif ($setting['setting_key'] === 'sms_batch_time_limit'): ?>
+                                                <input type="number" class="form-control" name="settings[<?php echo $setting['setting_key']; ?>]" value="<?php echo htmlspecialchars($setting['setting_value']); ?>" min="5" max="60">
+                                            <?php elseif (in_array($setting['setting_key'], ['church_address', 'description', 'ministerial_statuses'])): ?>
+                                                <textarea class="form-control" name="settings[<?php echo $setting['setting_key']; ?>]" rows="2"><?php echo htmlspecialchars($setting['setting_value']); ?></textarea>
+                                            <?php else: ?>
+                                                <input type="text" class="form-control" 
+                                                       name="settings[<?php echo $setting['setting_key']; ?>]" 
+                                                       value="<?php echo htmlspecialchars($setting['setting_value']); ?>">
+                                            <?php endif; ?>
+                                            
+                                            <?php if (!empty($setting['description'])): ?>
+                                                <div class="form-text mt-1"><?php echo htmlspecialchars($setting['description']); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-primary px-5 py-2">
+                        <i class="bi bi-save me-2"></i>Save All Configurations
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

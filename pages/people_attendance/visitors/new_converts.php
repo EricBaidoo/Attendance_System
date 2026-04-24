@@ -138,7 +138,7 @@ try {
     die('Database error. Please contact the administrator.');
 }
 
-$page_title = "New Converts - Bridge Ministries International";
+$page_title = "New Converts - " . getInstitutionName($pdo);
 include '../../../includes/header.php';
 ?>
 <link href="../../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">

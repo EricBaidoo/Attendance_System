@@ -160,7 +160,7 @@ $stats_sql = "SELECT
 $stats_stmt = $pdo->query($stats_sql);
 $stats = $stats_stmt->fetch();
 
-$page_title = "Service Templates - Bridge Ministries International";
+$page_title = "Service Templates - " . getInstitutionName($pdo);
 include '../../../includes/header.php';
 ?>
 <link href="../../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">

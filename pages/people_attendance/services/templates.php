@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_from_template'
     }
 }
 
-$page_title = "Service Templates - Bridge Ministries International";
+$page_title = "Service Templates - " . getInstitutionName($pdo);
 include '../../../includes/header.php';
 ?>
 <!-- Additional CSS for services page -->

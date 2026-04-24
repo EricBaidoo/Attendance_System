@@ -318,7 +318,7 @@ try {
     die('Database error. Please contact the administrator.');
 }
 
-$page_title = 'Add Member - Bridge Ministries International';
+$page_title = 'Add Member - ' . getInstitutionName($pdo);
 $page_header = true;
 $page_icon = 'bi bi-person-plus';
 $page_heading = 'Add New Member';

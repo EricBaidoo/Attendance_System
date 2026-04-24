@@ -1,9 +1,9 @@
-﻿<?php
+<?php
 require_once '../../includes/security.php';
 requireLogin('../../login');
 require_once '../../config/database.php';
 
-$page_title = 'Communication Campaigns - Bridge Ministries International';
+$page_title = 'Communication Campaigns - ' . getInstitutionName($pdo);
 $page_heading = 'Communication Campaigns';
 $page_header = false;
 
@@ -341,6 +341,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), 
                 $error = 'Invalid campaign selected for update.';
             } else {
                 try {
+                    $verify_stmt = $pdo->prepare('SELECT status FROM communication_campaigns WHERE id = ? LIMIT 1');
+                    $verify_stmt->execute([$campaign_id]);
+                    $current_campaign_status = (string)$verify_stmt->fetchColumn();
+
+                    if ($current_campaign_status === 'sent') {
+                        throw new Exception('Sent campaigns cannot be updated to preserve audit integrity.');
+                    }
+
                     $update_stmt = $pdo->prepare(
                         'UPDATE communication_campaigns SET name = ?, channel = ?, audience = ?, content = ?, status = ?, scheduled_at = ?, sent_at = ?, total_recipients = ?, delivered_count = ?, failed_count = ?, created_by_user_id = ? WHERE id = ?'
                     );
@@ -635,7 +643,9 @@ include '../../includes/header.php';
                                                         <button type="submit" class="btn btn-sm btn-outline-success">Mark Sent</button>
                                                     </form>
                                                 <?php endif; ?>
-                                                <a href="campaigns?edit=<?php echo (int)$row['id']; ?>" class="btn btn-sm btn-outline-primary">Edit</a>
+                                                <?php if ((string)$row['status'] !== 'sent'): ?>
+                                                    <a href="campaigns?edit=<?php echo (int)$row['id']; ?>" class="btn btn-sm btn-outline-primary">Edit</a>
+                                                <?php endif; ?>
                                                 <form method="POST" class="d-inline" onsubmit="return confirm('Delete this campaign?');">
                                                     <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                                                     <input type="hidden" name="action" value="delete_campaign">

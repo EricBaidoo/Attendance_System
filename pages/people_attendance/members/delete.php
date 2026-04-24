@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once '../../../includes/security.php';
 require_once '../../../includes/people_sync.php';
 
@@ -14,9 +14,20 @@ try {
     die('Database connection failed. Please contact the administrator.');
 }
 
-// Get member ID
-$member_id = $_POST['id'] ?? $_GET['id'] ?? 0;
-$return_url = $_POST['return'] ?? $_GET['return'] ?? 'list';
+// Get member ID strictly from POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    die('Invalid request method');
+}
+
+$csrf_token = $_POST['csrf_token'] ?? '';
+if (!validateCSRFToken($csrf_token)) {
+    $_SESSION['error'] = 'Invalid request token. Please try again.';
+    header('Location: list');
+    exit;
+}
+
+$member_id = (int)($_POST['id'] ?? 0);
+$return_url = $_POST['return'] ?? 'list';
 
 if (!$member_id) {
     $_SESSION['error'] = 'Invalid member ID';

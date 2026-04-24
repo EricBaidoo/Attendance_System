@@ -1,8 +1,8 @@
-﻿<?php
+<?php
 require_once '../../../includes/security.php';
 requireLogin('../../../login');
 
-$page_title   = "People & Attendance Overview - Bridge Ministries International";
+$page_title   = "People & Attendance Overview - " . getInstitutionName($pdo);
 $page_heading = "People & Attendance";
 $page_header  = false;
 

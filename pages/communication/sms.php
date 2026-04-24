@@ -1,662 +1,21 @@
-﻿<?php
+<?php
 require_once '../../includes/security.php';
-requireLogin('../../login');
 require_once '../../config/database.php';
 
-$page_title = 'Communication SMS Center - Bridge Ministries International';
+// Access Control: Allow admin and data staff
+requireLogin('../../login');
+requireRole(['admin', 'data staff'], '../../index');
+
+$page_title = 'Communication SMS Center - ' . getInstitutionName($pdo);
 $page_heading = 'Communication SMS Center';
 $page_header = false;
 
+require_once '../../includes/communication_utils.php';
+
 $sms_config = require '../../config/sms_config.php';
 $provider = strtolower(trim((string)($sms_config['provider'] ?? 'none')));
-$sms_batch_size = max(10, min(250, (int)(getenv('SMS_BATCH_SIZE') ?: 40)));
-$sms_batch_time_budget = max(8, min(25, (int)(getenv('SMS_BATCH_TIME_BUDGET') ?: 18)));
-
-function normalizePhoneNumber(string $phone): string {
-    $digits = preg_replace('/[^0-9+]/', '', $phone);
-    if ($digits === null) {
-        return '';
-    }
-
-    $digits = trim($digits);
-
-    if ($digits === '') {
-        return '';
-    }
-
-    if (strpos($digits, '+') === 0) {
-        return $digits;
-    }
-
-    if (strpos($digits, '0') === 0) {
-        return '+233' . ltrim(substr($digits, 1), '0');
-    }
-
-    if (strpos($digits, '233') === 0) {
-        return '+' . $digits;
-    }
-
-    return '+' . ltrim($digits, '+');
-}
-
-function normalizePhoneForProvider(string $phone, string $provider): string {
-    $provider = strtolower(trim($provider));
-
-    if ($provider === 'bulksmsgh') {
-        $digits = preg_replace('/[^0-9+]/', '', $phone);
-        if ($digits === null) {
-            return '';
-        }
-
-        $digits = trim($digits);
-        if ($digits === '') {
-            return '';
-        }
-
-        $digits = ltrim($digits, '+');
-
-        if (strpos($digits, '233') === 0) {
-            $digits = substr($digits, 3);
-        }
-
-        if (strpos($digits, '0') === 0) {
-            $digits = substr($digits, 1);
-        }
-
-        return $digits;
-    }
-
-    return normalizePhoneNumber($phone);
-}
-
-function parseGatewayBalanceValue($value): ?float {
-    if ($value === null) {
-        return null;
-    }
-
-    $raw = trim((string)$value);
-    if ($raw === '') {
-        return null;
-    }
-
-    if (preg_match('/-?\d+(?:\.\d+)?/', $raw, $matches) !== 1) {
-        return null;
-    }
-
-    return (float)$matches[0];
-}
-
-function makeHttpRequest(string $url, string $method = 'GET', array $headers = [], ?string $body = null, int $timeout = 20): array {
-    $method = strtoupper(trim($method));
-    $method = $method === 'POST' ? 'POST' : 'GET';
-
-    if (function_exists('curl_init')) {
-        $buildCurlOptions = static function(bool $insecure = false) use ($url, $timeout, $method, $headers, $body): array {
-            $options = [
-                CURLOPT_URL => $url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_CONNECTTIMEOUT => min($timeout, 8),
-                CURLOPT_TIMEOUT => $timeout,
-                CURLOPT_CUSTOMREQUEST => $method,
-            ];
-
-            if (!empty($headers)) {
-                $options[CURLOPT_HTTPHEADER] = $headers;
-            }
-
-            if ($method === 'POST') {
-                $options[CURLOPT_POST] = true;
-                if ($body !== null) {
-                    $options[CURLOPT_POSTFIELDS] = $body;
-                }
-            }
-
-            if ($insecure) {
-                $options[CURLOPT_SSL_VERIFYPEER] = false;
-                $options[CURLOPT_SSL_VERIFYHOST] = 0;
-            }
-
-            return $options;
-        };
-
-        $ch = curl_init();
-        $curl_options = $buildCurlOptions(false);
-
-        curl_setopt_array($ch, $curl_options);
-        $response = curl_exec($ch);
-        $http_code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curl_error = curl_error($ch);
-
-        // Retry once in insecure mode when local CA certificates are missing.
-        if ($response === false && preg_match('/certificate|SSL/i', $curl_error)) {
-            curl_setopt_array($ch, $buildCurlOptions(true));
-            $response = curl_exec($ch);
-            $http_code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curl_error = curl_error($ch);
-        }
-
-        curl_close($ch);
-
-        if ($response === false) {
-            return [
-                'ok' => false,
-                'body' => null,
-                'http_code' => $http_code,
-                'error' => $curl_error !== '' ? $curl_error : 'HTTP request failed.',
-            ];
-        }
-
-        return [
-            'ok' => true,
-            'body' => (string)$response,
-            'http_code' => $http_code,
-            'error' => null,
-        ];
-    }
-
-    if (!ini_get('allow_url_fopen')) {
-        return [
-            'ok' => false,
-            'body' => null,
-            'http_code' => 0,
-            'error' => 'cURL is unavailable and allow_url_fopen is disabled.',
-        ];
-    }
-
-    $stream_headers = $headers;
-    if ($method === 'POST' && $body !== null) {
-        $has_content_type = false;
-        foreach ($stream_headers as $header) {
-            if (stripos((string)$header, 'Content-Type:') === 0) {
-                $has_content_type = true;
-                break;
-            }
-        }
-        if (!$has_content_type) {
-            $stream_headers[] = 'Content-Type: application/x-www-form-urlencoded';
-        }
-    }
-
-    $bounded_timeout = max(2, min($timeout, 12));
-    @ini_set('default_socket_timeout', (string)$bounded_timeout);
-
-    $context = stream_context_create([
-        'http' => [
-            'method' => $method,
-            'timeout' => $bounded_timeout,
-            'header' => implode("\r\n", $stream_headers),
-            'content' => $body ?? '',
-            'ignore_errors' => true,
-        ],
-        'ssl' => [
-            'verify_peer' => false,
-            'verify_peer_name' => false,
-        ],
-    ]);
-
-    $response = @file_get_contents($url, false, $context);
-    $http_code = 0;
-    if (isset($http_response_header) && is_array($http_response_header)) {
-        foreach ($http_response_header as $line) {
-            if (preg_match('#^HTTP/\S+\s+(\d{3})#', (string)$line, $matches)) {
-                $http_code = (int)$matches[1];
-                break;
-            }
-        }
-    }
-
-    if ($response === false) {
-        return [
-            'ok' => false,
-            'body' => null,
-            'http_code' => $http_code,
-            'error' => 'HTTP request failed in stream fallback.',
-        ];
-    }
-
-    return [
-        'ok' => true,
-        'body' => (string)$response,
-        'http_code' => $http_code,
-        'error' => null,
-    ];
-}
-
-function sendSmsMessage(array $sms_config, string $to, string $message): array {
-    $provider = strtolower(trim((string)($sms_config['provider'] ?? 'none')));
-
-    if ($provider === 'bulksmsgh') {
-        $api_key = trim((string)($sms_config['bulksmsgh']['api_key'] ?? ''));
-        $sender_id = trim((string)($sms_config['bulksmsgh']['sender_id'] ?? ($sms_config['sender_id'] ?? 'BRIDGE MIN.')));
-        $endpoint = trim((string)($sms_config['bulksmsgh']['send_endpoint'] ?? 'https://clientlogin.bulksmsgh.com/smsapi'));
-
-        if ($api_key === '') {
-            return [
-                'ok' => false,
-                'status' => 'failed',
-                'error' => 'BulkSMSGH API key is missing.',
-            ];
-        }
-
-        if ($sender_id === '' || mb_strlen($sender_id) > 11) {
-            return [
-                'ok' => false,
-                'status' => 'failed',
-                'error' => 'Invalid sender id. It must be 1 to 11 characters.',
-            ];
-        }
-
-        $query = http_build_query([
-            'key' => $api_key,
-            'to' => $to,
-            'msg' => $message,
-            'sender_id' => $sender_id,
-        ], '', '&', PHP_QUERY_RFC3986);
-
-        $url = $endpoint . (strpos($endpoint, '?') === false ? '?' : '&') . $query;
-
-        $http = makeHttpRequest($url, 'GET', [], null, 8);
-        if (($http['ok'] ?? false) !== true) {
-            return [
-                'ok' => false,
-                'status' => 'failed',
-                'error' => (string)($http['error'] ?? 'Failed to reach BulkSMSGH endpoint.'),
-            ];
-        }
-
-        $response_text = trim((string)($http['body'] ?? ''));
-        preg_match('/\b(1000|1002|1003|1004|1005|1006|1007|1008)\b/', $response_text, $matches);
-        $code = $matches[1] ?? $response_text;
-
-        $code_map = [
-            '1000' => ['ok' => true, 'status' => 'sent', 'error' => null, 'message' => 'Message submitted successfully.'],
-            '1002' => ['ok' => false, 'status' => 'failed', 'error' => 'SMS sending failed.'],
-            '1003' => ['ok' => false, 'status' => 'failed', 'error' => 'Insufficient SMS balance.'],
-            '1004' => ['ok' => false, 'status' => 'failed', 'error' => 'Invalid BulkSMSGH API key.'],
-            '1005' => ['ok' => false, 'status' => 'failed', 'error' => 'Invalid phone number.'],
-            '1006' => ['ok' => false, 'status' => 'failed', 'error' => 'Invalid sender id (max 11 chars).'],
-            '1007' => ['ok' => true, 'status' => 'queued', 'error' => null, 'message' => 'Message scheduled for later delivery.'],
-            '1008' => ['ok' => false, 'status' => 'failed', 'error' => 'Empty message body.'],
-        ];
-
-        if (isset($code_map[$code])) {
-            return [
-                'ok' => $code_map[$code]['ok'],
-                'status' => $code_map[$code]['status'],
-                'error' => $code_map[$code]['error'],
-                'provider_code' => $code,
-            ];
-        }
-
-        return [
-            'ok' => false,
-            'status' => 'failed',
-            'error' => 'Unexpected BulkSMSGH response: ' . mb_substr($response_text, 0, 120),
-            'provider_code' => $code,
-        ];
-    }
-
-    if ($provider === 'twilio') {
-        $sid = (string)($sms_config['twilio']['sid'] ?? '');
-        $token = (string)($sms_config['twilio']['token'] ?? '');
-        $from = (string)($sms_config['twilio']['from'] ?? '');
-
-        if ($sid === '' || $token === '' || $from === '') {
-            return [
-                'ok' => false,
-                'status' => 'failed',
-                'error' => 'Twilio configuration is incomplete.',
-            ];
-        }
-
-        $twilio_url = 'https://api.twilio.com/2010-04-01/Accounts/' . rawurlencode($sid) . '/Messages.json';
-        $twilio_body = http_build_query([
-            'To' => $to,
-            'From' => $from,
-            'Body' => $message,
-        ]);
-        $twilio_headers = [
-            'Authorization: Basic ' . base64_encode($sid . ':' . $token),
-            'Content-Type: application/x-www-form-urlencoded',
-        ];
-
-        $http = makeHttpRequest($twilio_url, 'POST', $twilio_headers, $twilio_body, 12);
-        if (($http['ok'] ?? false) !== true) {
-            return [
-                'ok' => false,
-                'status' => 'failed',
-                'error' => (string)($http['error'] ?? 'Failed to send SMS via Twilio.'),
-            ];
-        }
-
-        $http_code = (int)($http['http_code'] ?? 0);
-
-        if ($http_code >= 200 && $http_code < 300) {
-            return [
-                'ok' => true,
-                'status' => 'sent',
-                'error' => null,
-            ];
-        }
-
-        return [
-            'ok' => false,
-            'status' => 'failed',
-            'error' => 'Twilio API error (' . $http_code . ').',
-        ];
-    }
-
-    return [
-        'ok' => false,
-        'status' => 'queued',
-        'error' => 'No SMS provider configured. Message queued only.',
-    ];
-}
-
-function fetchSmsBalance(array $sms_config): array {
-    $provider = strtolower(trim((string)($sms_config['provider'] ?? 'none')));
-    if ($provider !== 'bulksmsgh') {
-        return ['ok' => false, 'balance' => null, 'error' => 'Balance not supported for current provider.'];
-    }
-
-    $api_key = trim((string)($sms_config['bulksmsgh']['api_key'] ?? ''));
-    if ($api_key === '') {
-        return ['ok' => false, 'balance' => null, 'error' => 'BulkSMSGH API key is missing.'];
-    }
-
-    $endpoints = $sms_config['bulksmsgh']['balance_endpoints'] ?? [];
-    if (!is_array($endpoints) || empty($endpoints)) {
-        return ['ok' => false, 'balance' => null, 'error' => 'BulkSMSGH balance endpoint is not configured.'];
-    }
-
-    if (session_status() === PHP_SESSION_ACTIVE) {
-        $cached_at = (int)($_SESSION['sms_balance_cached_at'] ?? 0);
-        $cached_provider = (string)($_SESSION['sms_balance_provider'] ?? '');
-        $cached_value = $_SESSION['sms_balance_cached_value'] ?? null;
-
-        if ($cached_provider === $provider && $cached_at > 0 && (time() - $cached_at) < 60) {
-            if (is_string($cached_value) && $cached_value !== '') {
-                return ['ok' => true, 'balance' => $cached_value, 'error' => null];
-            }
-        }
-    }
-
-    $provider_code_errors = [
-        '1002' => 'SMS operation failed.',
-        '1003' => 'Insufficient SMS balance.',
-        '1004' => 'Invalid API key.',
-        '1005' => 'Invalid phone number format.',
-        '1006' => 'Invalid sender id.',
-        '1008' => 'Invalid request payload.',
-    ];
-
-    foreach ($endpoints as $endpoint) {
-        $endpoint = trim((string)$endpoint);
-        if ($endpoint === '') {
-            continue;
-        }
-
-        $url = $endpoint . (strpos($endpoint, '?') === false ? '?' : '&') . http_build_query(['key' => $api_key], '', '&', PHP_QUERY_RFC3986);
-
-        $http = makeHttpRequest($url, 'GET', [], null, 4);
-        if (($http['ok'] ?? false) !== true) {
-            continue;
-        }
-
-        $response_text = trim((string)($http['body'] ?? ''));
-        if ($response_text === '') {
-            continue;
-        }
-
-        $json = json_decode($response_text, true);
-        if (is_array($json)) {
-            foreach (['balance', 'sms_balance', 'data'] as $key) {
-                if (isset($json[$key]) && is_scalar($json[$key])) {
-                    if (session_status() === PHP_SESSION_ACTIVE) {
-                        $_SESSION['sms_balance_provider'] = $provider;
-                        $_SESSION['sms_balance_cached_value'] = (string)$json[$key];
-                        $_SESSION['sms_balance_cached_at'] = time();
-                    }
-                    return ['ok' => true, 'balance' => (string)$json[$key], 'error' => null];
-                }
-            }
-        }
-
-        // Some 10xx responses are true error codes; others (e.g. 1036) can be numeric balances on some accounts.
-        // Only treat known error codes as errors and allow other numeric responses as balance values.
-        if (preg_match('/^\s*(1002|1003|1004|1005|1006|1008)\s*$/', $response_text, $matches)) {
-            $code = (string)$matches[1];
-            $message = $provider_code_errors[$code] ?? ('Gateway returned status code ' . $code . '.');
-            return ['ok' => false, 'balance' => null, 'error' => $message];
-        }
-
-        if (preg_match('/-?\d+(?:\.\d+)?/', $response_text, $matches)) {
-            if (session_status() === PHP_SESSION_ACTIVE) {
-                $_SESSION['sms_balance_provider'] = $provider;
-                $_SESSION['sms_balance_cached_value'] = (string)$matches[0];
-                $_SESSION['sms_balance_cached_at'] = time();
-            }
-            return ['ok' => true, 'balance' => (string)$matches[0], 'error' => null];
-        }
-
-        if (preg_match('/\b(1004)\b/', $response_text)) {
-            return ['ok' => false, 'balance' => null, 'error' => 'Invalid BulkSMSGH API key.'];
-        }
-    }
-
-    return ['ok' => false, 'balance' => null, 'error' => 'Could not fetch SMS balance from provider endpoints.'];
-}
-
-function campaignSupportsSendingStatus(PDO $pdo): bool {
-    static $supports_sending = null;
-
-    if ($supports_sending !== null) {
-        return $supports_sending;
-    }
-
-    try {
-        $stmt = $pdo->prepare(
-            "SELECT COLUMN_TYPE
-             FROM INFORMATION_SCHEMA.COLUMNS
-             WHERE TABLE_SCHEMA = DATABASE()
-               AND TABLE_NAME = 'communication_campaigns'
-               AND COLUMN_NAME = 'status'
-             LIMIT 1"
-        );
-        $stmt->execute();
-        $column_type = (string)$stmt->fetchColumn();
-        $supports_sending = stripos($column_type, "'sending'") !== false;
-    } catch (Exception $e) {
-        $supports_sending = false;
-    }
-
-    return $supports_sending;
-}
-
-function getCampaignProgressSummary(PDO $pdo, int $campaign_id): array {
-    $summary_stmt = $pdo->prepare(
-        "SELECT
-            COUNT(*) AS total_count,
-            SUM(CASE WHEN status IN ('sent', 'delivered') THEN 1 ELSE 0 END) AS delivered_count,
-            SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) AS failed_count,
-            SUM(CASE WHEN status = 'queued' AND (error_detail IS NULL OR error_detail <> 'Prepared only. Not yet sent.') THEN 1 ELSE 0 END) AS remaining_count
-         FROM communication_logs
-         WHERE campaign_id = ?"
-    );
-    $summary_stmt->execute([$campaign_id]);
-    $summary = $summary_stmt->fetch(PDO::FETCH_ASSOC) ?: [];
-
-    $total = (int)($summary['total_count'] ?? 0);
-    $remaining = (int)($summary['remaining_count'] ?? 0);
-    $processed = max(0, $total - $remaining);
-    $percent = $total > 0 ? round(($processed / $total) * 100, 1) : 100.0;
-
-    return [
-        'total' => $total,
-        'processed' => $processed,
-        'remaining' => max(0, $remaining),
-        'delivered' => (int)($summary['delivered_count'] ?? 0),
-        'failed' => (int)($summary['failed_count'] ?? 0),
-        'percent' => $percent,
-    ];
-}
-
-function updateCampaignDeliveryStats(PDO $pdo, int $campaign_id, bool $is_done): void {
-    $stats_stmt = $pdo->prepare(
-        "SELECT
-            COUNT(*) AS total_count,
-            SUM(CASE WHEN status IN ('sent', 'delivered') THEN 1 ELSE 0 END) AS delivered_count,
-            SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) AS failed_count,
-            SUM(CASE WHEN status = 'queued' THEN 1 ELSE 0 END) AS queued_count
-         FROM communication_logs
-         WHERE campaign_id = ?"
-    );
-    $stats_stmt->execute([$campaign_id]);
-    $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC) ?: [];
-
-    $update_stmt = $pdo->prepare(
-        'UPDATE communication_campaigns SET total_recipients = ?, delivered_count = ?, failed_count = ?, status = ?, sent_at = ? WHERE id = ?'
-    );
-    $in_progress_status = campaignSupportsSendingStatus($pdo) ? 'sending' : 'scheduled';
-    $update_stmt->execute([
-        (int)($stats['total_count'] ?? 0),
-        (int)($stats['delivered_count'] ?? 0),
-        (int)($stats['failed_count'] ?? 0),
-        $is_done ? 'sent' : $in_progress_status,
-        $is_done ? date('Y-m-d H:i:s') : null,
-        $campaign_id,
-    ]);
-}
-
-function extractPhoneFromRecipientLabel(string $recipient_label): string {
-    $recipient_label = trim($recipient_label);
-    if ($recipient_label === '') {
-        return '';
-    }
-
-    if (preg_match('/\(([^()]+)\)\s*$/', $recipient_label, $matches)) {
-        return trim((string)$matches[1]);
-    }
-
-    return $recipient_label;
-}
-
-function processSmsBatchJob(PDO $pdo, array $sms_config, int $campaign_id, int $max_per_run = 0, int $time_budget_seconds = 0): array {
-    global $provider, $sms_batch_size, $sms_batch_time_budget;
-
-    if ($max_per_run <= 0) {
-        $max_per_run = $sms_batch_size;
-    }
-    if ($time_budget_seconds <= 0) {
-        $time_budget_seconds = $sms_batch_time_budget;
-    }
-
-    @set_time_limit(0);
-    @ini_set('max_execution_time', '0');
-
-    $campaign_stmt = $pdo->prepare('SELECT content, total_recipients FROM communication_campaigns WHERE id = ? AND channel = ? LIMIT 1');
-    $campaign_stmt->execute([$campaign_id, 'sms']);
-    $campaign = $campaign_stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$campaign) {
-        return ['ok' => false, 'done' => true, 'processed' => 0, 'error' => 'Campaign not found for batch send.'];
-    }
-
-    $message_text = (string)($campaign['content'] ?? '');
-    $total = (int)($campaign['total_recipients'] ?? 0);
-
-    $pending_stmt = $pdo->prepare(
-        "SELECT id, recipient
-         FROM communication_logs
-         WHERE campaign_id = ?
-           AND channel = 'sms'
-           AND status = 'queued'
-           AND (error_detail IS NULL OR error_detail <> 'Prepared only. Not yet sent.')
-         ORDER BY id ASC
-         LIMIT ?"
-    );
-    $pending_stmt->bindValue(1, $campaign_id, PDO::PARAM_INT);
-    $pending_stmt->bindValue(2, $max_per_run, PDO::PARAM_INT);
-    $pending_stmt->execute();
-    $items = $pending_stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    if (empty($items)) {
-        updateCampaignDeliveryStats($pdo, $campaign_id, true);
-        $summary = getCampaignProgressSummary($pdo, $campaign_id);
-        return [
-            'ok' => true,
-            'done' => true,
-            'processed' => (int)($summary['processed'] ?? 0),
-            'remaining' => (int)($summary['remaining'] ?? 0),
-            'total' => (int)($summary['total'] ?? $total),
-            'delivered' => (int)($summary['delivered'] ?? 0),
-            'failed' => (int)($summary['failed'] ?? 0),
-            'percent' => (float)($summary['percent'] ?? 100.0),
-        ];
-    }
-
-    $processed = 0;
-    $started_at = microtime(true);
-
-    $log_update_stmt = $pdo->prepare('UPDATE communication_logs SET status = ?, error_detail = ?, sent_at = ? WHERE id = ?');
-
-    foreach ($items as $item) {
-        if ((microtime(true) - $started_at) >= $time_budget_seconds) {
-            break;
-        }
-
-        $to_phone = normalizePhoneForProvider(extractPhoneFromRecipientLabel((string)($item['recipient'] ?? '')), $provider);
-        if ($to_phone === '') {
-            $log_update_stmt->execute([
-                'failed',
-                'Invalid or missing recipient phone in log entry.',
-                date('Y-m-d H:i:s'),
-                (int)($item['id'] ?? 0),
-            ]);
-            $processed++;
-            continue;
-        }
-
-        $send_result = sendSmsMessage($sms_config, $to_phone, $message_text);
-        $log_status = (string)($send_result['status'] ?? 'failed');
-        $error_detail = isset($send_result['error']) ? (string)$send_result['error'] : null;
-        $sent_at = $log_status === 'queued' ? null : date('Y-m-d H:i:s');
-
-        $log_update_stmt->execute([
-            $log_status,
-            $error_detail,
-            $sent_at,
-            (int)($item['id'] ?? 0),
-        ]);
-
-        $processed++;
-    }
-
-    $remaining_stmt = $pdo->prepare(
-        "SELECT COUNT(*)
-         FROM communication_logs
-         WHERE campaign_id = ?
-           AND channel = 'sms'
-           AND status = 'queued'
-           AND (error_detail IS NULL OR error_detail <> 'Prepared only. Not yet sent.')"
-    );
-    $remaining_stmt->execute([$campaign_id]);
-    $remaining = (int)$remaining_stmt->fetchColumn();
-    $done = $remaining <= 0;
-
-    updateCampaignDeliveryStats($pdo, $campaign_id, $done);
-    $summary = getCampaignProgressSummary($pdo, $campaign_id);
-
-    return [
-        'ok' => true,
-        'done' => $done,
-        'processed' => (int)($summary['processed'] ?? $processed),
-        'remaining' => (int)($summary['remaining'] ?? max(0, $remaining)),
-        'total' => (int)($summary['total'] ?? $total),
-        'delivered' => (int)($summary['delivered'] ?? 0),
-        'failed' => (int)($summary['failed'] ?? 0),
-        'percent' => (float)($summary['percent'] ?? 0.0),
-    ];
-}
+$sms_batch_size = (int)getSystemSetting($pdo, 'sms_batch_size', 40);
+$sms_batch_time_budget = (int)getSystemSetting($pdo, 'sms_batch_time_limit', 18);
 
 $success = '';
 $error = '';
@@ -674,7 +33,8 @@ $last_estimated_segments = 0;
 $last_estimated_cost = 0.0;
 
 $departments = [];
-$ministerial_statuses = ['Levite', 'Shepherd', 'Minister', 'Junior Pastor', 'Senior Pastor', 'General Overseer'];
+$ministerial_statuses_raw = getSystemSetting($pdo, 'ministerial_statuses', 'Levite,Shepherd,Minister,Junior Pastor,Senior Pastor,General Overseer');
+$ministerial_statuses = array_map('trim', explode(',', $ministerial_statuses_raw));
 $recipients_preview = [];
 $preview_count = 0;
 
@@ -703,9 +63,9 @@ try {
     $departments = [];
 }
 
-function fetchSmsRecipients(PDO $pdo, string $audience_mode, string $department_filter, string $ministerial_filter, string $target_phone = '', int $limit = 200): array {
-    $fetchMembers = function() use ($pdo, $audience_mode, $department_filter, $ministerial_filter, $limit): array {
-        $where = ["m.status = 'active'", "COALESCE(TRIM(p.phone), '') <> ''"];
+function fetchSmsRecipients(PDO $pdo, string $audience_mode, string $department_filter, string $ministerial_filter, string $target_phone = '', int $limit = 200, bool $count_only = false): array|int {
+    $fetchMembers = function() use ($pdo, $audience_mode, $department_filter, $ministerial_filter, $limit, $count_only): array|int {
+        $where = ["m.status = 'active'", "p.current_stage = 'member'", "COALESCE(TRIM(p.phone), '') <> ''"];
         $params = [];
 
         if ($audience_mode === 'department') {
@@ -713,12 +73,13 @@ function fetchSmsRecipients(PDO $pdo, string $audience_mode, string $department_
                 $where[] = 'm.department_id = ?';
                 $params[] = (int)$department_filter;
             } else {
-                $where[] = '1 = 0';
+                // If "All Departments" selected in Department mode, ensure they have at least one department assigned
+                $where[] = 'm.department_id IS NOT NULL';
             }
         }
 
         if ($audience_mode === 'tithers') {
-            $where[] = 'EXISTS (SELECT 1 FROM tithers t WHERE t.member_id = m.id AND t.status = \"active\")';
+            $where[] = "EXISTS (SELECT 1 FROM tithers t WHERE t.member_id = m.id AND t.status = 'active')";
         }
 
         if ($audience_mode === 'ministerial') {
@@ -726,18 +87,20 @@ function fetchSmsRecipients(PDO $pdo, string $audience_mode, string $department_
                 $where[] = 'm.ministerial_status = ?';
                 $params[] = $ministerial_filter;
             } else {
-                $where[] = '1 = 0';
+                // If "Ministerial Status" mode selected but no status picked, ensure they have SOME status
+                $where[] = "(m.ministerial_status IS NOT NULL AND m.ministerial_status <> '')";
             }
         }
 
-        if ($ministerial_filter !== '' && $audience_mode !== 'ministerial') {
-            $where[] = 'm.ministerial_status = ?';
-            $params[] = $ministerial_filter;
-        }
-
         $where_sql = implode(' AND ', $where);
-
         $limit_sql = $limit > 0 ? ' LIMIT ' . (int)$limit : '';
+
+        if ($count_only) {
+            $sql = "SELECT COUNT(*) FROM member_roles m JOIN people p ON p.id = m.person_id WHERE {$where_sql}";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            return (int)$stmt->fetchColumn();
+        }
 
         $sql = "SELECT m.id, p.full_name AS name, p.phone, d.name AS department_name, m.ministerial_status, 'member' AS recipient_type
             FROM member_roles m
@@ -752,16 +115,27 @@ function fetchSmsRecipients(PDO $pdo, string $audience_mode, string $department_
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     };
 
-    $fetchVisitors = function() use ($pdo, $limit): array {
+    $fetchVisitors = function() use ($pdo, $limit, $count_only): array|int {
+        $where = ["p.current_stage = 'visitor'", "COALESCE(TRIM(p.phone), '') <> ''"];
+        $params = [];
+        $where_sql = implode(' AND ', $where);
+
+        if ($count_only) {
+            $sql = "SELECT COUNT(*) FROM visitor_roles v JOIN people p ON p.id = v.person_id WHERE {$where_sql}";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            return (int)$stmt->fetchColumn();
+        }
         $limit_sql = $limit > 0 ? ' LIMIT ' . (int)$limit : '';
 
         $sql = "SELECT v.id, p.full_name AS name, p.phone, 'Visitor' AS department_name, NULL AS ministerial_status, 'visitor' AS recipient_type
             FROM visitor_roles v
                 JOIN people p ON p.id = v.person_id
-                WHERE COALESCE(TRIM(p.phone), '') <> ''
+                WHERE {$where_sql}
             ORDER BY v.date DESC, v.id DESC" . $limit_sql;
 
-        $stmt = $pdo->query($sql);
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     };
 
@@ -786,6 +160,9 @@ function fetchSmsRecipients(PDO $pdo, string $audience_mode, string $department_
     }
 
     if ($audience_mode === 'members_and_visitors') {
+        if ($count_only) {
+            return (int)$fetchMembers() + (int)$fetchVisitors();
+        }
         return array_merge($fetchMembers(), $fetchVisitors());
     }
 
@@ -863,10 +240,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['estimate_live']) && $_G
     }
 
     try {
-        $live_recipients = fetchSmsRecipients($pdo, $live_audience_mode, $live_department_filter, $live_ministerial_filter, $live_target_phone, 0);
-        $live_valid_recipients = prepareValidSmsRecipients($live_recipients, $provider);
-
-        $live_recipient_count = count($live_valid_recipients);
+        $live_recipient_count = fetchSmsRecipients($pdo, $live_audience_mode, $live_department_filter, $live_ministerial_filter, $live_target_phone, 0, true);
+        
         $live_segments = calculateSmsUnitsPerMessage($live_message_text);
         $live_units = $live_recipient_count * $live_segments;
         $live_cost = $live_units * $sms_unit_cost;
@@ -1100,7 +475,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             }
 
                             if (($batch_result['ok'] ?? false) === true) {
-                                $success = 'SMS sending completed. Processed ' . (int)($batch_result['processed'] ?? 0) . '/' . (int)($batch_result['total'] ?? 0) . ' (' . (float)($batch_result['percent'] ?? 100.0) . '%). Delivered: ' . (int)($batch_result['delivered'] ?? 0) . ', Failed: ' . (int)($batch_result['failed'] ?? 0) . '.';
+                                $success = 'SMS sending started. ' . (int)($batch_result['processed'] ?? 0) . '/' . (int)($batch_result['total'] ?? 0) . ' processed so far. You can stay to watch progress or close this page—the background worker will finish the job.';
                             } else {
                                 error_log('[sms.php] Initial batch send failed for campaign ' . $campaign_id . ': ' . (string)($batch_result['error'] ?? 'Unknown error'));
                                 $error = (string)($batch_result['error'] ?? 'Unable to process SMS batch send.');
@@ -1108,9 +483,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         } else {
                             updateCampaignDeliveryStats($pdo, $campaign_id, false);
                             if ($action === 'send_sms' && $provider === 'none') {
-                                $success = 'SMS provider is not configured. Campaign was queued for ' . count($valid_recipients) . ' recipients instead of sending now.';
+                                $success = 'SMS provider is not configured. Campaign was queued for ' . count($valid_recipients) . ' recipients. Please configure a provider to send.';
                             } else {
-                                $success = 'SMS campaign prepared for ' . count($valid_recipients) . ' recipients and queued.';
+                                $success = 'SMS campaign prepared for ' . count($valid_recipients) . ' recipients. The background worker will begin sending shortly.';
                             }
                         }
 
@@ -1209,6 +584,18 @@ include '../../includes/header.php';
         <a class="nav-link" href="logs">Logs</a>
     </nav>
 
+    <?php
+    // Check background worker health (lock file is updated every time it runs)
+    // Worker status check
+    $last_run_file = __DIR__ . '/../../cron/last_run.txt';
+    $last_run_ts = file_exists($last_run_file) ? (int)file_get_contents($last_run_file) : 0;
+    
+    // Check if worker is currently locked (running right now)
+    $lock_file = __DIR__ . '/../../cron/sms_worker.lock';
+    $is_running = file_exists($lock_file) && (time() - filemtime($lock_file) < 600);
+    
+    $worker_active = (time() - $last_run_ts) < 900; // Active if run in last 15 mins
+    ?>
     <section class="row g-3 communication-stats mb-1">
         <div class="col-12 col-md-6 col-xl-3">
             <article class="communication-stat-card">
@@ -1221,10 +608,11 @@ include '../../includes/header.php';
         </div>
         <div class="col-12 col-md-6 col-xl-3">
             <article class="communication-stat-card">
-                <div class="communication-stat-icon icon-blue"><i class="bi bi-calendar3"></i></div>
+                <div class="communication-stat-icon <?php echo $worker_active ? 'icon-green' : 'icon-orange'; ?>"><i class="bi bi-gear-wide-connected"></i></div>
                 <div class="communication-stat-content">
-                    <span class="communication-stat-label">SMS This Month</span>
-                    <h3 class="communication-stat-value"><?php echo number_format($month_sms); ?></h3>
+                    <span class="communication-stat-label">Worker Status</span>
+                    <h3 class="communication-stat-value"><?php echo $is_running ? 'Running' : ($worker_active ? 'Active' : 'Idle'); ?></h3>
+                    <span class="small text-muted"><?php echo $last_run_ts > 0 ? 'Last run: ' . ( (time()-$last_run_ts < 60) ? 'Just now' : round((time()-$last_run_ts)/60).'m ago') : 'Never run'; ?></span>
                 </div>
             </article>
         </div>
@@ -1243,7 +631,7 @@ include '../../includes/header.php';
                 <div class="communication-stat-content">
                     <span class="communication-stat-label">Gateway Balance</span>
                     <h3 class="communication-stat-value"><?php echo $gateway_balance !== null && $gateway_balance !== '' ? htmlspecialchars($gateway_balance) : 'N/A'; ?></h3>
-                    <a class="small text-decoration-none" href="sms?refresh_balance=1">Refresh balance</a>
+                    <a class="small text-decoration-none" href="sms?refresh_balance=1"><i class="bi bi-arrow-clockwise"></i> Refresh</a>
                 </div>
             </article>
         </div>

@@ -24,7 +24,7 @@ $log_entries_all = appLogTail($log_path, 300);
 $log_entries = appLogFilterEntries($log_entries_all, $filter_keyword, $filter_from, $filter_to);
 $log_meta = appLogFileMeta($log_path);
 
-$page_title = 'Communication System Logs - Bridge Ministries International';
+$page_title = 'Communication System Logs - ' . getInstitutionName($pdo);
 $page_heading = 'Communication System Logs';
 $page_header = false;
 

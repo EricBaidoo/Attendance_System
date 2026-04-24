@@ -1,9 +1,9 @@
-﻿<?php
+<?php
 require_once '../../includes/security.php';
 requireLogin('../../login');
 require_once '../../config/database.php';
 
-$page_title = 'Communication Dashboard - Bridge Ministries International';
+$page_title = 'Communication Dashboard - ' . getInstitutionName($pdo);
 $page_heading = 'Communication';
 $page_header = false;
 
@@ -29,6 +29,24 @@ try {
     $messages_sent_month = (int)($summary['messages_sent_month'] ?? 0);
     $failed_messages_month = (int)($summary['failed_messages_month'] ?? 0);
     $queued_messages = (int)($summary['queued_messages'] ?? 0);
+
+    // Distribution for Donut Chart
+    $dist_stmt = $pdo->query(
+        "SELECT status, COUNT(*) AS count FROM communication_logs GROUP BY status"
+    );
+    $status_distribution = $dist_stmt->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
+
+    // Monthly Volume for Bar Chart (Last 6 Months)
+    $volume_stmt = $pdo->query(
+        "SELECT DATE_FORMAT(COALESCE(sent_at, created_at), '%b %Y') AS month,
+                SUM(CASE WHEN channel = 'sms' THEN 1 ELSE 0 END) AS sms_count,
+                SUM(CASE WHEN channel <> 'sms' THEN 1 ELSE 0 END) AS other_count
+         FROM communication_logs
+         WHERE COALESCE(sent_at, created_at) >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+         GROUP BY month
+         ORDER BY MIN(COALESCE(sent_at, created_at)) ASC"
+    );
+    $volume_trends = $volume_stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $campaigns_stmt = $pdo->query(
         "SELECT id, name, channel, status, scheduled_at, sent_at, created_at
@@ -104,6 +122,31 @@ include '../../includes/header.php';
                     <h3 class="communication-stat-value"><?php echo number_format($queued_messages); ?></h3>
                 </div>
             </article>
+        </div>
+    </section>
+
+    <section class="row g-3 mt-1">
+        <div class="col-12 col-xl-4">
+            <div class="communication-panel h-100">
+                <div class="communication-panel-head">
+                    <h2><i class="bi bi-pie-chart-fill"></i> Delivery Success</h2>
+                    <p>Outcome distribution of all messages.</p>
+                </div>
+                <div class="p-3" style="min-height: 250px;">
+                    <canvas id="deliveryOutcomeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-8">
+            <div class="communication-panel h-100">
+                <div class="communication-panel-head">
+                    <h2><i class="bi bi-bar-chart-fill"></i> Monthly Volume</h2>
+                    <p>Total messages sent per month (Last 6 months).</p>
+                </div>
+                <div class="p-3" style="min-height: 250px;">
+                    <canvas id="monthlyVolumeChart"></canvas>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -200,5 +243,72 @@ include '../../includes/header.php';
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Delivery Outcome Chart (Donut)
+    const outcomeCtx = document.getElementById('deliveryOutcomeChart').getContext('2d');
+    const outcomeData = {
+        labels: ['Delivered', 'Failed', 'Queued'],
+        datasets: [{
+            data: [
+                <?php echo (int)($status_distribution['sent'] ?? 0) + (int)($status_distribution['delivered'] ?? 0); ?>,
+                <?php echo (int)($status_distribution['failed'] ?? 0); ?>,
+                <?php echo (int)($status_distribution['queued'] ?? 0); ?>
+            ],
+            backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
+            borderWidth: 0,
+            hoverOffset: 10
+        }]
+    };
+    new Chart(outcomeCtx, {
+        type: 'doughnut',
+        data: outcomeData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // Monthly Volume Chart (Bar)
+    const volumeCtx = document.getElementById('monthlyVolumeChart').getContext('2d');
+    const volumeLabels = <?php echo json_encode(array_column($volume_trends, 'month')); ?>;
+    new Chart(volumeCtx, {
+        type: 'bar',
+        data: {
+            labels: volumeLabels,
+            datasets: [
+                {
+                    label: 'SMS Messages',
+                    data: <?php echo json_encode(array_column($volume_trends, 'sms_count')); ?>,
+                    backgroundColor: '#0d6efd',
+                    borderRadius: 5
+                },
+                {
+                    label: 'Other Channels',
+                    data: <?php echo json_encode(array_column($volume_trends, 'other_count')); ?>,
+                    backgroundColor: '#e9ecef',
+                    borderRadius: 5
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, grid: { display: false } },
+                x: { grid: { display: false } }
+            },
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+});
+</script>
 <?php include '../../includes/footer.php'; ?>
 

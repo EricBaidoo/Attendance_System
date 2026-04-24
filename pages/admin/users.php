@@ -113,7 +113,7 @@ foreach ($users as $user_row) {
     }
 }
 
-$page_title = 'User Management - Bridge Ministries International';
+$page_title = 'User Management - ' . getInstitutionName($pdo);
 $page_header = true;
 $page_icon = 'bi bi-person-gear';
 $page_heading = 'User Management';

@@ -493,7 +493,7 @@ try {
     $streaks = [];
 }
 
-$page_title = "System Reports - Bridge Ministries International";
+$page_title = "System Reports - " . getInstitutionName($pdo);
 include '../../../includes/header.php';
 ?>
 <link href="../../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">

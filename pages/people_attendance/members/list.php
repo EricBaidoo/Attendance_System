@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once '../../../includes/security.php';
 
 requireLogin('../../../login');
@@ -168,7 +168,7 @@ $count_stmt->execute($params);
 $total_members = $count_stmt->fetch()['total'];
 $total_pages = ceil($total_members / $limit);
 
-$page_title = "Members Directory - Bridge Ministries International";
+$page_title = "Members Directory - " . getInstitutionName($pdo);
 include '../../../includes/header.php';
 ?>
 <link href="../../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">
@@ -600,10 +600,10 @@ include '../../../includes/header.php';
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                             <!-- Disable/Enable Button -->
-                                            <a href="update_status?id=<?php echo $member['id']; ?>&action=toggle&return=list" 
+                                            <a href="javascript:void(0)" 
                                                class="btn btn-outline-<?php echo $member['status'] === 'active' ? 'warning' : 'success'; ?> btn-xs" 
                                                title="<?php echo $member['status'] === 'active' ? 'Disable Member' : 'Enable Member'; ?>"
-                                               onclick="return confirm('Are you sure you want to <?php echo $member['status'] === 'active' ? 'disable' : 'enable'; ?> this member?')">
+                                               onclick="toggleStatus(<?php echo $member['id']; ?>, '<?php echo $member['status'] === 'active' ? 'disable' : 'enable'; ?>')">
                                                 <i class="bi <?php echo $member['status'] === 'active' ? 'bi-pause-circle' : 'bi-play-circle'; ?>"></i>
                                             </a>
                                             <!-- Delete Button - More Prominent -->
@@ -651,14 +651,55 @@ function deleteMember(memberId, memberName) {
         // Create a hidden form and submit it
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = 'delete';
+        form.action = 'delete.php'; // ensure using the correct path to execute
+        
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'id';
+        idInput.value = memberId;
+
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrf_token';
+        csrfInput.value = '<?php echo generateCSRFToken(); ?>';
+        
+        form.appendChild(idInput);
+        form.appendChild(csrfInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function toggleStatus(memberId, action) {
+    if (confirm('Are you sure you want to ' + action + ' this member?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'update_status.php'; // Ensure correct path
         
         const idInput = document.createElement('input');
         idInput.type = 'hidden';
         idInput.name = 'id';
         idInput.value = memberId;
         
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'toggle';
+
+        const returnInput = document.createElement('input');
+        returnInput.type = 'hidden';
+        returnInput.name = 'return';
+        returnInput.value = 'list';
+
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrf_token';
+        csrfInput.value = '<?php echo generateCSRFToken(); ?>';
+        
         form.appendChild(idInput);
+        form.appendChild(actionInput);
+        form.appendChild(returnInput);
+        form.appendChild(csrfInput);
         document.body.appendChild(form);
         form.submit();
     }

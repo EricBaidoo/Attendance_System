@@ -133,7 +133,7 @@ try {
     $error_message = 'Database report could not be loaded right now.';
 }
 
-$page_title = "System Reports - Bridge Ministries International";
+$page_title = "System Reports - " . getInstitutionName($pdo);
 ?>
 <!DOCTYPE html>
 <html lang="en">

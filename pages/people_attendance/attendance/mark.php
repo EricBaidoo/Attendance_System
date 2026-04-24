@@ -129,7 +129,7 @@ if ($selected_session) {
     $attendance_summary['percentage'] = $attendance_summary['total'] > 0 ? round(($attendance_summary['present'] / $attendance_summary['total']) * 100) : 0;
 }
 
-$page_title = "Mark Attendance - Bridge Ministries International";
+$page_title = "Mark Attendance - " . getInstitutionName($pdo);
 include '../../../includes/header.php';
 ?>
 <link href="../../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">

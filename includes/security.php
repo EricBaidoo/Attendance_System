@@ -5,6 +5,9 @@
  */
 
 // Start secure session if not already started
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/settings_utils.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     // Set secure session configuration
     ini_set('session.cookie_httponly', 1);
@@ -15,8 +18,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Session timeout (30 minutes)
-$timeout_duration = 1800;
+// Session timeout (default 30 minutes)
+$timeout_duration = (int)getSystemSetting($pdo, 'session_timeout', 1800);
 
 function normalizeRole($role) {
     $role = strtolower(trim((string)$role));

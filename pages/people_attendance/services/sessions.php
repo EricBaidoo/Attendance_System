@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // pages/people_attendance/services/sessions.php - Manage service sessions (today's services)
 session_start();
 require __DIR__ . '/../../../config/database.php';
@@ -30,6 +30,11 @@ if (isset($_GET['success'])) {
 // Handle session management
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     error_log("POST data: " . print_r($_POST, true));
+    
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (!validateCSRFToken($csrf_token)) {
+        $error = 'Invalid CSRF token. Please try again.';
+    } else {
     if (isset($_POST['open_session'])) {
         $service_id = $_POST['service_id'];
         $session_date = $_POST['session_date'] ?? $today;
@@ -173,6 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Unable to close session right now.';
         }
     }
+    }
 }
 
 // Get service templates
@@ -283,7 +289,7 @@ $stats_stmt = $pdo->prepare($stats_sql);
 $stats_stmt->execute([$today]);
 $stats = $stats_stmt->fetch();
 
-$page_title = "Today's Sessions - Bridge Ministries International";
+$page_title = "Today's Sessions - " . getInstitutionName($pdo);
 include '../../../includes/header.php';
 ?>
 <link href="../../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">
@@ -644,6 +650,7 @@ include '../../../includes/header.php';
                                                             <i class="bi bi-check-square"></i> Mark
                                                         </a>
                                                         <form method="post" class="flex-fill" onsubmit="return confirm('Close this session? All unmarked members will be marked absent.')">
+                                                            <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                                                             <input type="hidden" name="session_id" value="<?php echo $session['id']; ?>">
                                                             <input type="hidden" name="close_session" value="1">
                                                             <button type="submit" class="btn btn-danger btn-sm w-100">
@@ -827,6 +834,7 @@ include '../../../includes/header.php';
                                 <p class="text-muted mb-4"><?php echo htmlspecialchars($template['description']); ?></p>
                                 
                                 <form method="post" class="start-session-form">
+                                    <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
                                     <input type="hidden" name="service_id" value="<?php echo $template['id']; ?>">
                                     <input type="hidden" name="session_date" value="<?php echo $today; ?>">
                                     <input type="hidden" name="open_session" value="1">

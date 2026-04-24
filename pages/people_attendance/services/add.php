@@ -61,7 +61,7 @@ $stats_sql = "SELECT COUNT(*) as total_services FROM services WHERE template_sta
 $stats_stmt = $pdo->query($stats_sql);
 $total_services = $stats_stmt->fetch()['total_services'];
 
-$page_title = "Add New Service - Bridge Ministries International";
+$page_title = "Add New Service - " . getInstitutionName($pdo);
 include '../../../includes/header.php';
 ?>
 <link href="../../../assets/css/dashboard.css?v=<?php echo time(); ?>" rel="stylesheet">

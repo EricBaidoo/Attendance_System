@@ -8,17 +8,17 @@ $is_hosted = !(
 );
 
 if ($is_hosted) {
-    // HOSTING ENVIRONMENT - Your hosting database credentials
+    // HOSTING ENVIRONMENT
     $host = 'localhost';
-    $db   = 'u420775839_bmi';
-    $user = 'u420775839_bmi';
-    $pass = 'Eric0056';
+    $db   = 'YOUR_ONLINE_DB_NAME';
+    $user = 'YOUR_ONLINE_DB_USER';
+    $pass = 'YOUR_ONLINE_DB_PASSWORD';
 } else {
     // LOCAL DEVELOPMENT ENVIRONMENT
     $host = 'localhost';
     $db   = 'attendance_system';
     $user = 'root';
-    $pass = 'root'; // Your XAMPP has root password set
+    $pass = ''; 
 }
 
 $charset = 'utf8mb4';
@@ -28,7 +28,6 @@ $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
-    PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
 ];
 
 try {

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // pages/people_attendance/reports/export.php - Data Export Handler
 require_once '../../../includes/security.php';
 require_once '../../../config/database.php';
@@ -291,7 +291,7 @@ function exportToPDF($meta, $data, $filename, $filters) {
     </head>
     <body>
         <div class="header">
-            <h1>Bridge Ministries International - System Report</h1>
+            <h1>' . htmlspecialchars(getInstitutionName($pdo)) . ' - System Report</h1>
             <p>Generated on ' . date('F j, Y \a\t g:i A') . '</p>
         </div>
         

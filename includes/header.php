@@ -41,14 +41,15 @@ $_module_map = [
     '/pastoral'      => 'Pastoral Care',
     '/admin'         => 'Administration',
 ];
-$topbar_module = 'BMI Church Management';
+$topbar_module = getInstitutionName($pdo);
 foreach ($_module_map as $_mp => $_ml) {
     if (strpos($clean_path, $_mp) !== false) { $topbar_module = $_ml; break; }
 }
 if (isset($page_heading)) {
     $topbar_title = $page_heading;
 } elseif (isset($page_title)) {
-    $topbar_title = preg_replace('/ ?[–\-|—] ?Bridge Ministries International$/', '', $page_title);
+    $inst_name = getInstitutionName($pdo);
+    $topbar_title = preg_replace('/ ?[–\-|—] ?' . preg_quote($inst_name, '/') . '$/', '', $page_title);
 } else {
     $topbar_title = 'Dashboard';
 }
@@ -89,7 +90,7 @@ $_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapse
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($page_title) ? htmlspecialchars($page_title) : 'Bridge Ministries International'; ?></title>
+    <title><?php echo isset($page_title) ? htmlspecialchars($page_title) : htmlspecialchars(getInstitutionName($pdo)); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="<?php echo $relative_path; ?>assets/css/sidebar.css?v=<?php echo @filemtime($relative_path . 'assets/css/sidebar.css'); ?>" rel="stylesheet">
@@ -106,9 +107,9 @@ $_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapse
 
     <a class="sidebar-brand" href="<?php echo $relative_path; ?>index">
         <img class="sidebar-brand-logo"
-             src="<?php echo $relative_path; ?>assets/css/image/bmi logo.png" alt="BMI">
+             src="<?php echo $relative_path; ?>assets/css/image/bmi logo.png" alt="Logo">
         <span class="sidebar-brand-text">
-            <span class="sidebar-brand-name">Bridge Ministries</span>
+            <span class="sidebar-brand-name"><?php echo htmlspecialchars(getInstitutionName($pdo)); ?></span>
             <span class="sidebar-brand-sub">Church System</span>
         </span>
     </a>

@@ -1,8 +1,9 @@
-﻿<?php
+<?php
+require_once 'config/database.php';
 require_once 'includes/security.php';
 requireLogin();
 
-$page_title   = "Bridge Ministries International - Church Management";
+$page_title   = getInstitutionName($pdo) . " - Church Management";
 $page_heading = "Church Management Hub";
 $page_header  = false;
 
@@ -32,7 +33,7 @@ if ($can_people_module) {
     $primary_action_icon = 'bi-chat-dots-fill';
 }
 
-require_once 'config/database.php';
+
 require_once 'includes/attendance_utils.php';
 
 // Quick cross-module stats

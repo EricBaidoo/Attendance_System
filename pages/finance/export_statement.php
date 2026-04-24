@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once '../../includes/security.php';
 requireLogin('../../login');
 require_once '../../config/database.php';
@@ -128,7 +128,7 @@ if ($format === 'pdf') {
         tfoot th { background: #eef2ff; }
     </style></head><body>';
 
-    $html .= '<div class="header"><h1>Bridge Ministries International</h1><div>Financial Statement</div></div>';
+    $html .= '<div class="header"><h1>' . htmlspecialchars(getInstitutionName($pdo)) . '</h1><div>Financial Statement</div></div>';
     $html .= '<div class="meta">Period Grouping: ' . htmlspecialchars(ucfirst($statement_period)) . '<br>';
     $html .= 'Date Range: ' . htmlspecialchars($start_date . ' to ' . $end_date) . '<br>';
     $html .= 'Generated: ' . htmlspecialchars(date('Y-m-d H:i:s')) . '</div>';
@@ -169,7 +169,7 @@ header('Content-Disposition: attachment; filename="' . $filename . '"');
 
 $output = fopen('php://output', 'w');
 
-fputcsv($output, ['Bridge Ministries International']);
+fputcsv($output, [getInstitutionName($pdo)]);
 fputcsv($output, ['Financial Statement']);
 fputcsv($output, ['Period Grouping', ucfirst($statement_period)]);
 fputcsv($output, ['Date Range', $start_date . ' to ' . $end_date]);
