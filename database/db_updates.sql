@@ -1609,12 +1609,33 @@ SET @sql = IF(
 );
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
--- Finance: Tither Categorization and Corporate Support (April 2024 Update)
-ALTER TABLE tithers ADD COLUMN tither_type ENUM('individual', 'company') DEFAULT 'individual' AFTER member_id;
-ALTER TABLE tithers ADD COLUMN age_group ENUM('adult', 'youth', 'child') DEFAULT 'adult' AFTER tither_type;
-ALTER TABLE tithers ADD COLUMN company_tin VARCHAR(50) DEFAULT NULL AFTER email;
+-- =========================================================
+-- [2026-04-24] Finance: Tither Categorization & Strict Lifecycle
+-- =========================================================
+-- Supports Individuals (Adult/Youth/Child) and Company entities with TINs.
+-- Enforces status tracking and Registration dates.
 
--- System Settings: Tithe Numbering Formats
+-- 1) Tither Categorization Columns
+SET @sql = (SELECT IF(COUNT(*)=0, 'ALTER TABLE tithers ADD COLUMN tither_type ENUM("individual", "company") DEFAULT "individual" AFTER member_id', 'SELECT "tither_type exists"') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME="tithers" AND COLUMN_NAME="tither_type");
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql = (SELECT IF(COUNT(*)=0, 'ALTER TABLE tithers ADD COLUMN age_group ENUM("adult", "youth", "child") DEFAULT "adult" AFTER tither_type', 'SELECT "age_group exists"') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME="tithers" AND COLUMN_NAME="age_group");
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql = (SELECT IF(COUNT(*)=0, 'ALTER TABLE tithers ADD COLUMN company_tin VARCHAR(50) NULL AFTER full_name', 'SELECT "company_tin exists"') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME="tithers" AND COLUMN_NAME="company_tin");
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql = (SELECT IF(COUNT(*)=0, 'ALTER TABLE tithers ADD COLUMN status ENUM("active", "inactive", "retired") DEFAULT "active" AFTER tithe_book_id', 'SELECT "status exists"') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME="tithers" AND COLUMN_NAME="status");
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql = (SELECT IF(COUNT(*)=0, 'ALTER TABLE tithers ADD COLUMN start_date DATE NULL AFTER status', 'SELECT "start_date exists"') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME="tithers" AND COLUMN_NAME="start_date");
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- 2) Update Books to support 'retired' status
+ALTER TABLE tithe_books MODIFY COLUMN status ENUM('available', 'assigned', 'retired', 'lost') DEFAULT 'available';
+
+-- 3) System Settings: Tithe Numbering Formats
 INSERT IGNORE INTO system_settings (setting_key, setting_value, category, description) VALUES 
 ('tithe_format_member', 'BMI{SEQ}-{YY}', 'finance', 'Format for individual tithers. {SEQ} is number, {YY} is year'),
 ('tithe_format_company', 'CORP{SEQ}-{YY}', 'finance', 'Format for corporate tithers.');
+
