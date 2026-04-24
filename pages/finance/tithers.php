@@ -49,25 +49,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $pdo->prepare("INSERT INTO tithers (member_id, tither_type, age_group, full_name, phone, email, company_tin, tithe_book_id, status, start_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?)")
                     ->execute([$_POST['member_id'] ?: null, $type, ($type==='individual' ? $_POST['age_group'] : null), $_POST['full_name'], $_POST['phone'] ?: null, $_POST['email'] ?: null, $_POST['company_tin'] ?: null, $book_id, $_POST['start_date'] ?: date('Y-m-d')]);
-                $pdo->commit(); $_SESSION['finance_tithers_flash_success'] = "Registered successfully.";
+                $pdo->commit(); $_SESSION['finance_tithers_flash_success'] = "Resource Managed.";
             } elseif ($action === 'update_tither') {
                 $pdo->prepare("UPDATE tithers SET member_id = ?, tither_type = ?, age_group = ?, full_name = ?, phone = ?, email = ?, company_tin = ?, status = ?, start_date = ? WHERE id = ?")
                     ->execute([$_POST['member_id'] ?: null, $_POST['tither_type'], ($_POST['tither_type']==='individual' ? $_POST['age_group'] : null), $_POST['full_name'], $_POST['phone'] ?: null, $_POST['email'] ?: null, $_POST['company_tin'] ?: null, $_POST['status'], $_POST['start_date'], $tid]);
                 $_SESSION['finance_tithers_flash_success'] = "Updated.";
             } elseif ($action === 'toggle_status') {
                 $s = $_POST['new_status']; $pdo->prepare("UPDATE tithers SET status = ? WHERE id = ?")->execute([$s, $tid]);
-                $_SESSION['finance_tithers_flash_success'] = "Status changed.";
+                $_SESSION['finance_tithers_flash_success'] = "Status Toggled.";
             } elseif ($action === 'retire_tither') {
                 $pdo->beginTransaction(); $pdo->prepare("UPDATE tithers SET status = 'retired' WHERE id = ?")->execute([$tid]);
                 $bid = (int)$pdo->query("SELECT tithe_book_id FROM tithers WHERE id = $tid")->fetchColumn();
                 if ($bid > 0) { $pdo->prepare("UPDATE tithe_books SET status = 'retired' WHERE id = ?")->execute([$bid]); }
-                $pdo->commit(); $_SESSION['finance_tithers_flash_success'] = "Retired.";
+                $pdo->commit(); $_SESSION['finance_tithers_flash_success'] = "Lifecycle Retired.";
             } elseif ($action === 'delete_tither') {
                 $pdo->beginTransaction(); $bid = (int)$pdo->query("SELECT tithe_book_id FROM tithers WHERE id = $tid")->fetchColumn();
                 $pdo->prepare("UPDATE finance_transactions SET tither_id = NULL WHERE tither_id = ?")->execute([$tid]);
                 $pdo->prepare("DELETE FROM tithers WHERE id = ?")->execute([$tid]);
                 if ($bid > 0) { $pdo->prepare("DELETE FROM tithe_books WHERE id = ? AND status <> 'retired'")->execute([$bid]); }
-                $pdo->commit(); $_SESSION['finance_tithers_flash_success'] = "Purged.";
+                $pdo->commit(); $_SESSION['finance_tithers_flash_success'] = "Records Purged.";
             }
             header('Location: tithers'); exit;
         } catch (Exception $e) { if ($pdo->inTransaction()) $pdo->rollBack(); $error = $e->getMessage(); }
@@ -77,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Fetch
 $books = $pdo->query("SELECT * FROM tithe_books ORDER BY book_number DESC")->fetchAll(PDO::FETCH_ASSOC);
 $t_all = $pdo->query("SELECT t.*, b.book_number FROM tithers t LEFT JOIN tithe_books b ON b.id = t.tithe_book_id ORDER BY t.full_name ASC")->fetchAll(PDO::FETCH_ASSOC);
-$members_list = array_filter($t_all, fn($t) => $t['tither_type'] === 'individual');
-$companies_list = array_filter($t_all, fn($t) => $t['tither_type'] === 'company');
+$m_list = array_filter($t_all, fn($t) => $t['tither_type'] === 'individual');
+$c_list = array_filter($t_all, fn($t) => $t['tither_type'] === 'company');
 $church_members = $pdo->query("SELECT mr.id, p.full_name FROM member_roles mr JOIN people p ON p.id = mr.person_id WHERE mr.status = 'active'")->fetchAll(PDO::FETCH_ASSOC);
 
 $edit_tither = null;
@@ -100,16 +100,16 @@ include '../../includes/header.php';
         </div>
         <div class="finance-date-wrap d-none d-md-block text-end">
             <span class="finance-date-label">Statistics</span>
-            <div class="finance-date"><?php echo count($members_list); ?> Members / <?php echo count($companies_list); ?> Orgs</div>
+            <div class="finance-date"><?php echo count($m_list); ?> Members / <?php echo count($c_list); ?> Orgs</div>
         </div>
     </header>
 
-    <?php if ($success): ?><div class="alert alert-success border-0 shadow-sm mb-4"><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
-    <?php if ($error): ?><div class="alert alert-danger border-0 shadow-sm mb-4"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
+    <?php if ($success): ?><div class="alert alert-success border-0 shadow-sm mb-4"><i class="bi bi-check-circle me-1"></i> <?php echo htmlspecialchars($success); ?></div><?php endif; ?>
+    <?php if ($error): ?><div class="alert alert-danger border-0 shadow-sm mb-4"><i class="bi bi-exclamation-triangle me-1"></i> <?php echo htmlspecialchars($error); ?></div><?php endif; ?>
 
     <div class="row g-4">
         <div class="col-12 col-xl-4">
-            <div class="finance-panel glass-panel sticky-top" style="top: 2rem;">
+            <div class="finance-panel glass-panel sticky-top" style="top: 2rem; z-index: 50;">
                 <div class="finance-panel-head border-bottom pb-3"><h2 class="h5 mb-1"><i class="bi bi-person-fill-add text-primary"></i> <?php echo $edit_tither ? 'Modify Record' : 'New Contributor'; ?></h2></div>
                 <form method="POST" class="finance-form mt-4">
                     <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>"><input type="hidden" name="action" value="<?php echo $edit_tither ? 'update_tither' : 'add_tither'; ?>">
@@ -129,39 +129,62 @@ include '../../includes/header.php';
                         <div class="col-6"><label class="form-label small fw-bold">START DATE</label><input type="date" class="form-control" name="start_date" value="<?php echo $edit_tither['start_date'] ?? date('Y-m-d'); ?>"></div>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">Save Profile</button>
-                    <?php if ($edit_tither): ?><a href="tithers" class="btn btn-outline-secondary w-100 mt-2">Cancel</a><?php endif; ?>
                 </form>
             </div>
         </div>
 
         <div class="col-12 col-xl-8">
             <div class="finance-panel border-0 shadow-sm active-card h-100 d-flex flex-column" style="min-height: 500px;">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-                    <nav class="nav nav-pills bg-light p-1 rounded-pill flex-shrink-0">
-                        <button class="nav-link active rounded-pill px-4 border-0" data-bs-toggle="tab" data-bs-target="#m_pane">👥 MEMBERS</button>
-                        <button class="nav-link rounded-pill px-4 border-0" data-bs-toggle="tab" data-bs-target="#c_pane">🏢 COMPANIES</button>
-                    </nav>
-                    <div class="search-wrap position-relative flex-grow-1" style="max-width: 350px;">
-                        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="z-index: 5;"></i>
-                        <input type="text" id="titherSearch" class="form-control rounded-pill border-0 bg-light-subtle shadow-sm" placeholder="Search contributor or book..." style="padding-left: 45px !important;">
+                <!-- Header with Tabs and Search -->
+                <div class="mb-4 bg-white py-2" style="position: sticky; top: 0; z-index: 101;">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                        <nav class="nav nav-pills bg-light p-1 rounded-pill flex-shrink-0" id="titherTabs" role="tablist">
+                            <button class="nav-link active rounded-pill px-4" id="members-tab" data-bs-toggle="pill" data-bs-target="#m_pane" type="button" role="tab">👤 MEMBERS</button>
+                            <button class="nav-link rounded-pill px-4" id="companies-tab" data-bs-toggle="pill" data-bs-target="#c_pane" type="button" role="tab">🏢 COMPANIES</button>
+                        </nav>
+                        <div class="search-wrap position-relative flex-grow-1" style="max-width: 350px;">
+                            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                            <input type="text" id="titherSearch" class="form-control rounded-pill border-0 bg-light-subtle shadow-sm" placeholder="Lookup contributor..." style="padding-left: 45px !important;">
+                        </div>
                     </div>
                 </div>
 
-                <div class="tab-content flex-grow-1 overflow-hidden">
-                    <div class="tab-pane fade show active h-100" id="m_pane">
+                <!-- Advanced Filters -->
+                <div class="row g-2 mb-4 bg-light-subtle p-3 rounded-4 border border-light mx-1">
+                    <div class="col-md-3">
+                        <select class="form-select form-select-sm rounded-pill border-0 shadow-sm" id="filterStatus">
+                            <option value="">All Statuses</option><option value="active">Active</option><option value="inactive">Inactive</option><option value="retired">Retired</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3" id="ageFilterWrap">
+                        <select class="form-select form-select-sm rounded-pill border-0 shadow-sm" id="filterAge">
+                            <option value="">All Groups</option><option value="adult">Adults</option><option value="youth">Youth</option><option value="child">Children</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group input-group-sm">
+                            <input type="date" class="form-control rounded-start-pill border-0 shadow-sm" id="filterDateFrom" placeholder="From">
+                            <span class="input-group-text border-0 bg-white">to</span>
+                            <input type="date" class="form-control rounded-end-pill border-0 shadow-sm" id="filterDateTo" placeholder="To">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content flex-grow-1 overflow-hidden" id="titherTabContent">
+                    <!-- Members Tab -->
+                    <div class="tab-pane fade show active h-100" id="m_pane" role="tabpanel">
                         <div class="finance-table-scrollable">
-                            <table class="table finance-table align-middle m-0" id="membersTable">
+                            <table class="table finance-table align-middle m-0">
                                 <thead class="sticky-top bg-white"><tr><th>Name</th><th>Book #</th><th class="text-center">Lifecycle</th></tr></thead>
                                 <tbody>
-                                    <?php foreach ($members_list as $t): ?>
-                                        <tr class="tither-row <?php echo $t['status']==='retired'?'opacity-50':'';?>" data-search="<?php echo strtolower($t['full_name'] . ' ' . $t['book_number'] . ' ' . ($t['phone']??'')); ?>">
+                                    <?php foreach ($m_list as $t): ?>
+                                        <tr class="tither-row <?php echo $t['status']==='retired'?'opacity-50':'';?>" data-status="<?php echo $t['status']; ?>" data-age="<?php echo $t['age_group']; ?>" data-date="<?php echo $t['start_date']; ?>" data-search="<?php echo strtolower($t['full_name'] . ' ' . $t['book_number']); ?>">
                                             <td style="min-width: 140px;"><div class="fw-bold"><?php echo htmlspecialchars($t['full_name']); ?></div><div class="small text-muted"><?php echo ucfirst($t['age_group']); ?></div></td>
                                             <td><span class="badge bg-light text-dark border px-3"><?php echo htmlspecialchars($t['book_number'] ?: '-'); ?></span></td>
-                                            <td>
+                                            <td class="text-center">
                                                 <div class="d-flex justify-content-center gap-2">
                                                     <a href="tithers?edit_tither=<?php echo $t['id'];?>" class="btn btn-icon-action text-primary"><i class="bi bi-pencil-fill"></i></a>
                                                     <form method="POST" class="d-inline"><input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>"><input type="hidden" name="action" value="toggle_status"><input type="hidden" name="tither_id" value="<?php echo $t['id'];?>"><input type="hidden" name="new_status" value="<?php echo $t['status']==='active'?'inactive':'active';?>"><button class="btn btn-icon-action <?php echo $t['status']==='active'?'text-success':'text-warning';?>" type="submit"><i class="bi bi-power"></i></button></form>
-                                                    <?php if ($t['status']!=='retired'): ?><form method="POST" class="d-inline" onsubmit="return confirm('Retire?');"><input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>"><input type="hidden" name="action" value="retire_tither"><input type="hidden" name="tither_id" value="<?php echo $t['id'];?>"><button class="btn btn-icon-action text-info" type="submit"><i class="bi bi-archive-fill"></i></button></form><?php endif; ?>
                                                     <form method="POST" class="d-inline" onsubmit="return confirm('Purge?');"><input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>"><input type="hidden" name="action" value="delete_tither"><input type="hidden" name="tither_id" value="<?php echo $t['id'];?>"><button class="btn btn-icon-action text-danger" type="submit"><i class="bi bi-trash3-fill"></i></button></form>
                                                 </div>
                                             </td>
@@ -171,20 +194,20 @@ include '../../includes/header.php';
                             </table>
                         </div>
                     </div>
-                    <div class="tab-pane fade h-100" id="c_pane">
+                    <!-- Companies Tab -->
+                    <div class="tab-pane fade h-100" id="c_pane" role="tabpanel">
                         <div class="finance-table-scrollable">
-                            <table class="table finance-table align-middle m-0" id="companiesTable">
+                            <table class="table finance-table align-middle m-0">
                                 <thead class="sticky-top bg-white"><tr><th>Org Name</th><th>TIN</th><th class="text-center">Lifecycle</th></tr></thead>
                                 <tbody>
-                                    <?php foreach ($companies_list as $t): ?>
-                                        <tr class="tither-row <?php echo $t['status']==='retired'?'opacity-50':'';?>" data-search="<?php echo strtolower($t['full_name'] . ' ' . $t['book_number'] . ' ' . ($t['company_tin']??'')); ?>">
-                                            <td style="min-width: 140px;"><div class="fw-bold"><i class="bi bi-building me-1"></i> <?php echo htmlspecialchars($t['full_name']); ?></div><div class="small text-muted text-nowrap"><?php echo htmlspecialchars($t['book_number'] ?: '-'); ?></div></td>
+                                    <?php foreach ($c_list as $t): ?>
+                                        <tr class="tither-row <?php echo $t['status']==='retired'?'opacity-50':'';?>" data-status="<?php echo $t['status']; ?>" data-age="company" data-date="<?php echo $t['start_date']; ?>" data-search="<?php echo strtolower($t['full_name'] . ' ' . $t['book_number'] . ' ' . ($t['company_tin']??'')); ?>">
+                                            <td style="min-width: 140px;"><div class="fw-bold"><i class="bi bi-building me-1"></i> <?php echo htmlspecialchars($t['full_name']); ?></div><div class="small text-muted"><?php echo htmlspecialchars($t['book_number']); ?></div></td>
                                             <td><code class="small text-danger"><?php echo htmlspecialchars($t['company_tin'] ?: '-'); ?></code></td>
-                                            <td>
+                                            <td class="text-center">
                                                 <div class="d-flex justify-content-center gap-2">
                                                     <a href="tithers?edit_tither=<?php echo $t['id'];?>" class="btn btn-icon-action text-primary"><i class="bi bi-pencil-fill"></i></a>
                                                     <form method="POST" class="d-inline"><input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>"><input type="hidden" name="action" value="toggle_status"><input type="hidden" name="tither_id" value="<?php echo $t['id'];?>"><input type="hidden" name="new_status" value="<?php echo $t['status']==='active'?'inactive':'active';?>"><button class="btn btn-icon-action <?php echo $t['status']==='active'?'text-success':'text-warning';?>" type="submit"><i class="bi bi-power"></i></button></form>
-                                                    <?php if ($t['status']!=='retired'): ?><form method="POST" class="d-inline" onsubmit="return confirm('Retire?');"><input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>"><input type="hidden" name="action" value="retire_tither"><input type="hidden" name="tither_id" value="<?php echo $t['id'];?>"><button class="btn btn-icon-action text-info" type="submit"><i class="bi bi-archive-fill"></i></button></form><?php endif; ?>
                                                     <form method="POST" class="d-inline" onsubmit="return confirm('Purge?');"><input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>"><input type="hidden" name="action" value="delete_tither"><input type="hidden" name="tither_id" value="<?php echo $t['id'];?>"><button class="btn btn-icon-action text-danger" type="submit"><i class="bi bi-trash3-fill"></i></button></form>
                                                 </div>
                                             </td>
@@ -202,10 +225,10 @@ include '../../includes/header.php';
 
 <script>
 async function refreshNextNumber() {
-    const t = document.getElementById('t_type').value; const b = document.getElementById('next_no'); const l = document.getElementById('a_label');
+    const t = document.getElementById('t_type').value; const b = document.getElementById('next_no');
     try {
         const r = await fetch(`tithers.php?action=get_next_number&type=${t}`); const d = await r.json();
-        b.innerText = `Next: ${d.next_number}`; if (l) l.innerText = `Auto (Next: ${d.next_number})`;
+        b.innerText = `Next: ${d.next_number}`;
     } catch(e) { b.innerText = "Next: ..."; }
 }
 function toggleTType(v) {
@@ -214,38 +237,63 @@ function toggleTType(v) {
     else { ag.style.display='block'; ml.style.display='block'; nl.innerText='NAME'; cf.style.display='none'; }
     refreshNextNumber();
 }
+
+function applyAllFilters() {
+    const query = (document.getElementById('titherSearch').value || "").toLowerCase().trim();
+    const status = document.getElementById('filterStatus').value;
+    const age = document.getElementById('filterAge').value;
+    const dateFrom = document.getElementById('filterDateFrom').value;
+    const dateTo = document.getElementById('filterDateTo').value;
+
+    document.querySelectorAll('.tither-row').forEach(row => {
+        const rowSearch = row.getAttribute('data-search') || "";
+        const rowStatus = row.getAttribute('data-status') || "";
+        const rowAge = row.getAttribute('data-age') || "";
+        const rowDate = row.getAttribute('data-date') || "";
+        let show = true;
+        if (query && !rowSearch.includes(query)) show = false;
+        if (status && rowStatus !== status) show = false;
+        if (age && rowAge !== age) show = false;
+        if (dateFrom && rowDate < dateFrom) show = false;
+        if (dateTo && rowDate > dateTo) show = false;
+        row.style.display = show ? '' : 'none';
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const ms = document.getElementById('m_select'); if (ms) { ms.addEventListener('change', function() { const s = this.options[this.selectedIndex]; if (s && s.value !== "") { document.getElementById('f_name').value = s.getAttribute('data-name'); } }); }
     toggleTType(document.getElementById('t_type').value);
 
-    // Filter Logic
-    const searchInput = document.getElementById('titherSearch');
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase().trim();
-            document.querySelectorAll('.tither-row').forEach(row => {
-                const searchData = row.getAttribute('data-search');
-                row.style.display = searchData.includes(query) ? '' : 'none';
-            });
+    // Multi-Filter Event Listeners
+    ['titherSearch', 'filterStatus', 'filterAge', 'filterDateFrom', 'filterDateTo'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.addEventListener('input', applyAllFilters);
+    });
+
+    // Explicitly handle tab visibility for filters
+    const tabEls = document.querySelectorAll('button[data-bs-toggle="pill"]');
+    tabEls.forEach(tabEl => {
+        tabEl.addEventListener('shown.bs.tab', function (event) {
+            const ageWrap = document.getElementById('ageFilterWrap');
+            if (ageWrap) ageWrap.style.visibility = (event.target.id === 'companies-tab') ? 'hidden' : 'visible';
+            applyAllFilters();
         });
-    }
+    });
 });
 </script>
 
 <style>
 .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); }
 .active-card { border-left: 4px solid var(--finance-primary) !important; }
-.search-wrap .form-control { background: #f1f5f9; border: 1px solid #e2e8f0; height: 44px; transition: 0.3s; }
-.search-wrap .form-control:focus { background: #fff; border-color: var(--finance-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); outline: none; }
+.search-wrap .form-control { background: #fff; border: 1px solid #e2e8f0; height: 44px; transition: 0.3s; }
+.search-wrap .form-control:focus { border-color: var(--finance-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); outline: none; }
 .finance-table-scrollable { height: 60vh; max-height: 500px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #cbd5e1 #f8fafc; }
 .finance-table-scrollable::-webkit-scrollbar { width: 6px; }
 .finance-table-scrollable::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-.sticky-top { top: 0; z-index: 10; background: #fff !important; border-bottom: 2px solid #f1f5f9; }
 .btn-icon-action { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; transition: 0.2s; padding: 0; }
 .btn-icon-action:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-color: currentColor; }
 .opacity-50 { opacity: 0.35; filter: grayscale(1); }
-.nav-pills .nav-link { color: #64748b; font-weight: 600; font-size: 0.75rem; border: none; }
-.nav-pills .nav-link.active { background: #fff !important; color: var(--finance-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.nav-pills .nav-link { color: #64748b; font-weight: 600; font-size: 0.75rem; border: none; cursor: pointer; }
+.nav-pills .nav-link.active { background: #fff !important; color: var(--finance-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #edf2f7; }
 </style>
 
-<?php include '../../includes/header.php'; ?>
+<?php include '../../includes/footer.php'; ?>
