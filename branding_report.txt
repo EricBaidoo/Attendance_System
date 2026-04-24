@@ -1,0 +1,5 @@
+LOG START
+KEY: church_name | VAL: Bridge Ministries International | CAT: general
+KEY: church_address | VAL:  | CAT: general
+KEY: church_phone | VAL:  | CAT: general
+KEY: church_email | VAL:  | CAT: general

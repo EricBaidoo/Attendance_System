@@ -91,6 +91,7 @@ $_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapse
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($page_title) ? htmlspecialchars($page_title) : htmlspecialchars(getInstitutionName($pdo)); ?></title>
+    <link rel="icon" type="image/png" href="<?php echo $relative_path . getInstitutionLogo($pdo); ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="<?php echo $relative_path; ?>assets/css/sidebar.css?v=<?php echo @filemtime($relative_path . 'assets/css/sidebar.css'); ?>" rel="stylesheet">
@@ -107,9 +108,10 @@ $_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapse
 
     <a class="sidebar-brand" href="<?php echo $relative_path; ?>index">
         <img class="sidebar-brand-logo"
-             src="<?php echo $relative_path; ?>assets/css/image/bmi logo.png" alt="Logo">
+             src="<?php echo $relative_path . getInstitutionLogo($pdo); ?>" alt="Institution Logo">
         <span class="sidebar-brand-text">
             <span class="sidebar-brand-name"><?php echo htmlspecialchars(getInstitutionName($pdo)); ?></span>
+
             <span class="sidebar-brand-sub">Church System</span>
         </span>
     </a>

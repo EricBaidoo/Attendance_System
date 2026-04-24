@@ -1634,8 +1634,16 @@ PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 -- 2) Update Books to support 'retired' status
 ALTER TABLE tithe_books MODIFY COLUMN status ENUM('available', 'assigned', 'retired', 'lost') DEFAULT 'available';
 
--- 3) System Settings: Tithe Numbering Formats
+-- 3) Finance & Branding Initialization
+ALTER TABLE system_settings MODIFY COLUMN category VARCHAR(50);
+
 INSERT IGNORE INTO system_settings (setting_key, setting_value, category, description) VALUES 
 ('tithe_format_member', 'BMI{SEQ}-{YY}', 'finance', 'Format for individual tithers. {SEQ} is number, {YY} is year'),
-('tithe_format_company', 'CORP{SEQ}-{YY}', 'finance', 'Format for corporate tithers.');
+('tithe_format_company', 'CORP{SEQ}-{YY}', 'finance', 'Format for corporate tithers.'),
+('institution_logo', 'assets/images/logo.png', 'branding', 'Path to the official institution logo.');
+
+UPDATE system_settings SET category = 'branding' WHERE setting_key IN ('church_name', 'church_address', 'church_email', 'church_phone', 'institution_logo', 'institution_name');
+
+
+
 

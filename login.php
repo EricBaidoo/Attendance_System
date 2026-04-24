@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- Left Panel - Branding -->
                 <div class="col-lg-6 d-flex align-items-center justify-content-center bg-primary-section">
                     <div class="text-center text-white p-5 px-4">
-                        <img src="assets/css/image/bmi logo.png" alt="Logo" class="brand-logo mb-4">
+                        <img src="<?php echo getInstitutionLogo($pdo); ?>" alt="Logo" class="brand-logo mb-4">
                         <h1 class="display-5 fw-bold mb-3"><?php echo htmlspecialchars(getInstitutionName($pdo)); ?></h1>
                         <p class="lead mb-0 fs-5">Church Management System</p>
                     </div>
