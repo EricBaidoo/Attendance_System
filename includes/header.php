@@ -7,7 +7,9 @@ $clean_path   = parse_url($request_path, PHP_URL_PATH);
 if (strpos($clean_path, '/pages/') !== false) {
     $levels_up = 2;
     if (strpos($clean_path, '/pages/people_attendance/') !== false) {
-        $levels_up = 3;
+        // If there's another slash after 'people_attendance/', it's a sub-folder (3 levels)
+        $sub_path = substr($clean_path, strpos($clean_path, '/pages/people_attendance/') + 25);
+        $levels_up = (strpos($sub_path, '/') !== false) ? 3 : 2;
     }
 } elseif (strpos($clean_path, '/includes/') !== false) {
     $levels_up = 1;
@@ -59,7 +61,7 @@ $_req  = $clean_path;
 $_self = basename($script_path);
 
 $_isHub        = ($_self === 'index.php' && strpos($_req, '/pages/') === false);
-$_isAttDash    = strpos($_req, 'attendance/dashboard') !== false;
+$_isAttDash    = strpos($_req, '/people_attendance/dashboard') !== false;
 $_isMembers    = strpos($_req, '/members')    !== false;
 $_isVisitors   = strpos($_req, '/visitors')   !== false && strpos($_req, 'new_converts') === false;
 $_isConverts   = strpos($_req, 'new_converts') !== false;
@@ -130,7 +132,7 @@ $_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapse
         <div class="sidebar-section">People &amp; Attendance</div>
         <div class="sidebar-section-divider"></div>
 
-          <a href="<?php echo $relative_path; ?>pages/people_attendance/attendance/dashboard"
+          <a href="<?php echo $relative_path; ?>pages/people_attendance/dashboard"
            title="Attendance Overview"<?php echo _navClass($_isAttDash || $_isAttendance); ?>>
             <i class="bi bi-speedometer2"></i>
             <span class="sidebar-link-label">Overview</span>

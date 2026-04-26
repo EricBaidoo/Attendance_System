@@ -508,15 +508,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $preview_count === 0 && empty($recipients_preview)) {
-    try {
-        $recipients_preview = fetchSmsRecipients($pdo, 'all_active', '', '', '', 20);
-        $preview_count = count($recipients_preview);
-    } catch (Exception $e) {
-        $recipients_preview = [];
-        $preview_count = 0;
-    }
-}
 
 $today_sms = 0;
 $month_sms = 0;
@@ -668,7 +659,7 @@ include '../../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Single Number (for Single Number audience)</label>
-                        <input type="text" class="form-control" name="target_phone" maxlength="30" placeholder="e.g. 0243838490 or +233243838490" value="<?php echo htmlspecialchars($target_phone); ?>">
+                        <input type="text" class="form-control" name="target_phone" maxlength="30" placeholder="e.g. 02XXXXXXXX or +233XXXXXXXXX" value="<?php echo htmlspecialchars($target_phone); ?>">
                         <small class="text-muted">Use this when audience is set to Single Number (Manual).</small>
                     </div>
 

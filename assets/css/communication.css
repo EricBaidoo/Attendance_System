@@ -190,7 +190,8 @@
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
+    max-height: 520px;
     -webkit-overflow-scrolling: touch;
     background: #fff;
 }

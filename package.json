@@ -1,0 +1,25 @@
+{
+  "name": "attendance-system",
+  "version": "1.0.0",
+  "description": "```\r ATTENDANCE SYSTEM/\r ├── 📁 assets/                     # Frontend resources\r │   ├── css/                       # Stylesheets\r │   ├── js/                        # JavaScript files\r │   └── img/                       # Images\r │\r ├── 📁 config/                     # Configuration files\r │   └── database.php               # Database connection\r │\r ├── 📁 database/                   # Database management\r │   ├── 📁 archive/                # Old/deprecated SQL files\r │   ├── hosting_deployment_clean.sql  # Main hosting deployment\r │   ├── hosting_updates.sql       # Track changes for hosting\r │   ├── update_generator.php      # Generate update scripts\r │   ├── UPDATE_WORKFLOW_GUIDE.md  # Database update process\r │   ├── cleanup_unused_tables.sql # Database cleanup script\r │   ├── enhance_visitors.php      # Visitor system enhancements\r │   ├── migrate_new_converts.php  # Convert migration\r │   └── update_database.php       # Database update utilities\r │\r ├── 📁 docs/                       # Documentation\r │   ├── HOSTING_DEPLOYMENT_GUIDE.md  # Hosting setup guide\r │   └── hosting_verification_checklist.md  # Post-deploy checklist\r │\r ├── 📁 exports/                    # Data exports & imports\r │   ├── 📁 mysql_workbench_exports/  # Clean table exports\r │   └── *.csv                     # CSV data files\r │\r ├── 📁 includes/                   # Shared components\r │   ├── header.php                # Common header\r │   └── footer.php                # Common footer\r │\r ├── 📁 pages/                      # Application pages\r │   ├── 📁 admin/                  # Admin functions\r │   ├── 📁 attendance/             # Attendance management\r │   ├── 📁 members/                # Member management\r │   ├── 📁 reports/                # Reports & analytics\r │   ├── 📁 services/               # Service management\r │   └── 📁 visitors/               # Visitor management\r │\r ├── index.php                     # Main dashboard\r ├── login.php                     # Authentication\r ├── logout.php                    # Session termination\r └── README.md                     # This file\r ```",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EricBaidoo/Attendance_System.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EricBaidoo/Attendance_System/issues"
+  },
+  "homepage": "https://github.com/EricBaidoo/Attendance_System#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^3.4.19"
+  }
+}

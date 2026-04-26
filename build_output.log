@@ -1,0 +1,453 @@
+
+Rebuilding...
+CssSyntaxError: tailwindcss: C:\xampp\htdocs\ATTENDANCE SYSTEM\assets\css\global-styles.css:194:9: @apply should not be used with the 'group' utility
+    at Input.error (C:\xampp\htdocs\ATTENDANCE SYSTEM\node_modules\postcss\lib\input.js:135:16)
+    at AtRule.error (C:\xampp\htdocs\ATTENDANCE SYSTEM\node_modules\postcss\lib\node.js:146:32)
+    at processApply (C:\xampp\htdocs\ATTENDANCE SYSTEM\node_modules\tailwindcss\lib\lib\expandApplyAtRules.js:377:29)
+    at C:\xampp\htdocs\ATTENDANCE SYSTEM\node_modules\tailwindcss\lib\lib\expandApplyAtRules.js:551:9
+    at C:\xampp\htdocs\ATTENDANCE SYSTEM\node_modules\tailwindcss\lib\processTailwindFeatures.js:55:50
+    at async Object.Once (C:\xampp\htdocs\ATTENDANCE SYSTEM\node_modules\tailwindcss\lib\cli\build\plugin.js:248:17)
+    at async LazyResult.runAsync (C:\xampp\htdocs\ATTENDANCE SYSTEM\node_modules\postcss\lib\lazy-result.js:293:11)
+    at async build (C:\xampp\htdocs\ATTENDANCE SYSTEM\node_modules\tailwindcss\lib\cli\build\index.js:49:9) {
+  reason: "@apply should not be used with the 'group' utility",
+  file: 'C:\\xampp\\htdocs\\ATTENDANCE SYSTEM\\assets\\css\\global-styles.css',
+  source: '@tailwind base;\n' +
+    '@tailwind components;\n' +
+    '@tailwind utilities;\n' +
+    '\n' +
+    '@layer components {\n' +
+    '    /* =========================================\n' +
+    '       1. BASE & TYPOGRAPHY\n' +
+    '       ========================================= */\n' +
+    '    body {\n' +
+    '        @apply bg-gray-50 text-gray-900 font-sans leading-normal antialiased;\n' +
+    '    }\n' +
+    '\n' +
+    '    /* =========================================\n' +
+    '       2. REUSABLE BOOTSTRAP REPLACEMENTS\n' +
+    '       ========================================= */\n' +
+    '    .row {\n' +
+    '        @apply flex flex-wrap -mx-2;\n' +
+    '    }\n' +
+    '    \n' +
+    '    [class*="col-"] {\n' +
+    '        @apply px-2;\n' +
+    '    }\n' +
+    '\n' +
+    '    .col-md-4 { @apply w-full md:w-1/3; }\n' +
+    '    .col-md-6 { @apply w-full md:w-1/2; }\n' +
+    '    .col-md-8 { @apply w-full md:w-2/3; }\n' +
+    '    .col-12 { @apply w-full; }\n' +
+    '\n' +
+    '    .container-fluid {\n' +
+    '        @apply w-full px-4 mx-auto;\n' +
+    '    }\n' +
+    '\n' +
+    '    .card {\n' +
+    '        @apply bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100;\n' +
+    '    }\n' +
+    '\n' +
+    '    .alert {\n' +
+    '        @apply p-4 rounded-lg mb-4 flex items-center;\n' +
+    '    }\n' +
+    '    .alert-info { @apply bg-blue-50 text-blue-700; }\n' +
+    '    .alert-warning { @apply bg-yellow-50 text-yellow-700; }\n' +
+    '\n' +
+    '    .btn {\n' +
+    '        @apply inline-flex items-center px-4 py-2 rounded-lg font-medium transition-all duration-200;\n' +
+    '    }\n' +
+    '    .btn-primary { @apply bg-blue-600 text-white hover:bg-blue-700 shadow-sm; }\n' +
+    '\n' +
+    '    /* =========================================\n' +
+    '       3. NAVIGATION (HEADER/SIDEBAR)\n' +
+    '       ========================================= */\n' +
+    '    /* Root Variables & Transitions */\n' +
+    '    :root {\n' +
+    '        --sidebar-width: 280px;\n' +
+    '        --sidebar-collapsed-width: 80px;\n' +
+    '        --topbar-height: 70px;\n' +
+    '        --primary-gradient: linear-gradient(135deg, #2563eb, #7c3aed);\n' +
+    '    }\n' +
+    '\n' +
+    '    /* Core Layout */\n' +
+    '    .sidebar-overlay {\n' +
+    '        @apply fixed inset-0 bg-black/50 z-40 hidden lg:hidden;\n' +
+    '    }\n' +
+    '\n' +
+    '    #sidebar {\n' +
+    '        @apply fixed inset-y-0 left-0 w-[var(--sidebar-width)] bg-white border-r border-gray-100 z-50 transition-all duration-300 overflow-y-auto;\n' +
+    '    }\n' +
+    '\n' +
+    '    #sidebar.collapsed {\n' +
+    '        @apply w-[var(--sidebar-collapsed-width)];\n' +
+    '    }\n' +
+    '\n' +
+    '    .main-content {\n' +
+    '        @apply transition-all duration-300 min-h-screen pt-[var(--topbar-height)] lg:pl-[var(--sidebar-width)];\n' +
+    '    }\n' +
+    '\n' +
+    '    .main-content.sidebar-collapsed {\n' +
+    '        @apply lg:pl-[var(--sidebar-collapsed-width)];\n' +
+    '    }\n' +
+    '\n' +
+    '    /* Sidebar Components */\n' +
+    '    .sidebar-brand {\n' +
+    '        @apply flex items-center gap-3 px-6 h-[var(--topbar-height)] border-b border-gray-50;\n' +
+    '    }\n' +
+    '\n' +
+    '    .sidebar-brand-logo {\n' +
+    '        @apply w-10 h-10 rounded-lg object-contain;\n' +
+    '    }\n' +
+    '\n' +
+    '    .sidebar-brand-text {\n' +
+    '        @apply flex flex-col transition-opacity duration-200;\n' +
+    '    }\n' +
+    '\n' +
+    '    #sidebar.collapsed .sidebar-brand-text {\n' +
+    '        @apply opacity-0 pointer-events-none;\n' +
+    '    }\n' +
+    '\n' +
+    '    .sidebar-brand-name {\n' +
+    '        @apply font-bold text-gray-900 truncate;\n' +
+    '    }\n' +
+    '\n' +
+    '    .sidebar-brand-sub {\n' +
+    '        @apply text-[10px] uppercase tracking-wider text-blue-600 font-semibold;\n' +
+    '    }\n' +
+    '\n' +
+    '    .sidebar-nav-wrap {\n' +
+    '        @apply py-6 space-y-1;\n' +
+    '    }\n' +
+    '\n' +
+    '    .sidebar-link {\n' +
+    '        @apply flex items-center gap-4 px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors relative;\n' +
+    '    }\n' +
+    '\n' +
+    '    .sidebar-link i {\n' +
+    '        @apply text-xl w-6 flex justify-center;\n' +
+    '    }\n' +
+    '\n' +
+    '    .sidebar-link.active {\n' +
+    '        @apply bg-blue-50/50 text-blue-600 border-r-4 border-blue-600;\n' +
+    '    }\n' +
+    '\n' +
+    '    .sidebar-link-label {\n' +
+    '        @apply font-medium transition-opacity duration-200;\n' +
+    '    }\n' +
+    '\n' +
+    '    #sidebar.collapsed .sidebar-link-label {\n' +
+    '        @apply opacity-0 pointer-events-none;\n' +
+    '    }\n' +
+    '\n' +
+    '    .sidebar-section {\n' +
+    '        @apply px-6 py-2 mt-4 text-[11px] font-bold text-gray-400 uppercase tracking-widest transition-opacity duration-200;\n' +
+    '    }\n' +
+    '\n' +
+    '    #sidebar.collapsed .sidebar-section {\n' +
+    '        @apply opacity-0;\n' +
+    '    }\n' +
+    '\n' +
+    '    /* Topbar Components */\n' +
+    '    .topbar {\n' +
+    '        @apply fixed top-0 right-0 left-0 h-[var(--topbar-height)] bg-white/80 backdrop-blur-md border-b border-gray-100 z-30 flex items-center justify-between px-6 lg:left-[var(--sidebar-width)] transition-all duration-300;\n' +
+    '    }\n' +
+    '\n' +
+    '    .sidebar-collapsed .topbar {\n' +
+    '        @apply lg:left-[var(--sidebar-collapsed-width)];\n' +
+    '    }\n' +
+    '\n' +
+    '    .topbar-toggle {\n' +
+    '        @apply lg:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg;\n' +
+    '    }\n' +
+    '\n' +
+    '    .text-gradient {\n' +
+    '        @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 font-bold;\n' +
+    '    }\n' +
+    '\n' +
+    '    /* =========================================\n' +
+    '       4. HUB DASHBOARD & KPI CARDS\n' +
+    '       ========================================= */\n' +
+    '    .hub-hero {\n' +
+    '        @apply flex flex-col md:flex-row md:items-center justify-between gap-6 py-8 px-4 bg-white rounded-2xl border border-gray-100 shadow-sm mb-8 mt-4;\n' +
+    '    }\n' +
+    '\n' +
+    '    .hub-title {\n' +
+    '        @apply text-3xl font-extrabold text-gray-900 tracking-tight mb-2;\n' +
+    '    }\n' +
+    '\n' +
+    '    .hub-subtitle {\n' +
+    '        @apply text-gray-500 max-w-xl;\n' +
+    '    }\n' +
+    '\n' +
+    '    .hub-primary-action {\n' +
+    '        @apply flex items-center gap-3 px-6 py-4 bg-black text-white rounded-xl hover:bg-gray-800 transition-transform active:scale-95 shadow-lg;\n' +
+    '    }\n' +
+    '\n' +
+    '    .hub-kpis {\n' +
+    '        @apply grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8;\n' +
+    '    }\n' +
+    '\n' +
+    '    .kpi-card {\n' +
+    '        @apply bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow;\n' +
+    '    }\n' +
+    '\n' +
+    '    .kpi-icon {\n' +
+    '        @apply w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl;\n' +
+    '    }\n' +
+    '\n' +
+    '    .kpi-label {\n' +
+    '        @apply text-xs font-bold text-gray-400 uppercase tracking-wider mb-1;\n' +
+    '    }\n' +
+    '\n' +
+    '    .kpi-value {\n' +
+    '        @apply text-2xl font-bold text-gray-900;\n' +
+    '    }\n' +
+    '\n' +
+    '    .module-card {\n' +
+    '        @apply block p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group;\n' +
+    '    }\n' +
+    '\n' +
+    '    .module-icon-wrap {\n' +
+    '        @apply w-14 h-14 rounded-2xl bg-gray-50 text-gray-600 flex items-center justify-center text-3xl mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors;\n' +
+    '    }\n' +
+    '\n' +
+    '    .module-card-title {\n' +
+    '        @apply text-xl font-bold text-gray-900 mb-2;\n' +
+    '    }\n' +
+    '\n' +
+    '    .module-card-desc {\n' +
+    '        @apply text-gray-500 text-sm mb-6 leading-relaxed;\n' +
+    '    }\n' +
+    '\n' +
+    '    .hub-bottom-link {\n' +
+    '        @apply flex items-center gap-2 text-sm font-bold text-blue-600;\n' +
+    '    }\n' +
+    '}\n',
+  line: 194,
+  column: 9,
+  endLine: 194,
+  endColumn: 138,
+  input: {
+    column: 9,
+    endColumn: 138,
+    endLine: 194,
+    endOffset: 5663,
+    line: 194,
+    offset: 5534,
+    source: '@tailwind base;\n' +
+      '@tailwind components;\n' +
+      '@tailwind utilities;\n' +
+      '\n' +
+      '@layer components {\n' +
+      '    /* =========================================\n' +
+      '       1. BASE & TYPOGRAPHY\n' +
+      '       ========================================= */\n' +
+      '    body {\n' +
+      '        @apply bg-gray-50 text-gray-900 font-sans leading-normal antialiased;\n' +
+      '    }\n' +
+      '\n' +
+      '    /* =========================================\n' +
+      '       2. REUSABLE BOOTSTRAP REPLACEMENTS\n' +
+      '       ========================================= */\n' +
+      '    .row {\n' +
+      '        @apply flex flex-wrap -mx-2;\n' +
+      '    }\n' +
+      '    \n' +
+      '    [class*="col-"] {\n' +
+      '        @apply px-2;\n' +
+      '    }\n' +
+      '\n' +
+      '    .col-md-4 { @apply w-full md:w-1/3; }\n' +
+      '    .col-md-6 { @apply w-full md:w-1/2; }\n' +
+      '    .col-md-8 { @apply w-full md:w-2/3; }\n' +
+      '    .col-12 { @apply w-full; }\n' +
+      '\n' +
+      '    .container-fluid {\n' +
+      '        @apply w-full px-4 mx-auto;\n' +
+      '    }\n' +
+      '\n' +
+      '    .card {\n' +
+      '        @apply bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100;\n' +
+      '    }\n' +
+      '\n' +
+      '    .alert {\n' +
+      '        @apply p-4 rounded-lg mb-4 flex items-center;\n' +
+      '    }\n' +
+      '    .alert-info { @apply bg-blue-50 text-blue-700; }\n' +
+      '    .alert-warning { @apply bg-yellow-50 text-yellow-700; }\n' +
+      '\n' +
+      '    .btn {\n' +
+      '        @apply inline-flex items-center px-4 py-2 rounded-lg font-medium transition-all duration-200;\n' +
+      '    }\n' +
+      '    .btn-primary { @apply bg-blue-600 text-white hover:bg-blue-700 shadow-sm; }\n' +
+      '\n' +
+      '    /* =========================================\n' +
+      '       3. NAVIGATION (HEADER/SIDEBAR)\n' +
+      '       ========================================= */\n' +
+      '    /* Root Variables & Transitions */\n' +
+      '    :root {\n' +
+      '        --sidebar-width: 280px;\n' +
+      '        --sidebar-collapsed-width: 80px;\n' +
+      '        --topbar-height: 70px;\n' +
+      '        --primary-gradient: linear-gradient(135deg, #2563eb, #7c3aed);\n' +
+      '    }\n' +
+      '\n' +
+      '    /* Core Layout */\n' +
+      '    .sidebar-overlay {\n' +
+      '        @apply fixed inset-0 bg-black/50 z-40 hidden lg:hidden;\n' +
+      '    }\n' +
+      '\n' +
+      '    #sidebar {\n' +
+      '        @apply fixed inset-y-0 left-0 w-[var(--sidebar-width)] bg-white border-r border-gray-100 z-50 transition-all duration-300 overflow-y-auto;\n' +
+      '    }\n' +
+      '\n' +
+      '    #sidebar.collapsed {\n' +
+      '        @apply w-[var(--sidebar-collapsed-width)];\n' +
+      '    }\n' +
+      '\n' +
+      '    .main-content {\n' +
+      '        @apply transition-all duration-300 min-h-screen pt-[var(--topbar-height)] lg:pl-[var(--sidebar-width)];\n' +
+      '    }\n' +
+      '\n' +
+      '    .main-content.sidebar-collapsed {\n' +
+      '        @apply lg:pl-[var(--sidebar-collapsed-width)];\n' +
+      '    }\n' +
+      '\n' +
+      '    /* Sidebar Components */\n' +
+      '    .sidebar-brand {\n' +
+      '        @apply flex items-center gap-3 px-6 h-[var(--topbar-height)] border-b border-gray-50;\n' +
+      '    }\n' +
+      '\n' +
+      '    .sidebar-brand-logo {\n' +
+      '        @apply w-10 h-10 rounded-lg object-contain;\n' +
+      '    }\n' +
+      '\n' +
+      '    .sidebar-brand-text {\n' +
+      '        @apply flex flex-col transition-opacity duration-200;\n' +
+      '    }\n' +
+      '\n' +
+      '    #sidebar.collapsed .sidebar-brand-text {\n' +
+      '        @apply opacity-0 pointer-events-none;\n' +
+      '    }\n' +
+      '\n' +
+      '    .sidebar-brand-name {\n' +
+      '        @apply font-bold text-gray-900 truncate;\n' +
+      '    }\n' +
+      '\n' +
+      '    .sidebar-brand-sub {\n' +
+      '        @apply text-[10px] uppercase tracking-wider text-blue-600 font-semibold;\n' +
+      '    }\n' +
+      '\n' +
+      '    .sidebar-nav-wrap {\n' +
+      '        @apply py-6 space-y-1;\n' +
+      '    }\n' +
+      '\n' +
+      '    .sidebar-link {\n' +
+      '        @apply flex items-center gap-4 px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors relative;\n' +
+      '    }\n' +
+      '\n' +
+      '    .sidebar-link i {\n' +
+      '        @apply text-xl w-6 flex justify-center;\n' +
+      '    }\n' +
+      '\n' +
+      '    .sidebar-link.active {\n' +
+      '        @apply bg-blue-50/50 text-blue-600 border-r-4 border-blue-600;\n' +
+      '    }\n' +
+      '\n' +
+      '    .sidebar-link-label {\n' +
+      '        @apply font-medium transition-opacity duration-200;\n' +
+      '    }\n' +
+      '\n' +
+      '    #sidebar.collapsed .sidebar-link-label {\n' +
+      '        @apply opacity-0 pointer-events-none;\n' +
+      '    }\n' +
+      '\n' +
+      '    .sidebar-section {\n' +
+      '        @apply px-6 py-2 mt-4 text-[11px] font-bold text-gray-400 uppercase tracking-widest transition-opacity duration-200;\n' +
+      '    }\n' +
+      '\n' +
+      '    #sidebar.collapsed .sidebar-section {\n' +
+      '        @apply opacity-0;\n' +
+      '    }\n' +
+      '\n' +
+      '    /* Topbar Components */\n' +
+      '    .topbar {\n' +
+      '        @apply fixed top-0 right-0 left-0 h-[var(--topbar-height)] bg-white/80 backdrop-blur-md border-b border-gray-100 z-30 flex items-center justify-between px-6 lg:left-[var(--sidebar-width)] transition-all duration-300;\n' +
+      '    }\n' +
+      '\n' +
+      '    .sidebar-collapsed .topbar {\n' +
+      '        @apply lg:left-[var(--sidebar-collapsed-width)];\n' +
+      '    }\n' +
+      '\n' +
+      '    .topbar-toggle {\n' +
+      '        @apply lg:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg;\n' +
+      '    }\n' +
+      '\n' +
+      '    .text-gradient {\n' +
+      '        @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 font-bold;\n' +
+      '    }\n' +
+      '\n' +
+      '    /* =========================================\n' +
+      '       4. HUB DASHBOARD & KPI CARDS\n' +
+      '       ========================================= */\n' +
+      '    .hub-hero {\n' +
+      '        @apply flex flex-col md:flex-row md:items-center justify-between gap-6 py-8 px-4 bg-white rounded-2xl border border-gray-100 shadow-sm mb-8 mt-4;\n' +
+      '    }\n' +
+      '\n' +
+      '    .hub-title {\n' +
+      '        @apply text-3xl font-extrabold text-gray-900 tracking-tight mb-2;\n' +
+      '    }\n' +
+      '\n' +
+      '    .hub-subtitle {\n' +
+      '        @apply text-gray-500 max-w-xl;\n' +
+      '    }\n' +
+      '\n' +
+      '    .hub-primary-action {\n' +
+      '        @apply flex items-center gap-3 px-6 py-4 bg-black text-white rounded-xl hover:bg-gray-800 transition-transform active:scale-95 shadow-lg;\n' +
+      '    }\n' +
+      '\n' +
+      '    .hub-kpis {\n' +
+      '        @apply grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8;\n' +
+      '    }\n' +
+      '\n' +
+      '    .kpi-card {\n' +
+      '        @apply bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow;\n' +
+      '    }\n' +
+      '\n' +
+      '    .kpi-icon {\n' +
+      '        @apply w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl;\n' +
+      '    }\n' +
+      '\n' +
+      '    .kpi-label {\n' +
+      '        @apply text-xs font-bold text-gray-400 uppercase tracking-wider mb-1;\n' +
+      '    }\n' +
+      '\n' +
+      '    .kpi-value {\n' +
+      '        @apply text-2xl font-bold text-gray-900;\n' +
+      '    }\n' +
+      '\n' +
+      '    .module-card {\n' +
+      '        @apply block p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group;\n' +
+      '    }\n' +
+      '\n' +
+      '    .module-icon-wrap {\n' +
+      '        @apply w-14 h-14 rounded-2xl bg-gray-50 text-gray-600 flex items-center justify-center text-3xl mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors;\n' +
+      '    }\n' +
+      '\n' +
+      '    .module-card-title {\n' +
+      '        @apply text-xl font-bold text-gray-900 mb-2;\n' +
+      '    }\n' +
+      '\n' +
+      '    .module-card-desc {\n' +
+      '        @apply text-gray-500 text-sm mb-6 leading-relaxed;\n' +
+      '    }\n' +
+      '\n' +
+      '    .hub-bottom-link {\n' +
+      '        @apply flex items-center gap-2 text-sm font-bold text-blue-600;\n' +
+      '    }\n' +
+      '}\n',
+    url: 'file:///C:/xampp/htdocs/ATTENDANCE%20SYSTEM/assets/css/global-styles.css',
+    file: 'C:\\xampp\\htdocs\\ATTENDANCE SYSTEM\\assets\\css\\global-styles.css'
+  },
+  plugin: 'tailwindcss'
+}
