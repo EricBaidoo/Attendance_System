@@ -2,6 +2,7 @@
 // pages/people_attendance/services/sessions.php - Manage service sessions (today's services)
 session_start();
 require __DIR__ . '/../../../config/database.php';
+require __DIR__ . '/../../../includes/security.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -29,8 +30,6 @@ if (isset($_GET['success'])) {
 
 // Handle session management
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    error_log("POST data: " . print_r($_POST, true));
-    
     $csrf_token = $_POST['csrf_token'] ?? '';
     if (!validateCSRFToken($csrf_token)) {
         $error = 'Invalid CSRF token. Please try again.';

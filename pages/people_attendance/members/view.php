@@ -151,9 +151,6 @@ $ministerial_label = $ministerial ?: 'Not Set';
                     <a href="list" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left me-1"></i>Back to List
                     </a>
-                    <a href="../../../pages/people_attendance/attendance/view?member_id=<?php echo $member['id']; ?>" class="btn btn-outline-info">
-                        <i class="bi bi-calendar-check me-1"></i>Attendance
-                    </a>
                 </div>
             </div>
         </div>

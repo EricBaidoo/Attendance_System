@@ -1645,5 +1645,17 @@ INSERT IGNORE INTO system_settings (setting_key, setting_value, category, descri
 UPDATE system_settings SET category = 'branding' WHERE setting_key IN ('church_name', 'church_address', 'church_email', 'church_phone', 'institution_logo', 'institution_name');
 
 
+-- =========================================================
+-- ADDITIONS 2026-05-02 - Birthday SMS dedup + visitor follow-up tracking
+-- =========================================================
+
+-- people.last_birthday_sms_year - prevents the birthday SMS cron from sending twice in the same year
+SET @sql = (SELECT IF(COUNT(*)=0, 'ALTER TABLE people ADD COLUMN last_birthday_sms_year INT NULL', 'SELECT "last_birthday_sms_year exists"') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME="people" AND COLUMN_NAME="last_birthday_sms_year");
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- person_lifecycle_events.followup_sent_at - records when the visitor follow-up SMS was actually sent
+SET @sql = (SELECT IF(COUNT(*)=0, 'ALTER TABLE person_lifecycle_events ADD COLUMN followup_sent_at DATETIME NULL', 'SELECT "followup_sent_at exists"') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME="person_lifecycle_events" AND COLUMN_NAME="followup_sent_at");
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
 
 

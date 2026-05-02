@@ -20,7 +20,7 @@ $primary_action_text = 'Open Home Dashboard';
 $primary_action_icon = 'bi-grid-1x2-fill';
 
 if ($can_people_module) {
-    $primary_action_href = 'pages/people_attendance/attendance/dashboard';
+    $primary_action_href = 'pages/people_attendance/dashboard';
     $primary_action_text = 'Open Attendance Dashboard';
     $primary_action_icon = 'bi-speedometer2';
 } elseif ($can_finance_module) {
@@ -111,7 +111,7 @@ include 'includes/header.php';
                 <div class="row g-3 hub-modules-grid">
                     <?php if ($can_people_module): ?>
                     <div class="col-12 col-md-6 col-xl-4">
-                        <a href="pages/people_attendance/attendance/dashboard" class="module-card mod-attendance">
+                        <a href="pages/people_attendance/dashboard" class="module-card mod-attendance">
                             <span class="module-card-badge badge-active">Active</span>
                             <div class="module-icon-wrap"><i class="bi bi-people-fill"></i></div>
                             <div class="module-card-title">People &amp; Attendance</div>

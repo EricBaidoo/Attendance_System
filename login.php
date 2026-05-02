@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 $redirect_to = 'index';
                 if ($normalized_role === 'staff') {
-                    $redirect_to = 'pages/people_attendance/attendance/dashboard';
+                    $redirect_to = 'pages/people_attendance/dashboard';
                 } elseif ($normalized_role === 'accountant') {
                     $redirect_to = 'pages/finance/dashboard';
                 } elseif ($normalized_role === 'communication_team') {

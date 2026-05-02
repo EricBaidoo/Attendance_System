@@ -218,7 +218,7 @@ include '../../includes/header.php';
                     </a>
                 </div>
                 <div class="col-6 col-md-6 col-lg-3">
-                    <a href="attendance/attendance" class="action-tile text-decoration-none">
+                    <a href="attendance/mark" class="action-tile text-decoration-none">
                         <div class="action-tile-card action-tile-attendance p-4 rounded-3 h-100 d-flex align-items-center hover-lift">
                             <div class="action-icon me-3"><i class="bi bi-clipboard-check-fill text-white fs-4"></i></div>
                             <div>

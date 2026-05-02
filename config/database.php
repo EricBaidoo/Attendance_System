@@ -36,4 +36,6 @@ try {
 } catch (\PDOException $e) {
     throw new \PDOException($e->getMessage(), (int)$e->getCode());
 }
+
+require_once __DIR__ . '/../includes/settings_utils.php';
 ?>

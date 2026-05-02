@@ -10,6 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 
 // Database connection
 require '../../../config/database.php';
+require '../../../includes/security.php';
 require '../../../includes/attendance_utils.php';
 
 $service_id = $_GET['service_id'] ?? '';
@@ -54,7 +55,7 @@ if ($service_id) {
     $error = 'No service specified.';
 }
 
-$page_title = "Service History - " . ($service ? $service['name'] : 'Unknown Service');
+$page_title = "Service History" . ($service ? ' - ' . $service['name'] : '') . ' - ' . getInstitutionName($pdo);
 ?>
 <?php include '../../../includes/header.php'; ?>
 
@@ -71,13 +72,13 @@ $page_title = "Service History - " . ($service ? $service['name'] : 'Unknown Ser
                     <?php endif; ?>
                 </div>
                 <a href="list" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Back to Services
+                    <i class="bi bi-arrow-left"></i> Back to Services
                 </a>
             </div>
 
             <?php if ($error): ?>
                 <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle"></i> <?php echo htmlspecialchars($error); ?>
+                    <i class="bi bi-exclamation-triangle"></i> <?php echo htmlspecialchars($error); ?>
                 </div>
             <?php endif; ?>
 
@@ -86,7 +87,7 @@ $page_title = "Service History - " . ($service ? $service['name'] : 'Unknown Ser
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <i class="fas fa-info-circle"></i> Service Information
+                            <i class="bi bi-info-circle"></i> Service Information
                         </h5>
                     </div>
                     <div class="card-body">
@@ -98,7 +99,7 @@ $page_title = "Service History - " . ($service ? $service['name'] : 'Unknown Ser
                             <div class="col-md-4">
                                 <p><strong>Total Sessions:</strong> <?php echo count($sessions); ?></p>
                                 <p><strong>Status:</strong> 
-                                    <span class="badge badge-<?php echo $service['template_status'] === 'active' ? 'success' : 'secondary'; ?>">
+                                    <span class="badge bg-<?php echo $service['template_status'] === 'active' ? 'success' : 'secondary'; ?>">
                                         <?php echo ucfirst($service['template_status']); ?>
                                     </span>
                                 </p>
@@ -111,20 +112,20 @@ $page_title = "Service History - " . ($service ? $service['name'] : 'Unknown Ser
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <i class="fas fa-history"></i> Session History
+                            <i class="bi bi-clock-history"></i> Session History
                         </h5>
                     </div>
                     <div class="card-body">
                         <?php if (empty($sessions)): ?>
                             <div class="text-center py-5">
-                                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                <i class="bi bi-calendar-x display-4 text-muted mb-3"></i>
                                 <h5 class="text-muted">No Sessions Found</h5>
                                 <p class="text-muted">No sessions have been held for this service yet.</p>
                             </div>
                         <?php else: ?>
                             <div class="table-responsive">
                                 <table class="table table-hover">
-                                    <thead class="thead-light">
+                                    <thead class="table-light">
                                         <tr>
                                             <th>Date</th>
                                             <th>Status</th>
@@ -164,7 +165,7 @@ $page_title = "Service History - " . ($service ? $service['name'] : 'Unknown Ser
                                                     </small>
                                                 </td>
                                                 <td>
-                                                    <span class="badge badge-<?php echo $session['status'] === 'open' ? 'success' : 'secondary'; ?>">
+                                                    <span class="badge bg-<?php echo $session['status'] === 'open' ? 'success' : 'secondary'; ?>">
                                                         <?php echo ucfirst($session['status']); ?>
                                                     </span>
                                                 </td>
@@ -194,18 +195,18 @@ $page_title = "Service History - " . ($service ? $service['name'] : 'Unknown Ser
                                                         <a href="../attendance/view?session_id=<?php echo $session['id']; ?>" 
                                                            class="btn btn-outline-primary btn-sm" 
                                                            title="View Detailed Report">
-                                                            <i class="fas fa-chart-bar"></i>
+                                                            <i class="bi bi-bar-chart"></i>
                                                         </a>
                                                         <a href="../attendance/attendees?session_id=<?php echo $session['id']; ?>" 
                                                            class="btn btn-outline-success btn-sm" 
                                                            title="View Attendee List">
-                                                            <i class="fas fa-users"></i>
+                                                            <i class="bi bi-people"></i>
                                                         </a>
                                                         <?php if ($session['status'] === 'open'): ?>
                                                             <a href="../attendance/mark?session_id=<?php echo $session['id']; ?>" 
                                                                class="btn btn-outline-warning btn-sm" 
                                                                title="Mark Attendance">
-                                                                <i class="fas fa-edit"></i>
+                                                                <i class="bi bi-pencil"></i>
                                                             </a>
                                                         <?php endif; ?>
                                                     </div>
