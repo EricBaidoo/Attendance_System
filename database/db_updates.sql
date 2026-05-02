@@ -1658,4 +1658,59 @@ SET @sql = (SELECT IF(COUNT(*)=0, 'ALTER TABLE person_lifecycle_events ADD COLUM
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 
+-- =========================================================
+-- SEED 2026-05-02 - Communication settings, tithe books, tithers
+-- Pushes the local-only data that production was missing.
+-- Uses INSERT ... ON DUPLICATE KEY UPDATE so re-running is safe.
+-- =========================================================
+
+-- 1) System settings (SMS gateway config, SMS templates, ministerial statuses, branding logo, tithe formats)
+INSERT INTO system_settings (setting_key, setting_value, category, description) VALUES
+('institution_logo',              'assets/images/logo_1777001018.png',                                                                                                            'branding',      NULL),
+('ministerial_statuses',          'Levite,Shepherd,Minister,Junior Pastor,Senior Pastor,General Overseer',                                                                        'communication', 'Comma-separated list of recognized ministerial statuses'),
+('sms_api_key',                   '',                                                                                                                                              'communication', 'API Key for the SMS Gateway'),
+('sms_batch_size',                '40',                                                                                                                                            'communication', 'Maximum number of SMS messages to process in a single batch script execution.'),
+('sms_batch_time_limit',          '18',                                                                                                                                            'communication', 'Time limit in seconds for a single SMS batch run to prevent server timeout/lockup.'),
+('sms_currency',                  'GHS',                                                                                                                                           'communication', 'Currency symbol for SMS costs'),
+('sms_provider',                  'bulksmsgh',                                                                                                                                     'communication', 'SMS Gateway Provider (bulksmsgh, twilio, none)'),
+('sms_sender_id',                 'BRIDGE MIN.',                                                                                                                                   'communication', 'Default Sender ID (max 11 chars)'),
+('sms_template_birthday',         'Dear [FIRST_NAME], Bridge Ministries wishes you a happy birthday! May God grant you your heart desires and bless your new age. Enjoy your day!', 'communication', 'SMS template for daily birthday greetings. Use [FIRST_NAME] for personalization.'),
+('sms_template_member_welcome',   'Welcome to the Family, [FIRST_NAME]! You are now officially a Full Member of Bridge Ministries. We are excited to grow together in Christ. Stay blessed!', 'communication', 'SMS template for new member welcomes.'),
+('sms_template_tithe_receipt',    'Dear [FIRST_NAME], thank you for your Tithe of GHS [AMOUNT]. We pray for God''s divine provision and blessings upon your life. Stay blessed.',  'communication', 'SMS template for tithe acknowledgements.'),
+('sms_template_visitor_welcome',  'Dear [FIRST_NAME], we were honored to have you at Bridge Ministries. Thank you for visiting! We hope you felt the love of God. Our team will reach out to you soon.', 'communication', 'SMS template for visitor follow-ups.'),
+('sms_template_welfare_followup', 'Dear [FIRST_NAME], we missed you at Bridge Ministries recently. We hope you are doing well and we are praying for you. Hope to see you soon! Stay blessed.', 'communication', 'SMS template for welfare follow-ups (absentees).'),
+('sms_unit_cost',                 '0.02',                                                                                                                                          'communication', 'Cost per SMS unit in local currency'),
+('tithe_format_company',          'BMI-CORP{SEQ}-{YY}',                                                                                                                            '',              'Format for corporate tithers.'),
+('tithe_format_member',           'BMI-MEM{SEQ}-{YY}',                                                                                                                             '',              'Format for individual tithers. {SEQ} is number, {YY} is year')
+ON DUPLICATE KEY UPDATE
+  setting_value = VALUES(setting_value),
+  category      = VALUES(category),
+  description   = VALUES(description);
+
+-- 2) Tithe books
+INSERT INTO tithe_books (id, book_number, issued_date, status, notes, created_at, updated_at) VALUES
+(8,  'BMI0001-26',      '2026-04-24', 'assigned', NULL, '2026-04-24 02:24:04', '2026-04-24 02:24:04'),
+(9,  'BMI-CORP0001-26', '2026-04-24', 'assigned', NULL, '2026-04-24 02:35:17', '2026-04-24 02:35:17'),
+(10, 'BMI-MEM0001-26',  '2026-04-24', 'assigned', NULL, '2026-04-24 02:35:51', '2026-04-24 02:35:51')
+ON DUPLICATE KEY UPDATE
+  book_number = VALUES(book_number),
+  issued_date = VALUES(issued_date),
+  status      = VALUES(status);
+
+-- 3) Tithers
+-- NOTE: member_id values 1 and 2 reference member_roles.id and were verified to point at the
+-- correct people on local after the 2026-05-02 sync. Verify on online via the Tithers UI after
+-- this script runs and re-link if member IDs differ.
+INSERT INTO tithers (id, member_id, tither_type, age_group, full_name, phone, email, company_tin, tithe_book_id, status, start_date, notes, created_at, updated_at) VALUES
+(7, 1,    'individual', 'adult', 'Lord William',     '0240279748', NULL, NULL, 8,  'active', '2026-04-24', NULL, '2026-04-24 02:24:04', '2026-04-24 02:24:04'),
+(8, NULL, 'company',    NULL,    'E7 TECHNOLOGY',    NULL,         NULL, NULL, 9,  'active', '2026-04-24', NULL, '2026-04-24 02:35:17', '2026-04-24 02:35:17'),
+(9, 2,    'individual', 'adult', 'Frederica Afful',  NULL,         NULL, NULL, 10, 'active', '2026-04-24', NULL, '2026-04-24 02:35:51', '2026-04-24 02:42:02')
+ON DUPLICATE KEY UPDATE
+  full_name     = VALUES(full_name),
+  phone         = VALUES(phone),
+  tither_type   = VALUES(tither_type),
+  age_group     = VALUES(age_group),
+  tithe_book_id = VALUES(tithe_book_id),
+  status        = VALUES(status);
+
 
