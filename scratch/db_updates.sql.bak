@@ -163,9 +163,15 @@ CREATE TABLE IF NOT EXISTS member_departments (
   department_id INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY unique_member_dept (member_id, department_id),
-  FOREIGN KEY (member_id) REFERENCES member_roles(id) ON DELETE CASCADE,
+  FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE,
   FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE CASCADE
 );
+
+-- 3) Backfill existing single department data into member_departments
+INSERT IGNORE INTO member_departments (member_id, department_id)
+SELECT id, department_id
+FROM members
+WHERE department_id IS NOT NULL;
 
 -- 4) Create cell_centers table
 CREATE TABLE IF NOT EXISTS cell_centers (
@@ -240,6 +246,268 @@ CREATE TABLE IF NOT EXISTS person_lifecycle_events (
   CONSTRAINT fk_lifecycle_person FOREIGN KEY (person_id) REFERENCES people(id) ON DELETE CASCADE
 );
 
+-- 6) Seed people from new_converts if not already present
+INSERT INTO people (
+  full_name, email, phone, current_stage, first_seen_at, last_seen_at
+)
+SELECT
+  nc.name,
+  NULLIF(TRIM(nc.email), ''),
+  NULLIF(TRIM(nc.phone), ''),
+  CASE
+    WHEN COALESCE(nc.status, '') = 'converted_to_member' THEN 'member'
+    ELSE 'new_convert'
+  END,
+  COALESCE(nc.date_converted, nc.created_at, NOW()),
+  COALESCE(nc.created_at, NOW())
+FROM new_converts nc
+WHERE COALESCE(TRIM(nc.name), '') <> ''
+  AND NOT EXISTS (
+    SELECT 1
+    FROM people p
+    WHERE (
+      NULLIF(TRIM(nc.email), '') IS NOT NULL
+      AND LOWER(TRIM(p.email)) = LOWER(TRIM(nc.email))
+    )
+    OR (
+      NULLIF(TRIM(nc.phone), '') IS NOT NULL
+      AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(nc.phone), '[^0-9]', '')
+    )
+  );
+
+-- 7) Seed people from visitors if not already present
+INSERT INTO people (
+  full_name, email, phone, current_stage, first_seen_at, last_seen_at
+)
+SELECT
+  v.name,
+  NULLIF(TRIM(v.email), ''),
+  NULLIF(TRIM(v.phone), ''),
+  CASE
+    WHEN COALESCE(v.status, '') IN ('converted_to_member', 'converted') OR COALESCE(v.became_member, 'no') = 'yes' THEN 'member'
+    WHEN COALESCE(v.status, '') = 'converted_to_convert' THEN 'new_convert'
+    ELSE 'visitor'
+  END,
+  COALESCE(v.created_at, v.date, NOW()),
+  COALESCE(v.created_at, v.date, NOW())
+FROM visitors v
+WHERE COALESCE(TRIM(v.name), '') <> ''
+  AND NOT EXISTS (
+    SELECT 1
+    FROM people p
+    WHERE (
+      NULLIF(TRIM(v.email), '') IS NOT NULL
+      AND LOWER(TRIM(p.email)) = LOWER(TRIM(v.email))
+    )
+    OR (
+      NULLIF(TRIM(v.phone), '') IS NOT NULL
+      AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(v.phone), '[^0-9]', '')
+    )
+  );
+
+-- 8) Backfill members.person_id
+UPDATE members m
+SET m.person_id = (
+  SELECT p.id
+  FROM people p
+  WHERE (
+      NULLIF(TRIM(m.email), '') IS NOT NULL
+      AND LOWER(TRIM(p.email)) = LOWER(TRIM(m.email))
+    )
+    OR (
+      NULLIF(TRIM(m.phone), '') IS NOT NULL
+      AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(m.phone), '[^0-9]', '')
+    )
+    OR (
+      COALESCE(TRIM(m.name), '') <> ''
+      AND LOWER(TRIM(p.full_name)) = LOWER(TRIM(m.name))
+    )
+  ORDER BY CASE
+      WHEN NULLIF(TRIM(m.email), '') IS NOT NULL AND LOWER(TRIM(p.email)) = LOWER(TRIM(m.email)) THEN 1
+      WHEN NULLIF(TRIM(m.phone), '') IS NOT NULL AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(m.phone), '[^0-9]', '') THEN 2
+      ELSE 3
+    END,
+    p.id
+  LIMIT 1
+)
+WHERE m.person_id IS NULL;
+
+-- 9) Backfill new_converts.person_id
+UPDATE new_converts nc
+SET nc.person_id = (
+  SELECT p.id
+  FROM people p
+  WHERE (
+      NULLIF(TRIM(nc.email), '') IS NOT NULL
+      AND LOWER(TRIM(p.email)) = LOWER(TRIM(nc.email))
+    )
+    OR (
+      NULLIF(TRIM(nc.phone), '') IS NOT NULL
+      AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(nc.phone), '[^0-9]', '')
+    )
+    OR (
+      COALESCE(TRIM(nc.name), '') <> ''
+      AND LOWER(TRIM(p.full_name)) = LOWER(TRIM(nc.name))
+    )
+  ORDER BY CASE
+      WHEN NULLIF(TRIM(nc.email), '') IS NOT NULL AND LOWER(TRIM(p.email)) = LOWER(TRIM(nc.email)) THEN 1
+      WHEN NULLIF(TRIM(nc.phone), '') IS NOT NULL AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(nc.phone), '[^0-9]', '') THEN 2
+      ELSE 3
+    END,
+    p.id
+  LIMIT 1
+)
+WHERE nc.person_id IS NULL;
+
+-- 10) Backfill visitors.person_id
+UPDATE visitors v
+SET v.person_id = (
+  SELECT p.id
+  FROM people p
+  WHERE (
+      NULLIF(TRIM(v.email), '') IS NOT NULL
+      AND LOWER(TRIM(p.email)) = LOWER(TRIM(v.email))
+    )
+    OR (
+      NULLIF(TRIM(v.phone), '') IS NOT NULL
+      AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(v.phone), '[^0-9]', '')
+    )
+    OR (
+      COALESCE(TRIM(v.name), '') <> ''
+      AND LOWER(TRIM(p.full_name)) = LOWER(TRIM(v.name))
+    )
+  ORDER BY CASE
+      WHEN NULLIF(TRIM(v.email), '') IS NOT NULL AND LOWER(TRIM(p.email)) = LOWER(TRIM(v.email)) THEN 1
+      WHEN NULLIF(TRIM(v.phone), '') IS NOT NULL AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(v.phone), '[^0-9]', '') THEN 2
+      ELSE 3
+    END,
+    p.id
+  LIMIT 1
+)
+WHERE v.person_id IS NULL;
+
+-- 11) Stage upgrade from legacy data (never downgrade stages)
+UPDATE people p
+JOIN members m ON m.person_id = p.id
+SET p.current_stage = 'member'
+WHERE p.current_stage <> 'member';
+
+UPDATE people p
+JOIN new_converts nc ON nc.person_id = p.id
+SET p.current_stage = CASE
+    WHEN p.current_stage = 'member' THEN 'member'
+    WHEN COALESCE(nc.status, '') = 'converted_to_member' THEN 'member'
+    ELSE 'new_convert'
+  END
+WHERE p.current_stage IN ('visitor', 'new_convert', 'member');
+
+UPDATE people p
+JOIN visitors v ON v.person_id = p.id
+SET p.current_stage = CASE
+    WHEN p.current_stage = 'member' THEN 'member'
+    WHEN COALESCE(v.status, '') IN ('converted_to_member', 'converted') OR COALESCE(v.became_member, 'no') = 'yes' THEN 'member'
+    WHEN p.current_stage = 'new_convert' OR COALESCE(v.status, '') = 'converted_to_convert' THEN 'new_convert'
+    ELSE 'visitor'
+  END
+WHERE p.current_stage IN ('visitor', 'new_convert', 'member');
+
+-- 12) Seed lifecycle events (idempotent via source tuple)
+INSERT INTO person_lifecycle_events (person_id, event_type, event_date, source_table, source_id, notes)
+SELECT
+  v.person_id,
+  'visitor_checked_in',
+  COALESCE(v.created_at, v.date, NOW()),
+  'visitors',
+  v.id,
+  'Imported from visitors table'
+FROM visitors v
+WHERE v.person_id IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM person_lifecycle_events e
+    WHERE e.source_table = 'visitors'
+      AND e.source_id = v.id
+      AND e.event_type = 'visitor_checked_in'
+  );
+
+INSERT INTO person_lifecycle_events (person_id, event_type, event_date, source_table, source_id, notes)
+SELECT
+  nc.person_id,
+  'became_new_convert',
+  COALESCE(nc.date_converted, nc.created_at, NOW()),
+  'new_converts',
+  nc.id,
+  'Imported from new_converts table'
+FROM new_converts nc
+WHERE nc.person_id IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM person_lifecycle_events e
+    WHERE e.source_table = 'new_converts'
+      AND e.source_id = nc.id
+      AND e.event_type = 'became_new_convert'
+  );
+
+INSERT INTO person_lifecycle_events (person_id, event_type, event_date, source_table, source_id, notes)
+SELECT
+  m.person_id,
+  'became_member',
+  COALESCE(m.date_joined, m.created_at, NOW()),
+  'members',
+  m.id,
+  'Imported from members table'
+FROM members m
+WHERE m.person_id IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM person_lifecycle_events e
+    WHERE e.source_table = 'members'
+      AND e.source_id = m.id
+      AND e.event_type = 'became_member'
+  );
+
+-- 13) Optional foreign keys for person_id links (only if absent)
+SET @sql = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE visitors ADD CONSTRAINT fk_visitors_person FOREIGN KEY (person_id) REFERENCES people(id) ON DELETE SET NULL',
+    'SELECT "fk_visitors_person already exists"'
+  )
+  FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'visitors'
+    AND CONSTRAINT_NAME = 'fk_visitors_person'
+    AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE new_converts ADD CONSTRAINT fk_new_converts_person FOREIGN KEY (person_id) REFERENCES people(id) ON DELETE SET NULL',
+    'SELECT "fk_new_converts_person already exists"'
+  )
+  FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'new_converts'
+    AND CONSTRAINT_NAME = 'fk_new_converts_person'
+    AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql = (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE members ADD CONSTRAINT fk_members_person FOREIGN KEY (person_id) REFERENCES people(id) ON DELETE SET NULL',
+    'SELECT "fk_members_person already exists"'
+  )
+  FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'members'
+    AND CONSTRAINT_NAME = 'fk_members_person'
+    AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 
 -- =========================================================
@@ -255,6 +523,121 @@ ALTER TABLE people
 
 ALTER TABLE person_lifecycle_events
   CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+
+-- Also normalize new_converts which may have been created with unicode_ci
+-- on some MySQL versions / hosting environments.
+ALTER TABLE new_converts
+  CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+
+-- Re-run all three backfills in case collation mismatch caused them to
+-- produce zero matches above (safe: WHERE person_id IS NULL = no-op if done).
+
+-- Re-backfill members.person_id
+UPDATE members m
+SET m.person_id = (
+  SELECT p.id
+  FROM people p
+  WHERE (
+      NULLIF(TRIM(m.email), '') IS NOT NULL
+      AND LOWER(TRIM(p.email)) = LOWER(TRIM(m.email))
+    )
+    OR (
+      NULLIF(TRIM(m.phone), '') IS NOT NULL
+      AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(m.phone), '[^0-9]', '')
+    )
+    OR (
+      COALESCE(TRIM(m.name), '') <> ''
+      AND LOWER(TRIM(p.full_name)) = LOWER(TRIM(m.name))
+    )
+  ORDER BY CASE
+      WHEN NULLIF(TRIM(m.email), '') IS NOT NULL AND LOWER(TRIM(p.email)) = LOWER(TRIM(m.email)) THEN 1
+      WHEN NULLIF(TRIM(m.phone), '') IS NOT NULL AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(m.phone), '[^0-9]', '') THEN 2
+      ELSE 3
+    END, p.id
+  LIMIT 1
+)
+WHERE m.person_id IS NULL;
+
+-- Re-backfill new_converts.person_id
+UPDATE new_converts nc
+SET nc.person_id = (
+  SELECT p.id
+  FROM people p
+  WHERE (
+      NULLIF(TRIM(nc.email), '') IS NOT NULL
+      AND LOWER(TRIM(p.email)) = LOWER(TRIM(nc.email))
+    )
+    OR (
+      NULLIF(TRIM(nc.phone), '') IS NOT NULL
+      AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(nc.phone), '[^0-9]', '')
+    )
+    OR (
+      COALESCE(TRIM(nc.name), '') <> ''
+      AND LOWER(TRIM(p.full_name)) = LOWER(TRIM(nc.name))
+    )
+  ORDER BY CASE
+      WHEN NULLIF(TRIM(nc.email), '') IS NOT NULL AND LOWER(TRIM(p.email)) = LOWER(TRIM(nc.email)) THEN 1
+      WHEN NULLIF(TRIM(nc.phone), '') IS NOT NULL AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(nc.phone), '[^0-9]', '') THEN 2
+      ELSE 3
+    END, p.id
+  LIMIT 1
+)
+WHERE nc.person_id IS NULL;
+
+-- Re-backfill visitors.person_id
+UPDATE visitors v
+SET v.person_id = (
+  SELECT p.id
+  FROM people p
+  WHERE (
+      NULLIF(TRIM(v.email), '') IS NOT NULL
+      AND LOWER(TRIM(p.email)) = LOWER(TRIM(v.email))
+    )
+    OR (
+      NULLIF(TRIM(v.phone), '') IS NOT NULL
+      AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(v.phone), '[^0-9]', '')
+    )
+    OR (
+      COALESCE(TRIM(v.name), '') <> ''
+      AND LOWER(TRIM(p.full_name)) = LOWER(TRIM(v.name))
+    )
+  ORDER BY CASE
+      WHEN NULLIF(TRIM(v.email), '') IS NOT NULL AND LOWER(TRIM(p.email)) = LOWER(TRIM(v.email)) THEN 1
+      WHEN NULLIF(TRIM(v.phone), '') IS NOT NULL AND REGEXP_REPLACE(TRIM(p.phone), '[^0-9]', '') = REGEXP_REPLACE(TRIM(v.phone), '[^0-9]', '') THEN 2
+      ELSE 3
+    END, p.id
+  LIMIT 1
+)
+WHERE v.person_id IS NULL;
+
+-- Re-seed any missing lifecycle events after collation fix
+INSERT INTO person_lifecycle_events (person_id, event_type, event_date, source_table, source_id, notes)
+SELECT v.person_id, 'visitor_checked_in', COALESCE(v.created_at, v.date, NOW()), 'visitors', v.id, 'Imported from visitors table'
+FROM visitors v
+WHERE v.person_id IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM person_lifecycle_events e
+    WHERE e.source_table = 'visitors' AND e.source_id = v.id AND e.event_type = 'visitor_checked_in'
+  );
+
+INSERT INTO person_lifecycle_events (person_id, event_type, event_date, source_table, source_id, notes)
+SELECT nc.person_id, 'became_new_convert', COALESCE(nc.date_converted, nc.created_at, NOW()), 'new_converts', nc.id, 'Imported from new_converts table'
+FROM new_converts nc
+WHERE nc.person_id IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM person_lifecycle_events e
+    WHERE e.source_table = 'new_converts' AND e.source_id = nc.id AND e.event_type = 'became_new_convert'
+  );
+
+INSERT INTO person_lifecycle_events (person_id, event_type, event_date, source_table, source_id, notes)
+SELECT m.person_id, 'became_member', COALESCE(m.date_joined, m.created_at, NOW()), 'members', m.id, 'Imported from members table'
+FROM members m
+WHERE m.person_id IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM person_lifecycle_events e
+    WHERE e.source_table = 'members' AND e.source_id = m.id AND e.event_type = 'became_member'
+  );
+
 
 -- =========================================================
 -- [2026-03-23] Enforce unique identity keys on people
@@ -353,6 +736,37 @@ SET @sql = (
 );
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
+
+-- =========================================================
+-- [2026-03-15] Visitor status consistency fix
+-- =========================================================
+-- A visitor who has already been converted to a new convert
+-- must not remain in 'pending' status. Fix any such rows by
+-- aligning their status to the highest stage their person_id
+-- has reached.
+
+-- Visitors whose person is linked to a new_convert (but not yet a member)
+-- should be 'converted_to_convert'
+UPDATE visitors v
+SET v.status = 'converted_to_convert'
+WHERE v.status = 'pending'
+  AND v.person_id IS NOT NULL
+  AND EXISTS (
+    SELECT 1 FROM new_converts nc WHERE nc.person_id = v.person_id
+  )
+  AND NOT EXISTS (
+    SELECT 1 FROM members m WHERE m.person_id = v.person_id
+  );
+
+-- Visitors whose person is linked to a member should be 'converted_to_member'
+UPDATE visitors v
+SET v.status = 'converted_to_member',
+    v.became_member = 'yes'
+WHERE v.status IN ('pending', 'converted_to_convert')
+  AND v.person_id IS NOT NULL
+  AND EXISTS (
+    SELECT 1 FROM members m WHERE m.person_id = v.person_id
+  );
 
 
 -- =========================================================
@@ -454,7 +868,7 @@ SET @sql = (
   SELECT IF(
     @has_fk_tithers_member > 0,
     'SELECT "fk_tithers_member already exists"',
-    'ALTER TABLE tithers ADD CONSTRAINT fk_tithers_member FOREIGN KEY (member_id) REFERENCES member_roles(id) ON DELETE SET NULL'
+    'ALTER TABLE tithers ADD CONSTRAINT fk_tithers_member FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE SET NULL'
   )
 );
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
