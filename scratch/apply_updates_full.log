@@ -1,0 +1,259 @@
+--- Bridge Ministries BMI Database Update Tool ---
+Connected to: attendance_system on localhost
+
+Found 311 SQL statements to process.
+Processing...
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[CHECK] 20 / 311 processed...
+[ERROR] Query failed: -- 3) Backfill existing single department data into member_departments
+INSERT IGNORE INTO member_de...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[CHECK] 40 / 311 processed...
+[ERROR] Query failed: -- Note:
+--   Primary/Highest-priority department uses existing members.department_id.
+--   All se...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: SELECT 'new_converts_status_before' AS label, COALESCE(status, '(NULL)') AS status_value, COUNT(*) A...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: -- 1) Standardize legacy visitor status 'converted' -> 'converted_to_member'
+UPDATE visitors
+SET s...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: -- 2) If visitor is marked as became_member, status should be converted_to_member
+UPDATE visitors
+...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: -- 3) Ensure converted_to_member visitors have became_member = 'yes'
+UPDATE visitors
+SET became_me...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: -- 4) Backfill converted_date for member-converted visitors when empty
+UPDATE visitors
+SET convert...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: -- 5) Normalize new_converts status based on member conversion date
+UPDATE new_converts
+SET status...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: UPDATE new_converts
+SET status = 'active'
+WHERE (status IS NULL OR status = '')
+  AND member_conv...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: -- 6) If a new_convert is promoted to member and linked visitor exists,
+--    mirror normalized mem...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: -- Verification after updates
+SELECT 'visitors_status_after' AS label, COALESCE(status, '(NULL)') A...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: SELECT 'new_converts_status_after' AS label, COALESCE(status, '(NULL)') AS status_value, COUNT(*) AS...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[CHECK] 60 / 311 processed...
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[CHECK] 80 / 311 processed...
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[ERROR] Query failed: -- 5) Seed people from members first (highest maturity stage)
+INSERT INTO people (
+  full_name, em...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[ERROR] Query failed: -- 6) Seed people from new_converts if not already present
+INSERT INTO people (
+  full_name, email...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: -- 7) Seed people from visitors if not already present
+INSERT INTO people (
+  full_name, email, ph...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: -- 8) Backfill members.person_id
+UPDATE members m
+SET m.person_id = (
+  SELECT p.id
+  FROM peopl...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[ERROR] Query failed: -- 9) Backfill new_converts.person_id
+UPDATE new_converts nc
+SET nc.person_id = (
+  SELECT p.id
+...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: -- 10) Backfill visitors.person_id
+UPDATE visitors v
+SET v.person_id = (
+  SELECT p.id
+  FROM pe...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: -- 11) Stage upgrade from legacy data (never downgrade stages)
+UPDATE people p
+JOIN members m ON m...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[ERROR] Query failed: UPDATE people p
+JOIN new_converts nc ON nc.person_id = p.id
+SET p.current_stage = CASE
+    WHEN p...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: UPDATE people p
+JOIN visitors v ON v.person_id = p.id
+SET p.current_stage = CASE
+    WHEN p.curre...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: -- 12) Seed lifecycle events (idempotent via source tuple)
+INSERT INTO person_lifecycle_events (per...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: INSERT INTO person_lifecycle_events (person_id, event_type, event_date, source_table, source_id, not...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: INSERT INTO person_lifecycle_events (person_id, event_type, event_date, source_table, source_id, not...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[CHECK] 100 / 311 processed...
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[ERROR] Query failed: -- Also normalize new_converts which may have been created with unicode_ci
+-- on some MySQL version...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: -- Re-run all three backfills in case collation mismatch caused them to
+-- produce zero matches abo...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[ERROR] Query failed: -- Re-backfill new_converts.person_id
+UPDATE new_converts nc
+SET nc.person_id = (
+  SELECT p.id
+...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: -- Re-backfill visitors.person_id
+UPDATE visitors v
+SET v.person_id = (
+  SELECT p.id
+  FROM peo...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: -- Re-seed any missing lifecycle events after collation fix
+INSERT INTO person_lifecycle_events (pe...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: INSERT INTO person_lifecycle_events (person_id, event_type, event_date, source_table, source_id, not...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.new_converts' doesn't exist
+
+[ERROR] Query failed: INSERT INTO person_lifecycle_events (person_id, event_type, event_date, source_table, source_id, not...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.members' doesn't exist
+
+[CHECK] 120 / 311 processed...
+[ERROR] Query failed: -- =========================================================
+-- [2026-03-15] Visitor status consist...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[ERROR] Query failed: -- Visitors whose person is linked to a member should be 'converted_to_member'
+UPDATE visitors v
+S...
+        Message: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'attendance_system.visitors' doesn't exist
+
+[CHECK] 140 / 311 processed...
+[ERROR] Query failed: EXECUTE stmt...
+        Message: SQLSTATE[HY000]: General error: 1824 Failed to open the referenced table 'members'
+
+[CHECK] 160 / 311 processed...
+[CHECK] 180 / 311 processed...
+[CHECK] 200 / 311 processed...
+[ERROR] Query failed: SET @sql = (
+  SELECT IF(
+    @users_role_type IS NULL,
+    'SELECT "users.role column not found"...
+        Message: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')
+  )
+)' at line 11
+
+[CHECK] 220 / 311 processed...
+[CHECK] 240 / 311 processed...
+
+----------------------------------------
+COMPLETED!
+Statements Processed: 253
+Errors encountered: 57 (Note: 'Duplicate column' errors are expected and safe)
+----------------------------------------
